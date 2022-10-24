@@ -145,12 +145,9 @@ public class ConsoleTableEditor {
         clearConsole();
         Utils.writeln(TablePrinter.toConsole(table, focus).orElse("Invalid table"), "");
         Utils.printHelp(commands().get(getMode()));
+        printLog();
         printMode();
         printUserInput();
-        if (!getLogMessage().isEmpty()) {
-            Utils.writeln(getLogMessage(), LOG_COLOR);
-            setLogMessage("");
-        }
     }
 
     private void executeCommand() {
@@ -174,6 +171,13 @@ public class ConsoleTableEditor {
             p.waitFor();
         } catch (Exception e) {
             System.err.println("Unable to clear the console: " + e.getMessage());
+        }
+    }
+
+    private void printLog() {
+        if (!getLogMessage().isEmpty()) {
+            Utils.writeln("Information: " + getLogMessage(), LOG_COLOR);
+            setLogMessage("");
         }
     }
 
