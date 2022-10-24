@@ -1,12 +1,16 @@
 package console.util;
 
 import console.ConsoleColors;
+import console.Const;
+import console.editor.Command;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Utils {
     private static final String HELP_COLOR = ConsoleColors.YELLOW;
@@ -52,11 +56,10 @@ public class Utils {
         return color.isEmpty() ? ConsoleColors.RESET + s + ConsoleColors.RESET : color + s + ConsoleColors.RESET;
     }
 
-    public static void printHelp(List<String> items) {
-        String cmd = "Help: " + String.join("; ", items);
-        String sep = Utils.generateString(cmd.length(), '-');
-        writeln(sep, HELP_COLOR);
-        writeln(cmd, HELP_COLOR);
-        writeln(sep, HELP_COLOR);
+    public static void printHelp(Stream<Command> commands) {
+        String help = commands
+                .map(c -> c.getKey().getName().toUpperCase() + ": " + c.getDescription())
+                .collect(Collectors.joining(Const.COL_SEPARATOR));
+        writeln(help, HELP_COLOR);
     }
 }
