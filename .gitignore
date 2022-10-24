@@ -1,0 +1,13 @@
+target
+launch
+*.iml
+*.log
+*.tar
+*.tar.gz
+.idea
+.settings
+.project
+.classpath
+jar/
+AppDir
+*.AppImage
