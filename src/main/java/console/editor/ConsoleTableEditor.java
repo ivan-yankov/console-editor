@@ -27,10 +27,9 @@ public class ConsoleTableEditor {
         this.table = table;
     }
 
-    public void edit() {
+    public void editTable() {
         if (!focus.isValid() && table.hasData()) {
-            focus.setRow(1);
-            focus.setCol(0);
+            initFocus();
         }
         do {
             render();
@@ -88,6 +87,16 @@ public class ConsoleTableEditor {
 
     protected Command defaultCommand(Key k) {
         return new Command(k, () -> {}, "Do nothing");
+    }
+
+    protected void initFocus() {
+        getFocus().setRow(1);
+        getFocus().setCol(0);
+    }
+
+    protected void invalidateFocus() {
+        getFocus().setRow(-1);
+        getFocus().setCol(-1);
     }
 
     private void onTab() {

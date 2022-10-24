@@ -33,10 +33,10 @@ public class TablePrinter {
             for (int j = 0; j < table.getColCount(); j++) {
                 row.add(printCell(table, i, j, focus));
             }
-            if (i == 1) {
+            result.add(String.join(Const.COL_SEPARATOR, row));
+            if (i == 0) {
                 result.add(headerSeparator);
             }
-            result.add(String.join(Const.COL_SEPARATOR, row));
         }
 
         return Optional.of(String.join(Const.NEW_LINE, result));

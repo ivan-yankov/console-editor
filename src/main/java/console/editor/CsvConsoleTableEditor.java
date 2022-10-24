@@ -22,8 +22,13 @@ public class CsvConsoleTableEditor extends ConsoleTableEditor {
     @Override
     protected Map<Mode, Stream<Command>> commands() {
         Stream<Command> commandModeCommands = Stream.of(
-                new Command(Keys.F2, this::onEdit, "Edit cell"),
-                new Command(Keys.F3, this::onSave, "Save")
+                new Command(Keys.F2, this::editCell, "Edit cell"),
+                new Command(Keys.F3, this::saveTable, "Save"),
+                new Command(Keys.F5, this::moveRowUp, "Move row up"),
+                new Command(Keys.F6, this::moveRowDown, "Move row down"),
+                new Command(Keys.F7, this::insertRow, "Insert row after"),
+                new Command(Keys.F8, this::deleteRow, "Delete row"),
+                new Command(Keys.DELETE, this::deleteCellValue, "Delete cell value")
         );
         Stream<Command> editModeCommands = Stream.of(
                 new Command(Keys.ESC, this::onEsc, "Discard changes"),
@@ -44,8 +49,10 @@ public class CsvConsoleTableEditor extends ConsoleTableEditor {
         return super.defaultCommand(k);
     }
 
-    private void onEdit() {
-        setMode(Mode.EDIT);
+    private void editCell() {
+        if (getFocus().isValid()) {
+            setMode(Mode.EDIT);
+        }
     }
 
     private void onEsc() {
@@ -65,8 +72,45 @@ public class CsvConsoleTableEditor extends ConsoleTableEditor {
         }
     }
 
-    private void onSave() {
+    private void saveTable() {
         Utils.writeFile(file, TablePrinter.toCsv(getTable()) + Const.NEW_LINE);
         setLogMessage("Saved in " + file.toString());
+    }
+
+    private void moveRowUp() {
+        if (getFocus().getRow() > 1) {
+            getTable().swapRows(getFocus().getRow(), getFocus().getRow() - 1);
+            getFocus().setRow(getFocus().getRow() - 1);
+        }
+    }
+
+    private void moveRowDown() {
+        if (getFocus().getRow() < getTable().getRowCount() - 1) {
+            getTable().swapRows(getFocus().getRow(), getFocus().getRow() + 1);
+            getFocus().setRow(getFocus().getRow() + 1);
+        }
+    }
+
+    private void insertRow() {
+        Integer row = !getFocus().isValid() ? 1 : getFocus().getRow() + 1;
+        getTable().insertRowAt(row);
+        if (!getFocus().isValid()) {
+            initFocus();
+        }
+    }
+
+    private void deleteRow() {
+        if (getFocus().isValid()) {
+            getTable().deleteRow(getFocus().getRow());
+        }
+        if (getTable().getRowCount() == 0) {
+            invalidateFocus();
+        }
+    }
+
+    private void deleteCellValue() {
+        if (getFocus().isValid()) {
+            getTable().setCellValue("", getFocus().getRow(), getFocus().getCol());
+        }
     }
 }

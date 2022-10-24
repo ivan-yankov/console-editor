@@ -1,18 +1,15 @@
 package console.editor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Table {
-    private final List<List<String>> data = new ArrayList<>();
+    private final List<List<String>> data;
 
-    public Table(String[][] data) {
-        for (String[] row : data) {
-            this.data.add(Arrays.asList(row));
-        }
+    public Table(List<List<String>> data) {
+        this.data = data;
     }
 
     public List<String> getHeader() {
@@ -49,5 +46,21 @@ public class Table {
 
     public Integer fieldSize(Integer colIndex) {
         return data.stream().map(row -> row.get(colIndex)).map(String::length).max(Comparator.naturalOrder()).orElse(0);
+    }
+
+    public void swapRows(Integer i, Integer j) {
+        for(int c = 0; c < getColCount(); c++) {
+            String tmp = data.get(i).get(c);
+            data.get(i).set(c, data.get(j).get(c));
+            data.get(j).set(c, tmp);
+        }
+    }
+
+    public void insertRowAt(Integer index) {
+        data.add(index, data.get(0).stream().map(x -> "").collect(Collectors.toList()));
+    }
+
+    public void deleteRow(int row) {
+        data.remove(row);
     }
 }
