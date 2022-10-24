@@ -7,7 +7,6 @@ import console.editor.Command;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,6 +59,7 @@ public class Utils {
         String help = commands
                 .map(c -> c.getKey().getName().toUpperCase() + ": " + c.getDescription())
                 .collect(Collectors.joining(Const.COL_SEPARATOR));
+        writeln("", "");
         writeln(help, HELP_COLOR);
     }
 }
