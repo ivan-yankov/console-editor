@@ -1,7 +1,7 @@
 package console.editor;
 
 public enum Mode {
-    COMMAND,
+    SELECT,
     EXIT,
     EDIT
 }

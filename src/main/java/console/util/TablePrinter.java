@@ -13,11 +13,16 @@ import java.util.stream.Collectors;
 public class TablePrinter {
     private static final String FOCUS_COLOR = ConsoleColors.CYAN_B;
 
-    public static String toCsv(Table table) {
-        return table.dataStream().map(row -> String.join(Const.COMMA, row)).collect(Collectors.joining(Const.NEW_LINE));
+    public static <T> String toCsv(Table<T> table) {
+        String header = String.join(Const.COMMA, table.getHeader());
+        String data = table
+                .dataStream()
+                .map(row -> row.stream().map(x -> table.getPrintValue().apply(x)).collect(Collectors.joining(Const.COMMA)))
+                .collect(Collectors.joining(Const.NEW_LINE));
+        return header + Const.NEW_LINE + data;
     }
 
-    public static Optional<String> toConsole(Table table, Focus focus) {
+    public static <T> Optional<String> toConsole(Table<T> table, Focus focus) {
         if (!table.isValid()) return Optional.empty();
 
         List<String> headerSeparatorItems = new ArrayList<>();
@@ -28,27 +33,38 @@ public class TablePrinter {
 
         List<String> result = new ArrayList<>();
         result.add(headerSeparator);
+        List<String> header = new ArrayList<>();
+        for (int i = 0; i < table.getHeader().size(); i++) {
+            String value = printCellValue(
+                    table.getHeader().get(i),
+                    table.fieldSize(i),
+                    false
+            );
+            header.add(value);
+        }
+        result.add(String.join(Const.COL_SEPARATOR, header));
+        result.add(headerSeparator);
+
         for (int i = 0; i < table.getRowCount(); i++) {
             List<String> row = new ArrayList<>();
             for (int j = 0; j < table.getColCount(); j++) {
-                row.add(printCell(table, i, j, focus));
+                String value = printCellValue(
+                        table.getPrintValue().apply(table.getCellValue(i, j)),
+                        table.fieldSize(j),
+                        focus.isValid() && i == focus.getRow() && j == focus.getCol()
+                );
+                row.add(value);
             }
             result.add(String.join(Const.COL_SEPARATOR, row));
-            if (i == 0) {
-                result.add(headerSeparator);
-            }
         }
 
         return Optional.of(String.join(Const.NEW_LINE, result));
     }
 
-    private static String printCell(Table table, Integer row, Integer col, Focus focus) {
-        String cellValue = table.getCellValue(row, col);
-        Integer fs = table.fieldSize(col);
-        String text = Utils.containsLetter(cellValue)
-                ? cellValue + Utils.generateString(fs - cellValue.length(), ' ')
-                : String.format("%" + fs + "s", cellValue);
-        boolean focused = focus.isValid() && row.equals(focus.getRow()) && col.equals(focus.getCol());
+    private static String printCellValue(String value, Integer fieldSize, boolean focused) {
+        String text = Utils.containsLetter(value)
+                ? value + Utils.generateString(fieldSize - value.length(), ' ')
+                : String.format("%" + fieldSize + "s", value);
         return focused ? FOCUS_COLOR + text + ConsoleColors.RESET : text;
     }
 }
