@@ -7,6 +7,8 @@ import console.editor.Command;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,5 +63,18 @@ public class Utils {
                 .collect(Collectors.joining(Const.COL_SEPARATOR));
         writeln("", "");
         writeln(help, HELP_COLOR);
+    }
+
+    public static String printDate(LocalDate date) {
+        return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    }
+
+    public static String printDayFromDate(LocalDate date) {
+        return Integer.toString(date.getDayOfMonth());
+    }
+
+    public static LocalDate firstDayOfCurrentMonth() {
+        LocalDate today = LocalDate.now();
+        return today.minusDays(today.getDayOfMonth() - 1);
     }
 }

@@ -3,6 +3,8 @@ package console.editor;
 import console.Const;
 import console.Key;
 import console.Keys;
+import console.date.DateConsoleSelector;
+import console.util.TableFactory;
 import console.util.TablePrinter;
 import console.util.Utils;
 
@@ -23,6 +25,7 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
     protected Map<Mode, Stream<Command>> additionalCommands() {
         Stream<Command> selectModeCommands = Stream.of(
                 new Command(Keys.F2, this::editCell, "Edit cell"),
+                new Command(Keys.CTRL_F2, this::selectDate, "Select date"),
                 new Command(Keys.F3, this::saveTable, "Save"),
                 new Command(Keys.F4, this::exit, "Exit"),
                 new Command(Keys.F5, this::moveRowUp, "Move row up"),
@@ -57,6 +60,16 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
         }
     }
 
+    private void selectDate() {
+        if (getFocus().isValid()) {
+            DateConsoleSelector dateSelector = TableFactory.createDateConsoleSelector(
+                    Utils.firstDayOfCurrentMonth(),
+                    date -> getTable().setCellValue(Utils.printDate(date), getFocus().getRow(), getFocus().getCol())
+            );
+            dateSelector.show();
+        }
+    }
+
     private void onEsc() {
         setMode(Mode.SELECT);
         setUserInput("");
@@ -80,7 +93,7 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
     }
 
     private void exit() {
-        setMode(Mode.EXIT);
+        setMode(Mode.CLOSE);
     }
 
     private void moveRowUp() {

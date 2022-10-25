@@ -85,4 +85,9 @@ public class Table<T> {
     public void deleteRow(int row) {
         data.remove(row);
     }
+
+    public void updateData(List<List<T>> data) {
+        this.data.clear();
+        this.data.addAll(data);
+    }
 }

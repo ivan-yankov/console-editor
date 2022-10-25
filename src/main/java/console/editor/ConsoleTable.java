@@ -17,7 +17,8 @@ public class ConsoleTable<T> {
     private static final String LOG_COLOR = ConsoleColors.CYAN;
 
     private final Table<T> table;
-    private final Focus focus = new Focus(-1, -1);
+    private final Focus focus;
+    private String title;
 
     private Mode mode = Mode.SELECT;
     private String userInput = "";
@@ -25,16 +26,22 @@ public class ConsoleTable<T> {
 
     public ConsoleTable(Table<T> table) {
         this.table = table;
+        this.focus = new Focus(-1, -1);
+        this.title = "";
     }
 
-    public void editTable() {
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void show() {
         if (!focus.isValid() && table.hasData()) {
             initFocus();
         }
         do {
             render();
-            executeCommand();
-        } while (getMode() != Mode.EXIT);
+            processCommand();
+        } while (getMode() != Mode.CLOSE);
     }
 
     protected Table<T> getTable() {
@@ -159,6 +166,7 @@ public class ConsoleTable<T> {
 
     private void render() {
         clearConsole();
+        printTitle();
         Utils.writeln(TablePrinter.toConsole(table, focus).orElse("Invalid table"), "");
         Utils.printHelp(commands().get(getMode()));
         printLog();
@@ -166,7 +174,7 @@ public class ConsoleTable<T> {
         printUserInput();
     }
 
-    private void executeCommand() {
+    private void processCommand() {
         Key k = ConsoleReader.readKey();
         commands()
                 .get(getMode())
@@ -190,6 +198,12 @@ public class ConsoleTable<T> {
         }
     }
 
+    private void printTitle() {
+        if (!title.isEmpty()) {
+            Utils.writeln(title, "");
+        }
+    }
+
     private void printLog() {
         if (!getLogMessage().isEmpty()) {
             Utils.writeln("Information: " + getLogMessage(), LOG_COLOR);
@@ -199,7 +213,7 @@ public class ConsoleTable<T> {
 
     private void printMode() {
         String m = getMode().toString().substring(0, 1).toUpperCase() + getMode().toString().substring(1).toLowerCase();
-        Utils.write(m + ": ", MODE_COLOR);
+        Utils.write(m.replace("_", " ") + ": ", MODE_COLOR);
     }
 
     private void printUserInput() {
