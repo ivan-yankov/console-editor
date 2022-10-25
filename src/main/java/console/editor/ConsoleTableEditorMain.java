@@ -1,7 +1,5 @@
 package console.editor;
 
-import console.date.DateConsoleSelector;
-import console.util.TableFactory;
 import console.util.TableParser;
 import console.util.Utils;
 
@@ -18,16 +16,9 @@ public class ConsoleTableEditorMain {
 
         Path csvFile = Paths.get(args[0]);
         String csv = Utils.readFile(csvFile).orElse("");
-
-//        Table<String> table = TableParser.fromCsv(csv);
-//        ConsoleTable<String> editor = new ConsoleTableEditor(table, csvFile);
-//        editor.show();
-
-        DateConsoleSelector dateSelector = TableFactory.createDateConsoleSelector(
-                Utils.firstDayOfCurrentMonth(),
-                date -> System.out.println(Utils.printDate(date))
-        );
-        dateSelector.show();
+        Table<String> table = TableParser.fromCsv(csv);
+        ConsoleTable<String> editor = new ConsoleTableEditor(table, csvFile);
+        editor.show();
 
         System.out.println();
         System.exit(0);
