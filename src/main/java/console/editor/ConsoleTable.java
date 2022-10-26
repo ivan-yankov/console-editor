@@ -12,22 +12,31 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class ConsoleTable<T> {
-    private static final String MODE_COLOR = ConsoleColors.GREEN;
+    private static final String MODE_COLOR = ConsoleColors.BOLD + ConsoleColors.GREEN;
     private static final String USER_INPUT_COLOR = ConsoleColors.MAGENTA;
     private static final String LOG_COLOR = ConsoleColors.CYAN;
 
     private final Table<T> table;
     private final Focus focus;
+    private final int consoleLines;
+    private final int consoleColumns;
+
     private String title;
 
     private Mode mode = Mode.SELECT;
     private String userInput = "";
     private String logMessage = "";
 
-    public ConsoleTable(Table<T> table) {
+    public ConsoleTable(Table<T> table, int consoleLines, int consoleColumns) {
         this.table = table;
         this.focus = new Focus(-1, -1);
+        this.consoleLines = consoleLines;
+        this.consoleColumns = consoleColumns;
         this.title = "";
+    }
+
+    public ConsoleTable(Table<T> table) {
+        this(table, 0, 0);
     }
 
     public void setTitle(String title) {
@@ -97,10 +106,10 @@ public class ConsoleTable<T> {
 
     private Map<Mode, Stream<Command>> commands() {
         Stream<Command> base = Stream.of(
-                new Command(Keys.TAB, this::onTab, "Next cell"),
-                new Command(Keys.LEFT, this::onLeft, "Previous column"),
+                new Command(Keys.TAB, this::onTab, "Next"),
+                new Command(Keys.LEFT, this::onLeft, "Prev column"),
                 new Command(Keys.RIGHT, this::onRight, "Next column"),
-                new Command(Keys.UP, this::onUp, "Previous row"),
+                new Command(Keys.UP, this::onUp, "Prev row"),
                 new Command(Keys.DOWN, this::onDown, "Next row"),
                 new Command(Keys.HOME, this::onHome, "First column"),
                 new Command(Keys.END, this::onEnd, "Last column")
@@ -118,8 +127,8 @@ public class ConsoleTable<T> {
     }
 
     private void onTab() {
-        Integer r = focus.getRow();
-        Integer c = focus.getCol();
+        int r = focus.getRow();
+        int c = focus.getCol();
         if (c == table.getColCount() - 1) {
             focus.setCol(0);
             if (r < table.getRowCount() - 1) {
@@ -167,8 +176,8 @@ public class ConsoleTable<T> {
     private void render() {
         clearConsole();
         printTitle();
-        Utils.writeln(TablePrinter.toConsole(table, focus).orElse("Invalid table"), "");
-        Utils.printHelp(commands().get(getMode()));
+        Utils.writeln(TablePrinter.toConsole(table, focus).orElse("Invalid table"));
+        Utils.printHelp(commands().get(getMode()), consoleColumns);
         printLog();
         printMode();
         printUserInput();
@@ -200,7 +209,7 @@ public class ConsoleTable<T> {
 
     private void printTitle() {
         if (!title.isEmpty()) {
-            Utils.writeln(title, "");
+            Utils.writeln(title);
         }
     }
 

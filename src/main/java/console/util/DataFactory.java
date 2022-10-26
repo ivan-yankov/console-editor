@@ -37,18 +37,6 @@ public class DataFactory {
             monthDays.add(Const.INVALID_DATE);
         }
 
-        List<List<LocalDate>> data = new ArrayList<>();
-        int numberOfWeeks = monthDays.size() / numberOfDaysInWeek;
-        for (int i = 0; i < numberOfWeeks; i++) {
-            data.add(
-                    monthDays
-                            .stream()
-                            .skip((long) i * numberOfDaysInWeek)
-                            .limit(numberOfDaysInWeek)
-                            .collect(Collectors.toList())
-            );
-        }
-
-        return data;
+        return Utils.sliding(monthDays, numberOfDaysInWeek);
     }
 }

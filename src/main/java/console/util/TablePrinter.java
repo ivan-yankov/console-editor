@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TablePrinter {
-    private static final String FOCUS_COLOR = ConsoleColors.CYAN_B;
+    private static final String FOCUS_COLOR = ConsoleColors.BLACK + ConsoleColors.DARK_CYAN_B;
 
     public static <T> String toCsv(Table<T> table) {
         String header = String.join(Const.COMMA, table.getHeader());
@@ -61,7 +61,7 @@ public class TablePrinter {
         return Optional.of(String.join(Const.NEW_LINE, result));
     }
 
-    private static String printCellValue(String value, Integer fieldSize, boolean focused) {
+    private static String printCellValue(String value, int fieldSize, boolean focused) {
         String text = Utils.containsLetter(value)
                 ? value + Utils.generateString(fieldSize - value.length(), ' ')
                 : String.format("%" + fieldSize + "s", value);

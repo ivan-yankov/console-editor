@@ -16,23 +16,23 @@ import java.util.stream.Stream;
 public class ConsoleTableEditor extends ConsoleTable<String> {
     private final Path file;
 
-    public ConsoleTableEditor(Table<String> table, Path file) {
-        super(table);
+    public ConsoleTableEditor(Table<String> table, Path file, int numberOfLines, int numberOfColumns) {
+        super(table, numberOfLines, numberOfColumns);
         this.file = file;
     }
 
     @Override
     protected Map<Mode, Stream<Command>> additionalCommands() {
         Stream<Command> selectModeCommands = Stream.of(
-                new Command(Keys.F2, this::editCell, "Edit cell"),
+                new Command(Keys.F2, this::editCell, "Edit"),
                 new Command(Keys.CTRL_F2, this::selectDate, "Select date"),
                 new Command(Keys.F3, this::saveTable, "Save"),
                 new Command(Keys.F4, this::exit, "Exit"),
-                new Command(Keys.F5, this::moveRowUp, "Move row up"),
-                new Command(Keys.F6, this::moveRowDown, "Move row down"),
-                new Command(Keys.F7, this::insertRow, "Insert row after"),
+                new Command(Keys.F5, this::moveRowUp, "Move up"),
+                new Command(Keys.F6, this::moveRowDown, "Move down"),
+                new Command(Keys.F7, this::insertRow, "Insert after"),
                 new Command(Keys.F8, this::deleteRow, "Delete row"),
-                new Command(Keys.DELETE, this::deleteCellValue, "Delete cell value")
+                new Command(Keys.DELETE, this::deleteCellValue, "Delete value")
         );
 
         Stream<Command> editModeCommands = Stream.of(

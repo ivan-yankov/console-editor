@@ -36,19 +36,19 @@ public class Table<T> {
         return data.stream();
     }
 
-    public T getCellValue(Integer row, Integer col) {
+    public T getCellValue(int row, int col) {
         return data.get(row).get(col);
     }
 
-    public void setCellValue(T value, Integer row, Integer col) {
+    public void setCellValue(T value, int row, int col) {
         data.get(row).set(col, value);
     }
 
-    public Integer getRowCount() {
+    public int getRowCount() {
         return data.size();
     }
 
-    public Integer getColCount() {
+    public int getColCount() {
         return header.size();
     }
 
@@ -60,8 +60,8 @@ public class Table<T> {
         return dataStream().allMatch(row -> row.size() == header.size());
     }
 
-    public Integer fieldSize(Integer col) {
-        Integer dataField = data
+    public int fieldSize(int col) {
+        int dataField = data
                 .stream()
                 .map(row -> printValue.apply(row.get(col)))
                 .map(String::length)
@@ -70,7 +70,7 @@ public class Table<T> {
         return Math.max(header.get(col).length(), dataField);
     }
 
-    public void swapRows(Integer i, Integer j) {
+    public void swapRows(int i, int j) {
         for(int c = 0; c < getColCount(); c++) {
             T tmp = data.get(i).get(c);
             data.get(i).set(c, data.get(j).get(c));
@@ -78,7 +78,7 @@ public class Table<T> {
         }
     }
 
-    public void insertRowAt(Integer index) {
+    public void insertRowAt(int index) {
         data.add(index, header.stream().map(x -> emptyValue.get()).collect(Collectors.toList()));
     }
 

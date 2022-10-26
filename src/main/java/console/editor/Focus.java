@@ -1,27 +1,27 @@
 package console.editor;
 
 public class Focus {
-    private Integer row;
-    private Integer col;
+    private int row;
+    private int col;
 
-    public Focus(Integer row, Integer col) {
+    public Focus(int row, int col) {
         this.row = row;
         this.col = col;
     }
 
-    public Integer getRow() {
+    public int getRow() {
         return row;
     }
 
-    public void setRow(Integer row) {
+    public void setRow(int row) {
         this.row = row;
     }
 
-    public Integer getCol() {
+    public int getCol() {
         return col;
     }
 
-    public void setCol(Integer col) {
+    public void setCol(int col) {
         this.col = col;
     }
 

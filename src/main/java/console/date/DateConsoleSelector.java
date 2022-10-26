@@ -30,7 +30,7 @@ public class DateConsoleSelector extends ConsoleTable<LocalDate> {
         Stream<Command> commands = Stream.of(
                 new Command(Keys.ESC, this::onEsc, "Close"),
                 new Command(Keys.ENTER, this::onEnter, "Accept"),
-                new Command(Keys.PAGE_UP, this::previousMonth, "Previous month"),
+                new Command(Keys.PAGE_UP, this::previousMonth, "Prev month"),
                 new Command(Keys.PAGE_DOWN, this::nextMonth, "Next month")
         );
 
