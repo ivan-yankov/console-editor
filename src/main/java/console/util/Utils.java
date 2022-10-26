@@ -69,7 +69,7 @@ public class Utils {
         return color.isEmpty() ? ConsoleColors.RESET + s + ConsoleColors.RESET : color + s + ConsoleColors.RESET;
     }
 
-    public static void printHelp(Stream<Command> commands, int consoleColumns) {
+    public static String printHelp(Stream<Command> commands, int consoleColumns) {
         List<Command> commandList = commands.collect(Collectors.toList());
 
         int fieldSize = commandList
@@ -80,8 +80,9 @@ public class Utils {
 
         int helpLength = fieldSize * 2;
 
-        StringBuilder help = new StringBuilder();
         int currentRowLength = 0;
+        StringBuilder help = new StringBuilder();
+        help.append(Const.NEW_LINE);
         for (Command c : commandList) {
             if (currentRowLength + helpLength > consoleColumns) {
                 help.append(Const.NEW_LINE);
@@ -90,10 +91,9 @@ public class Utils {
             help.append(commandColoredHelp(c, fieldSize));
             currentRowLength += helpLength;
         }
+        help.append(Const.NEW_LINE);
 
-        writeln();
-        writeln(help.toString());
-        writeln();
+        return help.toString();
     }
 
     public static String printDate(LocalDate date) {
@@ -109,10 +109,13 @@ public class Utils {
         return today.minusDays(today.getDayOfMonth() - 1);
     }
 
+    public static <T> long numberOfSlides(List<T> items, long step) {
+        return Math.round(Math.ceil((double) items.size() / (double) step));
+    }
+
     public static <T> List<List<T>> sliding(List<T> items, long step) {
-        long n = Math.round(Math.ceil((double) items.size() / (double) step));
         List<List<T>> result = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < numberOfSlides(items, step); i++) {
             result.add(items.stream().skip(i * step).limit(step).collect(Collectors.toList()));
         }
         return result;

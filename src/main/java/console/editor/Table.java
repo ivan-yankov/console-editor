@@ -32,7 +32,7 @@ public class Table<T> {
         return emptyValue;
     }
 
-    public Stream<List<T>> dataStream() {
+    public Stream<List<T>> getDataStream() {
         return data.stream();
     }
 
@@ -57,7 +57,7 @@ public class Table<T> {
     }
 
     public boolean isValid() {
-        return dataStream().allMatch(row -> row.size() == header.size());
+        return getDataStream().allMatch(row -> row.size() == header.size());
     }
 
     public int fieldSize(int col) {

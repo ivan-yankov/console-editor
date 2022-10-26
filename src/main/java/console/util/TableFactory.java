@@ -33,12 +33,14 @@ public class TableFactory {
         );
     }
 
-    public static DateConsoleSelector createDateConsoleSelector(LocalDate firstDayOfMonth, Consumer<LocalDate> select) {
+    public static DateConsoleSelector createDateConsoleSelector(LocalDate firstDayOfMonth, int consoleLines, int consoleColumns, Consumer<LocalDate> select) {
         return new DateConsoleSelector(
                 createDateTable(
                         DataFactory.createHeaderForDateConsoleSelector(),
                         DataFactory.createDataForDateConsoleSelector(firstDayOfMonth)
                 ),
+                consoleLines,
+                consoleColumns,
                 firstDayOfMonth,
                 select
         );

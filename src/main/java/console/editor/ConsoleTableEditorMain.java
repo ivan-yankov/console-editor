@@ -12,9 +12,9 @@ public class ConsoleTableEditorMain {
         if (args.length < 3) {
             Utils.writeError("Missing required argument. Required 3 provided " + args.length);
             Utils.writeln("Program arguments:");
-            Utils.writeln(Const.TAB + "input-file [required]: CSV file with at least header line");
             Utils.writeln(Const.TAB + "number-of-console-lines [required]: Number of lines of the console");
             Utils.writeln(Const.TAB + "number-of-console-columns [required]: Number of columns of the console");
+            Utils.writeln(Const.TAB + "input-file [required]: CSV file with at least header line");
             return;
         }
 

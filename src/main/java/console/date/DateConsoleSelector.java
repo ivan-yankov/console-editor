@@ -1,6 +1,7 @@
 package console.date;
 
 import console.Const;
+import console.Key;
 import console.Keys;
 import console.editor.*;
 import console.util.DataFactory;
@@ -17,8 +18,8 @@ public class DateConsoleSelector extends ConsoleTable<LocalDate> {
     private final Consumer<LocalDate> select;
     private LocalDate firstDayOfMonth;
 
-    public DateConsoleSelector(Table<LocalDate> table, LocalDate firstDayOfMonth, Consumer<LocalDate> select) {
-        super(table);
+    public DateConsoleSelector(Table<LocalDate> table, int consoleLines, int consoleColumns, LocalDate firstDayOfMonth, Consumer<LocalDate> select) {
+        super(table, consoleLines, consoleColumns);
         this.firstDayOfMonth = firstDayOfMonth;
         this.select = select;
         setTitle(createTitle());
@@ -30,8 +31,8 @@ public class DateConsoleSelector extends ConsoleTable<LocalDate> {
         Stream<Command> commands = Stream.of(
                 new Command(Keys.ESC, this::onEsc, "Close"),
                 new Command(Keys.ENTER, this::onEnter, "Accept"),
-                new Command(Keys.PAGE_UP, this::previousMonth, "Prev month"),
-                new Command(Keys.PAGE_DOWN, this::nextMonth, "Next month")
+                new Command(new Key("-"), this::previousMonth, "Prev month"),
+                new Command(new Key("+"), this::nextMonth, "Next month")
         );
 
         Map<Mode, Stream<Command>> result = new HashMap<>();

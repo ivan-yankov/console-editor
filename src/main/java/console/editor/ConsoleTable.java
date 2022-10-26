@@ -1,14 +1,13 @@
 package console.editor;
 
-import console.ConsoleColors;
-import console.ConsoleReader;
-import console.Key;
-import console.Keys;
+import console.*;
 import console.util.TablePrinter;
 import console.util.Utils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ConsoleTable<T> {
@@ -22,31 +21,36 @@ public class ConsoleTable<T> {
     private final int consoleColumns;
 
     private String title;
-
-    private Mode mode = Mode.SELECT;
-    private String userInput = "";
-    private String logMessage = "";
+    private Mode mode;
+    private String userInput;
+    private String logMessage;
+    private int page;
 
     public ConsoleTable(Table<T> table, int consoleLines, int consoleColumns) {
         this.table = table;
-        this.focus = new Focus(-1, -1);
+        this.focus = new Focus(0, 0);
         this.consoleLines = consoleLines;
         this.consoleColumns = consoleColumns;
         this.title = "";
-    }
-
-    public ConsoleTable(Table<T> table) {
-        this(table, 0, 0);
+        this.mode = Mode.SELECT;
+        this.userInput = "";
+        this.logMessage = "";
+        this.page = 0;
     }
 
     public void setTitle(String title) {
         this.title = title;
     }
 
+    public int getConsoleLines() {
+        return consoleLines;
+    }
+
+    public int getConsoleColumns() {
+        return consoleColumns;
+    }
+
     public void show() {
-        if (!focus.isValid() && table.hasData()) {
-            initFocus();
-        }
         do {
             render();
             processCommand();
@@ -94,7 +98,7 @@ public class ConsoleTable<T> {
         }, "Do nothing");
     }
 
-    protected void initFocus() {
+    protected void resetFocus() {
         getFocus().setRow(0);
         getFocus().setCol(0);
     }
@@ -112,7 +116,9 @@ public class ConsoleTable<T> {
                 new Command(Keys.UP, this::onUp, "Prev row"),
                 new Command(Keys.DOWN, this::onDown, "Next row"),
                 new Command(Keys.HOME, this::onHome, "First column"),
-                new Command(Keys.END, this::onEnd, "Last column")
+                new Command(Keys.END, this::onEnd, "Last column"),
+                new Command(Keys.PAGE_UP, this::prevPage, "Prev page"),
+                new Command(Keys.PAGE_DOWN, this::nextPage, "Next page")
         );
 
         Map<Mode, Stream<Command>> additional = additionalCommands();
@@ -176,8 +182,9 @@ public class ConsoleTable<T> {
     private void render() {
         clearConsole();
         printTitle();
-        Utils.writeln(TablePrinter.toConsole(table, focus).orElse("Invalid table"));
-        Utils.printHelp(commands().get(getMode()), consoleColumns);
+        printHeader();
+        printPage();
+        Utils.writeln(getHelp());
         printLog();
         printMode();
         printUserInput();
@@ -187,7 +194,7 @@ public class ConsoleTable<T> {
         Key k = ConsoleReader.readKey();
         commands()
                 .get(getMode())
-                .filter(x -> x.getKey().equals(k))
+                .filter(x -> x.getKey().getName().equals(k.getName()))
                 .findFirst()
                 .orElse(defaultCommand(k))
                 .getAction()
@@ -213,6 +220,28 @@ public class ConsoleTable<T> {
         }
     }
 
+    private void printHeader() {
+        String header = String.join(Const.NEW_LINE, getHeader());
+        Utils.writeln(header);
+    }
+
+    private void printPage() {
+        List<List<String>> pages = Utils.sliding(TablePrinter.dataToConsole(table, focus), maxTableLinesPerPage());
+        if (pages.isEmpty()) {
+            Utils.writeln("Empty or invalid table");
+        } else {
+            Utils.writeln(String.join(Const.NEW_LINE, pages.get(page)));
+        }
+    }
+
+    private List<String> getHeader() {
+        return TablePrinter.headerToConsole(getTable());
+    }
+
+    private String getHelp() {
+        return Utils.printHelp(commands().get(getMode()), consoleColumns);
+    }
+
     private void printLog() {
         if (!getLogMessage().isEmpty()) {
             Utils.writeln("Information: " + getLogMessage(), LOG_COLOR);
@@ -227,5 +256,34 @@ public class ConsoleTable<T> {
 
     private void printUserInput() {
         Utils.write(getUserInput(), USER_INPUT_COLOR);
+    }
+
+    private void prevPage() {
+        if (page > 0) {
+            page--;
+            focus.setRow(focus.getRow() - maxTableLinesPerPage());
+        }
+    }
+
+    private void nextPage() {
+        if (page < numberOfPages() - 1) {
+            page++;
+            int r = focus.getRow() + maxTableLinesPerPage();
+            if (r >= getTable().getRowCount()) {
+                r = getTable().getRowCount() - 1;
+            }
+            focus.setRow(r);
+        }
+    }
+
+    private long numberOfPages() {
+        return Utils.numberOfSlides(getTable().getDataStream().collect(Collectors.toList()), maxTableLinesPerPage());
+    }
+
+    private int maxTableLinesPerPage() {
+        int helpLines = (int) getHelp().chars().filter(x -> x == '\n').count();
+        int headerLines = getHeader().size();
+        int additionalLines = 2; // for title and mode
+        return consoleLines - helpLines - headerLines - additionalLines;
     }
 }

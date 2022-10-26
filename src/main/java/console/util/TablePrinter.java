@@ -7,7 +7,6 @@ import console.editor.Table;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TablePrinter {
@@ -16,14 +15,14 @@ public class TablePrinter {
     public static <T> String toCsv(Table<T> table) {
         String header = String.join(Const.COMMA, table.getHeader());
         String data = table
-                .dataStream()
+                .getDataStream()
                 .map(row -> row.stream().map(x -> table.getPrintValue().apply(x)).collect(Collectors.joining(Const.COMMA)))
                 .collect(Collectors.joining(Const.NEW_LINE));
         return header + Const.NEW_LINE + data;
     }
 
-    public static <T> Optional<String> toConsole(Table<T> table, Focus focus) {
-        if (!table.isValid()) return Optional.empty();
+    public static <T> List<String> headerToConsole(Table<T> table) {
+        if (!table.isValid()) return new ArrayList<>();
 
         List<String> headerSeparatorItems = new ArrayList<>();
         for (int i = 0; i < table.getHeader().size(); i++) {
@@ -45,6 +44,13 @@ public class TablePrinter {
         result.add(String.join(Const.COL_SEPARATOR, header));
         result.add(headerSeparator);
 
+        return result;
+    }
+
+    public static <T> List<String> dataToConsole(Table<T> table, Focus focus) {
+        if (!table.isValid()) return new ArrayList<>();
+
+        List<String> result = new ArrayList<>();
         for (int i = 0; i < table.getRowCount(); i++) {
             List<String> row = new ArrayList<>();
             for (int j = 0; j < table.getColCount(); j++) {
@@ -58,7 +64,7 @@ public class TablePrinter {
             result.add(String.join(Const.COL_SEPARATOR, row));
         }
 
-        return Optional.of(String.join(Const.NEW_LINE, result));
+        return result;
     }
 
     private static String printCellValue(String value, int fieldSize, boolean focused) {

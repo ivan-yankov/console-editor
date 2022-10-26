@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 public class ConsoleTableEditor extends ConsoleTable<String> {
     private final Path file;
 
-    public ConsoleTableEditor(Table<String> table, Path file, int numberOfLines, int numberOfColumns) {
-        super(table, numberOfLines, numberOfColumns);
+    public ConsoleTableEditor(Table<String> table, Path file, int consoleLines, int consoleColumns) {
+        super(table, consoleLines, consoleColumns);
         this.file = file;
     }
 
@@ -64,6 +64,8 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
         if (getFocus().isValid()) {
             DateConsoleSelector dateSelector = TableFactory.createDateConsoleSelector(
                     Utils.firstDayOfCurrentMonth(),
+                    getConsoleLines(),
+                    getConsoleColumns(),
                     date -> getTable().setCellValue(Utils.printDate(date), getFocus().getRow(), getFocus().getCol())
             );
             dateSelector.show();
@@ -113,7 +115,7 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
     private void insertRow() {
         getTable().insertRowAt(getFocus().getRow() + 1);
         if (!getFocus().isValid()) {
-            initFocus();
+            resetFocus();
         }
     }
 
