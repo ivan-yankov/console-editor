@@ -27,7 +27,7 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
                 new Command(Keys.F2, this::editCell, "Edit"),
                 new Command(Keys.CTRL_F2, this::selectDate, "Select date"),
                 new Command(Keys.F3, this::saveTable, "Save"),
-                new Command(Keys.F4, this::exit, "Exit"),
+                new Command(Keys.F4, this::close, "Close"),
                 new Command(Keys.F5, this::moveRowUp, "Move up"),
                 new Command(Keys.F6, this::moveRowDown, "Move down"),
                 new Command(Keys.F7, this::insertRow, "Insert after"),
@@ -94,7 +94,7 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
         setLogMessage("Saved in " + file.toString());
     }
 
-    private void exit() {
+    private void close() {
         setMode(Mode.CLOSE);
     }
 
