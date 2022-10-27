@@ -4,9 +4,7 @@ import console.*;
 import console.util.TablePrinter;
 import console.util.Utils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -226,10 +224,11 @@ public class ConsoleTable<T> {
     }
 
     private void printPage() {
-        List<List<String>> pages = Utils.sliding(TablePrinter.dataToConsole(table, focus), maxTableLinesPerPage());
-        if (pages.isEmpty()) {
-            Utils.writeln("Empty or invalid table");
-        } else {
+        List<List<String>> pages = Utils.sliding(
+                TablePrinter.dataToConsole(table, focus).orElse(List.of("Invalid table")),
+                maxTableLinesPerPage()
+        );
+        if (!pages.isEmpty()) {
             Utils.writeln(String.join(Const.NEW_LINE, pages.get(page)));
         }
     }

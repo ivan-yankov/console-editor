@@ -7,6 +7,7 @@ import console.editor.Table;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TablePrinter {
@@ -22,7 +23,7 @@ public class TablePrinter {
     }
 
     public static <T> List<String> headerToConsole(Table<T> table) {
-        if (!table.isValid()) return new ArrayList<>();
+        if (!table.isValid()) new ArrayList<>();
 
         List<String> headerSeparatorItems = new ArrayList<>();
         for (int i = 0; i < table.getHeader().size(); i++) {
@@ -47,8 +48,8 @@ public class TablePrinter {
         return result;
     }
 
-    public static <T> List<String> dataToConsole(Table<T> table, Focus focus) {
-        if (!table.isValid()) return new ArrayList<>();
+    public static <T> Optional<List<String>> dataToConsole(Table<T> table, Focus focus) {
+        if (!table.isValid()) return Optional.empty();
 
         List<String> result = new ArrayList<>();
         for (int i = 0; i < table.getRowCount(); i++) {
@@ -64,7 +65,7 @@ public class TablePrinter {
             result.add(String.join(Const.COL_SEPARATOR, row));
         }
 
-        return result;
+        return Optional.of(result);
     }
 
     private static String printCellValue(String value, int fieldSize, boolean focused) {

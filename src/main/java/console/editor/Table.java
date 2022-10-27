@@ -79,7 +79,12 @@ public class Table<T> {
     }
 
     public void insertRowAt(int index) {
-        data.add(index, header.stream().map(x -> emptyValue.get()).collect(Collectors.toList()));
+        List<T> items = header.stream().map(x -> emptyValue.get()).collect(Collectors.toList());
+        if (data.isEmpty()) {
+            data.add(items);
+        } else {
+            data.add(index, items);
+        }
     }
 
     public void deleteRow(int row) {
