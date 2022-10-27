@@ -8,6 +8,9 @@ import console.util.TableFactory;
 import console.util.TablePrinter;
 import console.util.Utils;
 
+import java.awt.*;
+import java.awt.datatransfer.*;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +35,11 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
                 new Command(Keys.F6, this::moveRowDown, "Move down"),
                 new Command(Keys.F7, this::insertRow, "Insert after"),
                 new Command(Keys.F8, this::deleteRow, "Delete row"),
-                new Command(Keys.DELETE, this::deleteCellValue, "Delete value")
+                new Command(Keys.CTRL_DELETE, this::deleteColumn, "Delete column"),
+                new Command(Keys.CTRL_X, this::cut, "Cut"),
+                new Command(Keys.CTRL_C, this::copy, "Copy"),
+                new Command(Keys.CTRL_V, this::paste, "Paste"),
+                new Command(Keys.DELETE, this::deleteCellValue, "Delete")
         );
 
         Stream<Command> editModeCommands = Stream.of(
@@ -132,9 +139,58 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
         }
     }
 
+    private void deleteColumn() {
+        if (getFocus().isValid()) {
+            getTable().deleteCol(getFocus().getCol());
+        }
+        if (getTable().getColCount() == 0) {
+            invalidateFocus();
+        } else {
+            int col = getFocus().getCol() - 1;
+            if (col < 0) col++;
+            getFocus().setRow(col);
+        }
+    }
+
+    private void cut() {
+        setValueToClipboard();
+        deleteCellValue();
+    }
+
+    private void copy() {
+        setValueToClipboard();
+    }
+
+    private void paste() {
+        if (getFocus().isValid()) {
+            Transferable contents = getClipboard().getContents(null);
+            if (contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                try {
+                    String value = (String) contents.getTransferData(DataFlavor.stringFlavor);
+                    deleteCellValue();
+                    getTable().setCellValue(value, getFocus().getRow(), getFocus().getCol());
+                } catch (UnsupportedFlavorException | IOException ex) {
+                    // ignore
+                }
+            }
+        }
+    }
+
     private void deleteCellValue() {
         if (getFocus().isValid()) {
             getTable().setCellValue(getTable().getEmptyValue().get(), getFocus().getRow(), getFocus().getCol());
+        }
+    }
+
+    private Clipboard getClipboard() {
+        return Toolkit.getDefaultToolkit().getSystemClipboard();
+    }
+
+    private void setValueToClipboard() {
+        if (getFocus().isValid()) {
+            String value = getTable().getCellValue(getFocus().getRow(), getFocus().getCol());
+            StringSelection stringSelection = new StringSelection(value);
+            getClipboard().setContents(stringSelection, null);
         }
     }
 }

@@ -1,5 +1,7 @@
 package console.editor;
 
+import console.util.Utils;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -89,6 +91,11 @@ public class Table<T> {
 
     public void deleteRow(int row) {
         data.remove(row);
+    }
+
+    public void deleteCol(int col) {
+        header.remove(col);
+        data.forEach(x -> x.remove(col));
     }
 
     public void updateData(List<List<T>> data) {
