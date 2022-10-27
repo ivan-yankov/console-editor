@@ -148,7 +148,7 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
         } else {
             int col = getFocus().getCol() - 1;
             if (col < 0) col++;
-            getFocus().setRow(col);
+            getFocus().setCol(col);
         }
     }
 
