@@ -1,6 +1,6 @@
 package console.util;
 
-import console.ConsoleColors;
+import console.ConsoleColor;
 import console.Const;
 import console.editor.Focus;
 import console.editor.Table;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TablePrinter {
-    private static final String FOCUS_COLOR = ConsoleColors.BLACK + ConsoleColors.DARK_CYAN_B;
+    private static final String FOCUS_COLOR = ConsoleColor.BLACK + ConsoleColor.DARK_CYAN_B;
 
     public static <T> String toCsv(Table<T> table) {
         String header = String.join(Const.COMMA, table.getHeader());
@@ -72,6 +72,6 @@ public class TablePrinter {
         String text = Utils.containsLetter(value)
                 ? value + Utils.generateString(fieldSize - value.length(), ' ')
                 : String.format("%" + fieldSize + "s", value);
-        return focused ? FOCUS_COLOR + text + ConsoleColors.RESET : text;
+        return focused ? FOCUS_COLOR + text + ConsoleColor.RESET : text;
     }
 }

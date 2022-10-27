@@ -1,6 +1,6 @@
 package console.util;
 
-import console.ConsoleColors;
+import console.ConsoleColor;
 import console.Const;
 import console.editor.Command;
 
@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Utils {
-    private static final String HELP_CMD_COLOR = ConsoleColors.ORANGE;
-    private static final String HELP_DESC_COLOR = ConsoleColors.DARK_GRAY;
+    private static final String HELP_CMD_COLOR = ConsoleColor.ORANGE;
+    private static final String HELP_DESC_COLOR = ConsoleColor.DARK_GRAY;
 
     public static Optional<String> readFile(Path file) {
         try {
@@ -66,7 +66,7 @@ public class Utils {
     }
 
     private static String colorText(String s, String color) {
-        return color.isEmpty() ? ConsoleColors.RESET + s + ConsoleColors.RESET : color + s + ConsoleColors.RESET;
+        return color.isEmpty() ? ConsoleColor.RESET + s + ConsoleColor.RESET : color + s + ConsoleColor.RESET;
     }
 
     public static String printHelp(Stream<Command> commands, int consoleColumns) {
@@ -124,11 +124,11 @@ public class Utils {
     private static String commandColoredHelp(Command command, int fieldSize) {
         return HELP_CMD_COLOR +
                 command.getKey().getName() +
-                ConsoleColors.RESET +
+                ConsoleColor.RESET +
                 Utils.generateString(fieldSize - command.getKey().getName().length(), ' ') +
                 HELP_DESC_COLOR +
                 command.getDescription() +
-                ConsoleColors.RESET +
+                ConsoleColor.RESET +
                 Utils.generateString(fieldSize - command.getDescription().length(), ' ');
     }
 }

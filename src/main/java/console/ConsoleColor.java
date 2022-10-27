@@ -1,6 +1,6 @@
 package console;
 
-public class ConsoleColors {
+public class ConsoleColor {
     public static final String DEFAULT = "\u001b[39m";
     public static final String BLACK = "\u001b[30m";
     public static final String DARK_RED = "\u001b[31m";

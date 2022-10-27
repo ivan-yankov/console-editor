@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ConsoleTable<T> {
-    private static final String MODE_COLOR = ConsoleColors.BOLD + ConsoleColors.GREEN;
-    private static final String USER_INPUT_COLOR = ConsoleColors.MAGENTA;
-    private static final String LOG_COLOR = ConsoleColors.CYAN;
+    private static final String MODE_COLOR = ConsoleColor.BOLD + ConsoleColor.GREEN;
+    private static final String USER_INPUT_COLOR = ConsoleColor.MAGENTA;
+    private static final String LOG_COLOR = ConsoleColor.CYAN;
 
     private final Table<T> table;
     private final Focus focus;
