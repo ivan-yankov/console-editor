@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class ConsoleTableViewer<T> {
     private static final String MODE_COLOR = ConsoleColor.BOLD + ConsoleColor.GREEN;
-    private static final String USER_INPUT_COLOR = ConsoleColor.MAGENTA;
     private static final String HELP_CMD_COLOR = ConsoleColor.ORANGE;
     private static final String HELP_DESC_COLOR = ConsoleColor.DARK_GRAY;
 
@@ -24,7 +23,6 @@ public class ConsoleTableViewer<T> {
 
     private String title;
     private Mode mode;
-    private String userInput;
     private String logMessage;
     private int page;
 
@@ -35,7 +33,6 @@ public class ConsoleTableViewer<T> {
         this.consoleColumns = consoleColumns;
         this.title = "";
         this.mode = Mode.SELECT;
-        this.userInput = "";
         this.logMessage = "";
         this.page = 0;
     }
@@ -63,8 +60,15 @@ public class ConsoleTableViewer<T> {
     public void show() {
         do {
             render();
-            processCommand();
+            if (getMode() == Mode.EDIT) {
+                readUserInput();
+            } else {
+                processCommand();
+            }
         } while (getMode() != Mode.CLOSE);
+    }
+
+    protected void readUserInput() {
     }
 
     protected Table<T> getTable() {
@@ -81,18 +85,6 @@ public class ConsoleTableViewer<T> {
 
     protected void setMode(Mode mode) {
         this.mode = mode;
-    }
-
-    protected String getUserInput() {
-        return userInput;
-    }
-
-    protected void setUserInput(String userInput) {
-        this.userInput = userInput;
-    }
-
-    protected Command defaultCommand(Key k) {
-        return Utils.doNothing();
     }
 
     protected void resetFocus() {
@@ -199,7 +191,6 @@ public class ConsoleTableViewer<T> {
         Utils.writeln(String.join(Const.NEW_LINE, getFooter()));
         setLogMessage("");
         Utils.write(getModeString());
-        Utils.write(Utils.colorText(getUserInput(), USER_INPUT_COLOR));
     }
 
     private void processCommand() {
@@ -209,7 +200,7 @@ public class ConsoleTableViewer<T> {
                 .filter(x -> x.getKey().getMode().equals(getMode()) && x.getKey().getKey().getName().equals(k.getName()))
                 .map(Pair::getValue)
                 .findFirst()
-                .orElse(defaultCommand(k))
+                .orElse(Utils.doNothing())
                 .getAction()
                 .execute();
     }

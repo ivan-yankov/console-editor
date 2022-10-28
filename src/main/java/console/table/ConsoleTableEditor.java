@@ -1,9 +1,6 @@
 package console.table;
 
-import console.ConsoleColor;
-import console.Const;
-import console.Key;
-import console.Keys;
+import console.*;
 import console.date.ConsoleDateSelector;
 import console.model.Command;
 import console.model.Pair;
@@ -44,19 +41,21 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
         c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_V), new Command(this::paste, "Paste")));
         c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.DELETE), new Command(this::deleteCellValue, "Delete")));
 
-        c.add(new Pair<>(new CommandKey(Mode.EDIT, Keys.ESC), new Command(this::onEsc, "Discard changes")));
-        c.add(new Pair<>(new CommandKey(Mode.EDIT, Keys.ENTER), new Command(this::onEnter, "Accept new value")));
-        c.add(new Pair<>(new CommandKey(Mode.EDIT, Keys.BACK_SPACE), new Command(this::onBackspace, "Delete prev")));
-
         return c;
     }
 
     @Override
-    protected Command defaultCommand(Key k) {
-        if (getMode() == Mode.EDIT) {
-            return new Command(() -> onUserKeyPress(k), "Type user input");
+    protected void readUserInput() {
+        try {
+            RawConsoleInput.resetConsoleMode();
+            String userInput = System.console().readLine();
+            if (!userInput.isEmpty()) {
+                getTable().setCellValue(userInput, getFocus().getRow(), getFocus().getCol());
+            }
+            setMode(Mode.SELECT);
+        } catch (IOException e) {
+            // ignored
         }
-        return super.defaultCommand(k);
     }
 
     private void editCell() {
@@ -74,31 +73,6 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                     date -> getTable().setCellValue(Utils.printDate(date), getFocus().getRow(), getFocus().getCol())
             );
             dateSelector.show();
-        }
-    }
-
-    private void onEsc() {
-        setMode(Mode.SELECT);
-        setUserInput("");
-    }
-
-    private void onEnter() {
-        getTable().setCellValue(getUserInput(), getFocus().getRow(), getFocus().getCol());
-        setMode(Mode.SELECT);
-        setUserInput("");
-    }
-
-    private void onBackspace() {
-        if (getUserInput().length() <= 1) {
-            setUserInput("");
-        } else {
-            setUserInput(getUserInput().substring(0, getUserInput().length() - 1));
-        }
-    }
-
-    private void onUserKeyPress(Key k) {
-        if (!Keys.asList().contains(k)) {
-            setUserInput(getUserInput() + k.getName());
         }
     }
 
