@@ -1,7 +1,7 @@
 package console.table;
 
 import console.Const;
-import console.util.TableParser;
+import console.util.ConsoleTableFactory;
 import console.util.Utils;
 
 import java.nio.file.Path;
@@ -22,10 +22,7 @@ public class ConsoleTableEditorMain {
         int columns = Integer.parseInt(args[1]);
         Path csvFile = Paths.get(args[2]);
 
-        String csv = Utils.readFile(csvFile).orElse("");
-        Table<String> table = TableParser.fromCsv(csv);
-        ConsoleTableViewer<String> editor = new ConsoleTableEditor(table, csvFile, lines, columns);
-        editor.show();
+        ConsoleTableFactory.createConsoleTableEditor(csvFile, lines, columns, csvFile.toString()).show();
 
         Utils.writeln();
         System.exit(0);
