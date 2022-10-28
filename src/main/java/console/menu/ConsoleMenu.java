@@ -1,11 +1,10 @@
 package console.menu;
 
+import console.Key;
 import console.Keys;
 import console.model.Command;
 import console.model.Pair;
-import console.table.CommandKey;
 import console.table.ConsoleTableViewer;
-import console.table.Mode;
 import console.table.Table;
 
 import java.util.ArrayList;
@@ -17,9 +16,9 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     }
 
     @Override
-    protected List<Pair<CommandKey, Command>> addCommands() {
-        List<Pair<CommandKey, Command>> c = new ArrayList<>();
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.ENTER), new Command(this::onEnter, "Execute")));
+    protected List<Pair<Key, Command>> addCommands() {
+        List<Pair<Key, Command>> c = new ArrayList<>();
+        c.add(new Pair<>(Keys.ENTER, new Command(this::onEnter, "Execute")));
         return c;
     }
 

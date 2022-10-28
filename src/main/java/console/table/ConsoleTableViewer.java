@@ -97,22 +97,22 @@ public class ConsoleTableViewer<T> {
         getFocus().setCol(-1);
     }
 
-    protected List<Pair<CommandKey, Command>> addCommands() {
+    protected List<Pair<Key, Command>> addCommands() {
         return new ArrayList<>();
     }
 
-    private List<Pair<CommandKey, Command>> commands() {
-        List<Pair<CommandKey, Command>> c = new ArrayList<>();
+    private List<Pair<Key, Command>> commands() {
+        List<Pair<Key, Command>> c = new ArrayList<>();
 
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.TAB), new Command(this::onTab, "Next")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.LEFT), new Command(this::onLeft, "Prev column")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.RIGHT), new Command(this::onRight, "Next column")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.UP), new Command(this::onUp, "Prev row")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.DOWN), new Command(this::onDown, "Next row")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.HOME), new Command(this::onHome, "Firs column")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.END), new Command(this::onEnd, "Last column")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.PAGE_UP), new Command(this::prevPage, "Prev page")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.PAGE_DOWN), new Command(this::nextPage, "Nex page")));
+        c.add(new Pair<>(Keys.TAB, new Command(this::onTab, "Next")));
+        c.add(new Pair<>(Keys.LEFT, new Command(this::onLeft, "Prev column")));
+        c.add(new Pair<>(Keys.RIGHT, new Command(this::onRight, "Next column")));
+        c.add(new Pair<>(Keys.UP, new Command(this::onUp, "Prev row")));
+        c.add(new Pair<>(Keys.DOWN, new Command(this::onDown, "Next row")));
+        c.add(new Pair<>(Keys.HOME, new Command(this::onHome, "Firs column")));
+        c.add(new Pair<>(Keys.END, new Command(this::onEnd, "Last column")));
+        c.add(new Pair<>(Keys.PAGE_UP, new Command(this::prevPage, "Prev page")));
+        c.add(new Pair<>(Keys.PAGE_DOWN, new Command(this::nextPage, "Nex page")));
 
         c.addAll(addCommands());
 
@@ -197,7 +197,7 @@ public class ConsoleTableViewer<T> {
         Key k = ConsoleReader.readKey();
         commands()
                 .stream()
-                .filter(x -> x.getKey().getMode().equals(getMode()) && x.getKey().getKey().getName().equals(k.getName()))
+                .filter(x -> x.getKey().getName().equals(k.getName()))
                 .map(Pair::getValue)
                 .findFirst()
                 .orElse(Utils.doNothing())
@@ -226,7 +226,13 @@ public class ConsoleTableViewer<T> {
     }
 
     private List<String> getFooter() {
-        List<String> footer = new ArrayList<>(getHelp());
+        List<String> footer = new ArrayList<>();
+        if (getMode() == Mode.EDIT) {
+            footer.add("");
+            footer.add(Utils.colorText("Enter empty input to escape edit", ConsoleColor.DARK_GRAY));
+        } else {
+            footer.addAll(getCommandsHelp());
+        }
         footer.add(getLogMessage());
         return footer;
     }
@@ -248,24 +254,19 @@ public class ConsoleTableViewer<T> {
         }
     }
 
-    public List<String> getHelp() {
+    public List<String> getCommandsHelp() {
         int fieldSize = commands()
                 .stream()
-                .map(x -> Math.max(x.getKey().getKey().getName().length(), x.getValue().getLabel().length()))
+                .map(x -> Math.max(x.getKey().getName().length(), x.getValue().getLabel().length()))
                 .max(Comparator.naturalOrder())
                 .orElse(15) + 1;
 
         int helpLength = fieldSize * 2;
 
-        List<Pair<CommandKey, Command>> entries = commands()
-                .stream()
-                .filter(x -> x.getKey().getMode().equals(getMode()))
-                .collect(Collectors.toList());
-
         StringBuilder help = new StringBuilder();
         int currentRowLength = 0;
         help.append(Const.NEW_LINE);
-        for (Pair<CommandKey, Command> entry : entries) {
+        for (Pair<Key, Command> entry : commands()) {
             if (currentRowLength + helpLength > consoleColumns) {
                 help.append(Const.NEW_LINE);
                 currentRowLength = 0;
@@ -276,11 +277,11 @@ public class ConsoleTableViewer<T> {
         return List.of(help.toString().split(Const.NEW_LINE));
     }
 
-    private String commandColoredHelp(CommandKey commandKey, Command command, int fieldSize) {
+    private String commandColoredHelp(Key key, Command command, int fieldSize) {
         return HELP_CMD_COLOR +
-                commandKey.getKey().getName() +
+                key.getName() +
                 ConsoleColor.RESET +
-                Utils.generateString(fieldSize - commandKey.getKey().getName().length(), ' ') +
+                Utils.generateString(fieldSize - key.getName().length(), ' ') +
                 HELP_DESC_COLOR +
                 command.getLabel() +
                 ConsoleColor.RESET +

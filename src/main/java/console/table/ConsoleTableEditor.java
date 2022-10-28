@@ -24,22 +24,22 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     @Override
-    protected List<Pair<CommandKey, Command>> addCommands() {
-        List<Pair<CommandKey, Command>> c = new ArrayList<>();
+    protected List<Pair<Key, Command>> addCommands() {
+        List<Pair<Key, Command>> c = new ArrayList<>();
 
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F2), new Command(this::editCell, "Edit")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_F2), new Command(this::selectDate, "Select date")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F3), new Command(this::saveTable, "Save")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F4), new Command(this::close, "Close")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F5), new Command(this::moveRowUp, "Move up")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F6), new Command(this::moveRowDown, "Move down")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F7), new Command(this::insertRow, "Insert after")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F8), new Command(this::deleteRow, "Delete row")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_DELETE), new Command(this::deleteColumn, "Delete column")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_X), new Command(this::cut, "Cut")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_C), new Command(this::copy, "Copy")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_V), new Command(this::paste, "Paste")));
-        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.DELETE), new Command(this::deleteCellValue, "Delete")));
+        c.add(new Pair<>(Keys.F2, new Command(this::editCell, "Edit")));
+        c.add(new Pair<>(Keys.CTRL_F2, new Command(this::selectDate, "Select date")));
+        c.add(new Pair<>(Keys.F3, new Command(this::saveTable, "Save")));
+        c.add(new Pair<>(Keys.F4, new Command(this::close, "Close")));
+        c.add(new Pair<>(Keys.F5, new Command(this::moveRowUp, "Move up")));
+        c.add(new Pair<>(Keys.F6, new Command(this::moveRowDown, "Move down")));
+        c.add(new Pair<>(Keys.F7, new Command(this::insertRow, "Insert after")));
+        c.add(new Pair<>(Keys.F8, new Command(this::deleteRow, "Delete row")));
+        c.add(new Pair<>(Keys.CTRL_DELETE, new Command(this::deleteColumn, "Delete column")));
+        c.add(new Pair<>(Keys.CTRL_X, new Command(this::cut, "Cut")));
+        c.add(new Pair<>(Keys.CTRL_C, new Command(this::copy, "Copy")));
+        c.add(new Pair<>(Keys.CTRL_V, new Command(this::paste, "Paste")));
+        c.add(new Pair<>(Keys.DELETE, new Command(this::deleteCellValue, "Delete")));
 
         return c;
     }
