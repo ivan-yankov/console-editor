@@ -1,13 +1,11 @@
 package console.util;
 
 import console.Const;
-import console.date.DateConsoleSelector;
 import console.table.Table;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class TableFactory {
     public static Table<String> createStringTable(List<String> header, List<List<String>> data, boolean quotesWrapped) {
@@ -31,19 +29,6 @@ public class TableFactory {
                 },
                 () -> Const.INVALID_DATE,
                 false
-        );
-    }
-
-    public static DateConsoleSelector createDateConsoleSelector(LocalDate firstDayOfMonth, int consoleLines, int consoleColumns, Consumer<LocalDate> select) {
-        return new DateConsoleSelector(
-                createDateTable(
-                        DataFactory.createHeaderForDateConsoleSelector(),
-                        DataFactory.createDataForDateConsoleSelector(firstDayOfMonth)
-                ),
-                consoleLines,
-                consoleColumns,
-                firstDayOfMonth,
-                select
         );
     }
 }

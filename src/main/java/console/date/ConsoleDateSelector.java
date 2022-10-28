@@ -3,7 +3,9 @@ package console.date;
 import console.Const;
 import console.Key;
 import console.Keys;
-import console.table.Command;
+import console.model.Pair;
+import console.model.Command;
+import console.table.CommandKey;
 import console.table.ConsoleTableViewer;
 import console.table.Mode;
 import console.table.Table;
@@ -11,15 +13,14 @@ import console.util.DataFactory;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class DateConsoleSelector extends ConsoleTableViewer<LocalDate> {
+public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     private final Consumer<LocalDate> select;
     private LocalDate firstDayOfMonth;
 
-    public DateConsoleSelector(Table<LocalDate> table, int consoleLines, int consoleColumns, LocalDate firstDayOfMonth, Consumer<LocalDate> select) {
+    public ConsoleDateSelector(Table<LocalDate> table, int consoleLines, int consoleColumns, LocalDate firstDayOfMonth, Consumer<LocalDate> select) {
         super(table, consoleLines, consoleColumns);
         this.firstDayOfMonth = firstDayOfMonth;
         this.select = select;
@@ -28,13 +29,15 @@ public class DateConsoleSelector extends ConsoleTableViewer<LocalDate> {
     }
 
     @Override
-    protected List<Command> addCommands() {
-        return List.of(
-                new Command(Mode.SELECT, Keys.ESC, this::onEsc, "Close"),
-                new Command(Mode.SELECT, Keys.ENTER, this::onEnter, "Accept"),
-                new Command(Mode.SELECT, new Key("-"), this::previousMonth, "Prev month"),
-                new Command(Mode.SELECT, new Key("+"), this::nextMonth, "Next month")
-        );
+    protected List<Pair<CommandKey, Command>> addCommands() {
+        List<Pair<CommandKey, Command>> c = new ArrayList<>();
+
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.ESC), new Command(this::onEsc, "Close")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.ENTER), new Command(this::onEnter, "Accept")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, new Key("-")), new Command(this::previousMonth, "Prev month")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, new Key("+")), new Command(this::nextMonth, "Next month")));
+
+        return c;
     }
 
     private void onEsc() {

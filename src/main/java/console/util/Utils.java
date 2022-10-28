@@ -1,6 +1,7 @@
 package console.util;
 
 import console.ConsoleColor;
+import console.model.Command;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +9,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -79,6 +81,19 @@ public class Utils {
         List<List<T>> result = new ArrayList<>();
         for (int i = 0; i < numberOfSlides(items, step); i++) {
             result.add(items.stream().skip(i * step).limit(step).collect(Collectors.toList()));
+        }
+        return result;
+    }
+
+    public static Command doNothing() {
+        return new Command(() -> {
+        }, "");
+    }
+
+    public static <T> List<List<T>> asList(T[][] array) {
+        List<List<T>> result = new ArrayList<>();
+        for (T[] t : array) {
+            result.add(Arrays.asList(t));
         }
         return result;
     }

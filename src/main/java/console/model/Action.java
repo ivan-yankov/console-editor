@@ -1,4 +1,4 @@
-package console.table;
+package console.model;
 
 @FunctionalInterface
 public interface Action {

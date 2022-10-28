@@ -1,12 +1,15 @@
 package console.table;
 
 import console.*;
+import console.model.Command;
+import console.model.Pair;
 import console.util.TablePrinter;
 import console.util.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ConsoleTableViewer<T> {
     private static final String MODE_COLOR = ConsoleColor.BOLD + ConsoleColor.GREEN;
@@ -90,8 +93,7 @@ public class ConsoleTableViewer<T> {
     }
 
     protected Command defaultCommand(Key k) {
-        return new Command(Mode.SELECT, k, () -> {
-        }, "Do nothing");
+        return Utils.doNothing();
     }
 
     protected void resetFocus() {
@@ -104,29 +106,26 @@ public class ConsoleTableViewer<T> {
         getFocus().setCol(-1);
     }
 
-    protected List<Command> addCommands() {
+    protected List<Pair<CommandKey, Command>> addCommands() {
         return new ArrayList<>();
     }
 
-    private List<Command> commands() {
-        List<Command> c = List.of(
-                new Command(Mode.SELECT, Keys.TAB, this::onTab, "Next"),
-                new Command(Mode.SELECT, Keys.LEFT, this::onLeft, "Prev column"),
-                new Command(Mode.SELECT, Keys.RIGHT, this::onRight, "Next column"),
-                new Command(Mode.SELECT, Keys.UP, this::onUp, "Prev row"),
-                new Command(Mode.SELECT, Keys.DOWN, this::onDown, "Next row"),
-                new Command(Mode.SELECT, Keys.HOME, this::onHome, "First column"),
-                new Command(Mode.SELECT, Keys.END, this::onEnd, "Last column"),
-                new Command(Mode.SELECT, Keys.PAGE_UP, this::prevPage, "Prev page"),
-                new Command(Mode.SELECT, Keys.PAGE_DOWN, this::nextPage, "Next page")
-        );
-        List<Command> allCommands = new ArrayList<>(c);
-        allCommands.addAll(addCommands());
-        return allCommands;
-    }
+    private List<Pair<CommandKey, Command>> commands() {
+        List<Pair<CommandKey, Command>> c = new ArrayList<>();
 
-    private Stream<Command> commandsForMode(Mode mode) {
-        return commands().stream().filter(x -> x.getMode().equals(mode));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.TAB), new Command(this::onTab, "Next")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.LEFT), new Command(this::onLeft, "Prev column")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.RIGHT), new Command(this::onRight, "Next column")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.UP), new Command(this::onUp, "Prev row")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.DOWN), new Command(this::onDown, "Next row")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.HOME), new Command(this::onHome, "Firs column")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.END), new Command(this::onEnd, "Last column")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.PAGE_UP), new Command(this::prevPage, "Prev page")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.PAGE_DOWN), new Command(this::nextPage, "Nex page")));
+
+        c.addAll(addCommands());
+
+        return c;
     }
 
     private void onTab() {
@@ -206,7 +205,10 @@ public class ConsoleTableViewer<T> {
 
     private void processCommand() {
         Key k = ConsoleReader.readKey();
-        commandsForMode(getMode()).filter(x -> x.getKey().getName().equals(k.getName()))
+        commands()
+                .stream()
+                .filter(x -> x.getKey().getMode().equals(getMode()) && x.getKey().getKey().getName().equals(k.getName()))
+                .map(Pair::getValue)
                 .findFirst()
                 .orElse(defaultCommand(k))
                 .getAction()
@@ -257,39 +259,42 @@ public class ConsoleTableViewer<T> {
     }
 
     public List<String> getHelp() {
-        List<Command> commandList = commandsForMode(getMode()).collect(Collectors.toList());
-
-        int fieldSize = commandList
+        int fieldSize = commands()
                 .stream()
-                .map(x -> Math.max(x.getKey().getName().length(), x.getDescription().length()))
+                .map(x -> Math.max(x.getKey().getKey().getName().length(), x.getValue().getLabel().length()))
                 .max(Comparator.naturalOrder())
                 .orElse(15) + 1;
 
         int helpLength = fieldSize * 2;
 
+        List<Pair<CommandKey, Command>> entries = commands()
+                .stream()
+                .filter(x -> x.getKey().getMode().equals(getMode()))
+                .collect(Collectors.toList());
+
         StringBuilder help = new StringBuilder();
         int currentRowLength = 0;
         help.append(Const.NEW_LINE);
-        for (Command c : commandList) {
+        for (Pair<CommandKey, Command> entry : entries) {
             if (currentRowLength + helpLength > consoleColumns) {
                 help.append(Const.NEW_LINE);
                 currentRowLength = 0;
             }
-            help.append(commandColoredHelp(c, fieldSize));
+            help.append(commandColoredHelp(entry.getKey(), entry.getValue(), fieldSize));
             currentRowLength += helpLength;
         }
         return List.of(help.toString().split(Const.NEW_LINE));
     }
 
-    private String commandColoredHelp(Command command, int fieldSize) {
+    private String commandColoredHelp(CommandKey commandKey, Command command, int fieldSize) {
         return HELP_CMD_COLOR +
-                command.getKey().getName() +
+                commandKey.getKey().getName() +
                 ConsoleColor.RESET +
-                Utils.generateString(fieldSize - command.getKey().getName().length(), ' ') +
+                Utils.generateString(fieldSize - commandKey.getKey().getName().length(), ' ') +
                 HELP_DESC_COLOR +
-                command.getDescription() +
+                command.getLabel() +
                 ConsoleColor.RESET +
-                Utils.generateString(fieldSize - command.getDescription().length(), ' ');
+                Utils.generateString(fieldSize - command.getLabel().length(), ' ');
     }
 
     private long numberOfPages() {

@@ -3,8 +3,10 @@ package console.table;
 import console.Const;
 import console.Key;
 import console.Keys;
-import console.date.DateConsoleSelector;
-import console.util.TableFactory;
+import console.date.ConsoleDateSelector;
+import console.model.Command;
+import console.model.Pair;
+import console.util.ConsoleTableFactory;
 import console.util.TablePrinter;
 import console.util.Utils;
 
@@ -12,6 +14,8 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private final Path file;
@@ -22,32 +26,34 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     @Override
-    protected java.util.List<Command> addCommands() {
-        return java.util.List.of(
-                new Command(Mode.SELECT, Keys.F2, this::editCell, "Edit"),
-                new Command(Mode.SELECT, Keys.CTRL_F2, this::selectDate, "Select date"),
-                new Command(Mode.SELECT, Keys.F3, this::saveTable, "Save"),
-                new Command(Mode.SELECT, Keys.F4, this::close, "Close"),
-                new Command(Mode.SELECT, Keys.F5, this::moveRowUp, "Move up"),
-                new Command(Mode.SELECT, Keys.F6, this::moveRowDown, "Move down"),
-                new Command(Mode.SELECT, Keys.F7, this::insertRow, "Insert after"),
-                new Command(Mode.SELECT, Keys.F8, this::deleteRow, "Delete row"),
-                new Command(Mode.SELECT, Keys.CTRL_DELETE, this::deleteColumn, "Delete column"),
-                new Command(Mode.SELECT, Keys.CTRL_X, this::cut, "Cut"),
-                new Command(Mode.SELECT, Keys.CTRL_C, this::copy, "Copy"),
-                new Command(Mode.SELECT, Keys.CTRL_V, this::paste, "Paste"),
-                new Command(Mode.SELECT, Keys.DELETE, this::deleteCellValue, "Delete"),
+    protected List<Pair<CommandKey, Command>> addCommands() {
+        List<Pair<CommandKey, Command>> c = new ArrayList<>();
 
-                new Command(Mode.EDIT, Keys.ESC, this::onEsc, "Discard changes"),
-                new Command(Mode.EDIT, Keys.ENTER, this::onEnter, "Accept new value"),
-                new Command(Mode.EDIT, Keys.BACK_SPACE, this::onBackspace, "Delete prev")
-        );
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F2), new Command(this::editCell, "Edit")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_F2), new Command(this::selectDate, "Select date")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F3), new Command(this::saveTable, "Save")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F4), new Command(this::close, "Close")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F5), new Command(this::moveRowUp, "Move up")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F6), new Command(this::moveRowDown, "Move down")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F7), new Command(this::insertRow, "Insert after")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.F8), new Command(this::deleteRow, "Delete row")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_DELETE), new Command(this::deleteColumn, "Delete column")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_X), new Command(this::cut, "Cut")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_C), new Command(this::copy, "Copy")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.CTRL_V), new Command(this::paste, "Paste")));
+        c.add(new Pair<>(new CommandKey(Mode.SELECT, Keys.DELETE), new Command(this::deleteCellValue, "Delete")));
+
+        c.add(new Pair<>(new CommandKey(Mode.EDIT, Keys.ESC), new Command(this::onEsc, "Discard changes")));
+        c.add(new Pair<>(new CommandKey(Mode.EDIT, Keys.ENTER), new Command(this::onEnter, "Accept new value")));
+        c.add(new Pair<>(new CommandKey(Mode.EDIT, Keys.BACK_SPACE), new Command(this::onBackspace, "Delete prev")));
+
+        return c;
     }
 
     @Override
     protected Command defaultCommand(Key k) {
         if (getMode() == Mode.EDIT) {
-            return new Command(Mode.EDIT, k, () -> onUserKeyPress(k), "Type user input");
+            return new Command(() -> onUserKeyPress(k), "Type user input");
         }
         return super.defaultCommand(k);
     }
@@ -60,7 +66,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void selectDate() {
         if (getFocus().isValid()) {
-            DateConsoleSelector dateSelector = TableFactory.createDateConsoleSelector(
+            ConsoleDateSelector dateSelector = ConsoleTableFactory.createDateConsoleSelector(
                     Utils.firstDayOfCurrentMonth(),
                     getConsoleLines(),
                     getConsoleColumns(),
