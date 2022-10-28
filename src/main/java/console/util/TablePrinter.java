@@ -2,8 +2,8 @@ package console.util;
 
 import console.ConsoleColor;
 import console.Const;
-import console.editor.Focus;
-import console.editor.Table;
+import console.table.Focus;
+import console.table.Table;
 
 import java.util.ArrayList;
 import java.util.List;

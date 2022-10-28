@@ -1,4 +1,4 @@
-package console.editor;
+package console.table;
 
 import console.Const;
 import console.Key;

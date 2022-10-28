@@ -3,10 +3,10 @@ package console.date;
 import console.Const;
 import console.Key;
 import console.Keys;
-import console.editor.Command;
-import console.editor.ConsoleTableViewer;
-import console.editor.Mode;
-import console.editor.Table;
+import console.table.Command;
+import console.table.ConsoleTableViewer;
+import console.table.Mode;
+import console.table.Table;
 import console.util.DataFactory;
 
 import java.time.LocalDate;

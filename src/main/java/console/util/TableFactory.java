@@ -2,7 +2,7 @@ package console.util;
 
 import console.Const;
 import console.date.DateConsoleSelector;
-import console.editor.Table;
+import console.table.Table;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

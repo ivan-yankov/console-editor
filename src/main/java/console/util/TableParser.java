@@ -1,11 +1,10 @@
 package console.util;
 
 import console.Const;
-import console.editor.Table;
+import console.table.Table;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 

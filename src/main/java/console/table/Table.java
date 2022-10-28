@@ -1,4 +1,4 @@
-package console.editor;
+package console.table;
 
 import java.util.Comparator;
 import java.util.List;

@@ -82,20 +82,4 @@ public class Utils {
         }
         return result;
     }
-
-    public static List<Character> chars(String s) {
-        List<Character> result = new ArrayList<>();
-        for (int i = 0; i < s.length(); i++) {
-            result.add(s.charAt(i));
-        }
-        return result;
-    }
-
-    public static String buildString(List<Character> chars) {
-        StringBuilder result = new StringBuilder();
-        for (Character c : chars) {
-            result.append(c);
-        }
-        return result.toString();
-    }
 }

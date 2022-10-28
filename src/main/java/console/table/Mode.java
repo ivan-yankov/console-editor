@@ -1,4 +1,4 @@
-package console.editor;
+package console.table;
 
 public enum Mode {
     SELECT,
