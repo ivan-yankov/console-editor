@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class Utils {
@@ -88,6 +89,10 @@ public class Utils {
     public static Command doNothing() {
         return new Command(() -> {
         }, "");
+    }
+
+    public static Supplier<String> consoleReadLine() {
+        return System.console()::readLine;
     }
 
     public static <T> List<List<T>> asList(T[][] array) {

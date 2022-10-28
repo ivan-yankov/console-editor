@@ -9,6 +9,7 @@ import console.util.Utils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ConsoleTableViewer<T> {
@@ -20,21 +21,27 @@ public class ConsoleTableViewer<T> {
     private final Focus focus;
     private final int consoleLines;
     private final int consoleColumns;
+    private final Supplier<String> consoleReadLine;
 
     private String title;
     private Mode mode;
     private String logMessage;
     private int page;
 
-    public ConsoleTableViewer(Table<T> table, int consoleLines, int consoleColumns) {
+    public ConsoleTableViewer(Table<T> table, int consoleLines, int consoleColumns, Supplier<String> consoleReadLine) {
         this.table = table;
         this.focus = new Focus(0, 0);
         this.consoleLines = consoleLines;
         this.consoleColumns = consoleColumns;
+        this.consoleReadLine = consoleReadLine;
         this.title = "";
         this.mode = Mode.SELECT;
         this.logMessage = "";
         this.page = 0;
+    }
+
+    public Supplier<String> getConsoleReadLine() {
+        return consoleReadLine;
     }
 
     public void setTitle(String title) {

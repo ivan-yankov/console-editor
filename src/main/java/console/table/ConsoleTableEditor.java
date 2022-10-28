@@ -14,12 +14,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private final Path file;
 
-    public ConsoleTableEditor(Table<String> table, Path file, int consoleLines, int consoleColumns) {
-        super(table, consoleLines, consoleColumns);
+    public ConsoleTableEditor(Table<String> table, Path file, int consoleLines, int consoleColumns, Supplier<String> consoleReadLine) {
+        super(table, consoleLines, consoleColumns, consoleReadLine);
         this.file = file;
     }
 
@@ -48,7 +49,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     protected void readUserInput() {
         try {
             RawConsoleInput.resetConsoleMode();
-            String userInput = System.console().readLine();
+            String userInput = getConsoleReadLine().get();
             if (!userInput.isEmpty()) {
                 getTable().setCellValue(userInput, getFocus().getRow(), getFocus().getCol());
             }
@@ -70,7 +71,8 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                     Utils.firstDayOfCurrentMonth(),
                     getConsoleLines(),
                     getConsoleColumns(),
-                    date -> getTable().setCellValue(Utils.printDate(date), getFocus().getRow(), getFocus().getCol())
+                    date -> getTable().setCellValue(Utils.printDate(date), getFocus().getRow(), getFocus().getCol()),
+                    getConsoleReadLine()
             );
             dateSelector.show();
         }

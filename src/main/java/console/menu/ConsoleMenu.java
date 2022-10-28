@@ -9,10 +9,11 @@ import console.table.Table;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ConsoleMenu extends ConsoleTableViewer<Command> {
-    public ConsoleMenu(Table<Command> table, int consoleLines, int consoleColumns) {
-        super(table, consoleLines, consoleColumns);
+    public ConsoleMenu(Table<Command> table, int consoleLines, int consoleColumns, Supplier<String> consoleReadLine) {
+        super(table, consoleLines, consoleColumns, consoleReadLine);
     }
 
     @Override

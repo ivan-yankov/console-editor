@@ -14,13 +14,14 @@ import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     private final Consumer<LocalDate> select;
     private LocalDate firstDayOfMonth;
 
-    public ConsoleDateSelector(Table<LocalDate> table, int consoleLines, int consoleColumns, LocalDate firstDayOfMonth, Consumer<LocalDate> select) {
-        super(table, consoleLines, consoleColumns);
+    public ConsoleDateSelector(Table<LocalDate> table, int consoleLines, int consoleColumns, LocalDate firstDayOfMonth, Consumer<LocalDate> select, Supplier<String> consoleReadLine) {
+        super(table, consoleLines, consoleColumns, consoleReadLine);
         this.firstDayOfMonth = firstDayOfMonth;
         this.select = select;
         setTitle(createTitle());

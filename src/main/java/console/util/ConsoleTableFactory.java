@@ -12,10 +12,11 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ConsoleTableFactory {
-    public static ConsoleDateSelector createDateConsoleSelector(LocalDate firstDayOfMonth, int consoleLines, int consoleColumns, Consumer<LocalDate> select) {
+    public static ConsoleDateSelector createDateConsoleSelector(LocalDate firstDayOfMonth, int consoleLines, int consoleColumns, Consumer<LocalDate> select, Supplier<String> consoleReadLine) {
         return new ConsoleDateSelector(
                 TableFactory.createDateTable(
                         DataFactory.createHeaderForDateConsoleSelector(),
@@ -24,19 +25,20 @@ public class ConsoleTableFactory {
                 consoleLines,
                 consoleColumns,
                 firstDayOfMonth,
-                select
+                select,
+                consoleReadLine
         );
     }
 
-    public static ConsoleTableEditor createConsoleTableEditor(Path csvFile, int lines, int columns, String title) {
+    public static ConsoleTableEditor createConsoleTableEditor(Path csvFile, int lines, int columns, String title, Supplier<String> consoleReadLine) {
         String csv = Utils.readFile(csvFile).orElse("");
         Table<String> table = TableParser.fromCsv(csv);
-        ConsoleTableEditor editor = new ConsoleTableEditor(table, csvFile, lines, columns);
+        ConsoleTableEditor editor = new ConsoleTableEditor(table, csvFile, lines, columns, consoleReadLine);
         editor.setTitle(title);
         return editor;
     }
 
-    public static ConsoleMenu createConsoleMenu(List<Pair<String, List<Command>>> commands, int consoleLines, int consoleColumns, String title) {
+    public static ConsoleMenu createConsoleMenu(List<Pair<String, List<Command>>> commands, int consoleLines, int consoleColumns, String title, Supplier<String> consoleReadLine) {
         List<String> header = commands.stream().map(Pair::getKey).collect(Collectors.toList());
         int numberOfRows = commands.stream().map(x -> x.getValue().size()).max(Comparator.naturalOrder()).orElse(0);
         int numberOfColumns = header.size();
@@ -59,7 +61,7 @@ public class ConsoleTableFactory {
                 false
         );
 
-        ConsoleMenu menu = new ConsoleMenu(table, consoleLines, consoleColumns);
+        ConsoleMenu menu = new ConsoleMenu(table, consoleLines, consoleColumns, consoleReadLine);
         menu.setTitle(title);
         return menu;
     }

@@ -22,7 +22,13 @@ public class ConsoleTableEditorMain {
         int columns = Integer.parseInt(args[1]);
         Path csvFile = Paths.get(args[2]);
 
-        ConsoleTableFactory.createConsoleTableEditor(csvFile, lines, columns, csvFile.toString()).show();
+        ConsoleTableFactory.createConsoleTableEditor(
+                csvFile,
+                lines,
+                columns,
+                csvFile.toString(),
+                Utils.consoleReadLine()
+        ).show();
 
         Utils.writeln();
         System.exit(0);
