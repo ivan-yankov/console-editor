@@ -24,7 +24,7 @@ public class ConsoleTableEditorMain {
 
         String csv = Utils.readFile(csvFile).orElse("");
         Table<String> table = TableParser.fromCsv(csv);
-        ConsoleTable<String> editor = new ConsoleTableEditor(table, csvFile, lines, columns);
+        ConsoleTableViewer<String> editor = new ConsoleTableEditor(table, csvFile, lines, columns);
         editor.show();
 
         Utils.writeln();

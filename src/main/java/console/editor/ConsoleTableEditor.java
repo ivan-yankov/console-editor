@@ -12,11 +12,8 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
 
-public class ConsoleTableEditor extends ConsoleTable<String> {
+public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private final Path file;
 
     public ConsoleTableEditor(Table<String> table, Path file, int consoleLines, int consoleColumns) {
@@ -25,39 +22,32 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
     }
 
     @Override
-    protected Map<Mode, Stream<Command>> additionalCommands() {
-        Stream<Command> selectModeCommands = Stream.of(
-                new Command(Keys.F2, this::editCell, "Edit"),
-                new Command(Keys.CTRL_F2, this::selectDate, "Select date"),
-                new Command(Keys.F3, this::saveTable, "Save"),
-                new Command(Keys.F4, this::close, "Close"),
-                new Command(Keys.F5, this::moveRowUp, "Move up"),
-                new Command(Keys.F6, this::moveRowDown, "Move down"),
-                new Command(Keys.F7, this::insertRow, "Insert after"),
-                new Command(Keys.F8, this::deleteRow, "Delete row"),
-                new Command(Keys.CTRL_DELETE, this::deleteColumn, "Delete column"),
-                new Command(Keys.CTRL_X, this::cut, "Cut"),
-                new Command(Keys.CTRL_C, this::copy, "Copy"),
-                new Command(Keys.CTRL_V, this::paste, "Paste"),
-                new Command(Keys.DELETE, this::deleteCellValue, "Delete")
-        );
+    protected java.util.List<Command> addCommands() {
+        return java.util.List.of(
+                new Command(Mode.SELECT, Keys.F2, this::editCell, "Edit"),
+                new Command(Mode.SELECT, Keys.CTRL_F2, this::selectDate, "Select date"),
+                new Command(Mode.SELECT, Keys.F3, this::saveTable, "Save"),
+                new Command(Mode.SELECT, Keys.F4, this::close, "Close"),
+                new Command(Mode.SELECT, Keys.F5, this::moveRowUp, "Move up"),
+                new Command(Mode.SELECT, Keys.F6, this::moveRowDown, "Move down"),
+                new Command(Mode.SELECT, Keys.F7, this::insertRow, "Insert after"),
+                new Command(Mode.SELECT, Keys.F8, this::deleteRow, "Delete row"),
+                new Command(Mode.SELECT, Keys.CTRL_DELETE, this::deleteColumn, "Delete column"),
+                new Command(Mode.SELECT, Keys.CTRL_X, this::cut, "Cut"),
+                new Command(Mode.SELECT, Keys.CTRL_C, this::copy, "Copy"),
+                new Command(Mode.SELECT, Keys.CTRL_V, this::paste, "Paste"),
+                new Command(Mode.SELECT, Keys.DELETE, this::deleteCellValue, "Delete"),
 
-        Stream<Command> editModeCommands = Stream.of(
-                new Command(Keys.ESC, this::onEsc, "Discard changes"),
-                new Command(Keys.ENTER, this::onEnter, "Accept new value"),
-                new Command(Keys.BACK_SPACE, this::onBackspace, "Delete prev")
+                new Command(Mode.EDIT, Keys.ESC, this::onEsc, "Discard changes"),
+                new Command(Mode.EDIT, Keys.ENTER, this::onEnter, "Accept new value"),
+                new Command(Mode.EDIT, Keys.BACK_SPACE, this::onBackspace, "Delete prev")
         );
-
-        Map<Mode, Stream<Command>> result = new HashMap<>();
-        result.put(Mode.SELECT, selectModeCommands);
-        result.put(Mode.EDIT, editModeCommands);
-        return result;
     }
 
     @Override
     protected Command defaultCommand(Key k) {
         if (getMode() == Mode.EDIT) {
-            return new Command(k, () -> onUserKeyPress(k), "Type user input");
+            return new Command(Mode.EDIT, k, () -> onUserKeyPress(k), "Type user input");
         }
         return super.defaultCommand(k);
     }

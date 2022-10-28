@@ -1,8 +1,6 @@
 package console.util;
 
 import console.ConsoleColor;
-import console.Const;
-import console.editor.Command;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,16 +8,11 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Utils {
-    private static final String HELP_CMD_COLOR = ConsoleColor.ORANGE;
-    private static final String HELP_DESC_COLOR = ConsoleColor.DARK_GRAY;
-
     public static Optional<String> readFile(Path file) {
         try {
             return Optional.of(Files.readString(file));
@@ -49,14 +42,6 @@ public class Utils {
         return s.chars().anyMatch(Character::isLetter);
     }
 
-    public static void write(String s, String color) {
-        System.out.print(colorText(s, color));
-    }
-
-    public static void writeln(String s, String color) {
-        System.out.println(colorText(s, color));
-    }
-
     public static void writeln() {
         System.out.println();
     }
@@ -65,35 +50,12 @@ public class Utils {
         System.out.println(s);
     }
 
-    private static String colorText(String s, String color) {
-        return color.isEmpty() ? ConsoleColor.RESET + s + ConsoleColor.RESET : color + s + ConsoleColor.RESET;
+    public static void write(String s) {
+        System.out.print(s);
     }
 
-    public static String printHelp(Stream<Command> commands, int consoleColumns) {
-        List<Command> commandList = commands.collect(Collectors.toList());
-
-        int fieldSize = commandList
-                .stream()
-                .map(x -> Math.max(x.getKey().getName().length(), x.getDescription().length()))
-                .max(Comparator.naturalOrder())
-                .orElse(15) + 1;
-
-        int helpLength = fieldSize * 2;
-
-        int currentRowLength = 0;
-        StringBuilder help = new StringBuilder();
-        help.append(Const.NEW_LINE);
-        for (Command c : commandList) {
-            if (currentRowLength + helpLength > consoleColumns) {
-                help.append(Const.NEW_LINE);
-                currentRowLength = 0;
-            }
-            help.append(commandColoredHelp(c, fieldSize));
-            currentRowLength += helpLength;
-        }
-        help.append(Const.NEW_LINE);
-
-        return help.toString();
+    public static String colorText(String s, String color) {
+        return color.isEmpty() ? ConsoleColor.RESET + s + ConsoleColor.RESET : color + s + ConsoleColor.RESET;
     }
 
     public static String printDate(LocalDate date) {
@@ -121,14 +83,19 @@ public class Utils {
         return result;
     }
 
-    private static String commandColoredHelp(Command command, int fieldSize) {
-        return HELP_CMD_COLOR +
-                command.getKey().getName() +
-                ConsoleColor.RESET +
-                Utils.generateString(fieldSize - command.getKey().getName().length(), ' ') +
-                HELP_DESC_COLOR +
-                command.getDescription() +
-                ConsoleColor.RESET +
-                Utils.generateString(fieldSize - command.getDescription().length(), ' ');
+    public static List<Character> chars(String s) {
+        List<Character> result = new ArrayList<>();
+        for (int i = 0; i < s.length(); i++) {
+            result.add(s.charAt(i));
+        }
+        return result;
+    }
+
+    public static String buildString(List<Character> chars) {
+        StringBuilder result = new StringBuilder();
+        for (Character c : chars) {
+            result.append(c);
+        }
+        return result.toString();
     }
 }

@@ -3,18 +3,19 @@ package console.date;
 import console.Const;
 import console.Key;
 import console.Keys;
-import console.editor.*;
+import console.editor.Command;
+import console.editor.ConsoleTableViewer;
+import console.editor.Mode;
+import console.editor.Table;
 import console.util.DataFactory;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
-public class DateConsoleSelector extends ConsoleTable<LocalDate> {
+public class DateConsoleSelector extends ConsoleTableViewer<LocalDate> {
     private final Consumer<LocalDate> select;
     private LocalDate firstDayOfMonth;
 
@@ -27,17 +28,13 @@ public class DateConsoleSelector extends ConsoleTable<LocalDate> {
     }
 
     @Override
-    protected Map<Mode, Stream<Command>> additionalCommands() {
-        Stream<Command> commands = Stream.of(
-                new Command(Keys.ESC, this::onEsc, "Close"),
-                new Command(Keys.ENTER, this::onEnter, "Accept"),
-                new Command(new Key("-"), this::previousMonth, "Prev month"),
-                new Command(new Key("+"), this::nextMonth, "Next month")
+    protected List<Command> addCommands() {
+        return List.of(
+                new Command(Mode.SELECT, Keys.ESC, this::onEsc, "Close"),
+                new Command(Mode.SELECT, Keys.ENTER, this::onEnter, "Accept"),
+                new Command(Mode.SELECT, new Key("-"), this::previousMonth, "Prev month"),
+                new Command(Mode.SELECT, new Key("+"), this::nextMonth, "Next month")
         );
-
-        Map<Mode, Stream<Command>> result = new HashMap<>();
-        result.put(Mode.SELECT, commands);
-        return result;
     }
 
     private void onEsc() {
