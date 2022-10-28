@@ -224,7 +224,7 @@ public class ConsoleTableViewer<T> {
             Process p = pb.inheritIO().start();
             p.waitFor();
         } catch (Exception e) {
-            System.err.println("Unable to clear the console: " + e.getMessage());
+            Utils.writeError("Unable to clear the console: " + e.getMessage());
         }
     }
 
