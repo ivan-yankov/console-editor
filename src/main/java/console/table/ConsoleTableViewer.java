@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class ConsoleTableViewer<T> {
     private static final String MODE_COLOR = ConsoleColor.BOLD + ConsoleColor.GREEN;
     private static final String USER_INPUT_COLOR = ConsoleColor.MAGENTA;
-    private static final String LOG_COLOR = ConsoleColor.CYAN;
     private static final String HELP_CMD_COLOR = ConsoleColor.ORANGE;
     private static final String HELP_DESC_COLOR = ConsoleColor.DARK_GRAY;
 
@@ -53,6 +52,14 @@ public class ConsoleTableViewer<T> {
         return consoleColumns;
     }
 
+    public String getLogMessage() {
+        return logMessage;
+    }
+
+    public void setLogMessage(String logMessage) {
+        this.logMessage = logMessage;
+    }
+
     public void show() {
         do {
             render();
@@ -82,14 +89,6 @@ public class ConsoleTableViewer<T> {
 
     protected void setUserInput(String userInput) {
         this.userInput = userInput;
-    }
-
-    protected String getLogMessage() {
-        return logMessage;
-    }
-
-    protected void setLogMessage(String logMessage) {
-        this.logMessage = logMessage;
     }
 
     protected Command defaultCommand(Key k) {
@@ -237,7 +236,7 @@ public class ConsoleTableViewer<T> {
 
     private List<String> getFooter() {
         List<String> footer = new ArrayList<>(getHelp());
-        footer.add(Utils.colorText(getLogMessage(), LOG_COLOR));
+        footer.add(getLogMessage());
         return footer;
     }
 

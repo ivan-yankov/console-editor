@@ -1,5 +1,6 @@
 package console.table;
 
+import console.ConsoleColor;
 import console.Const;
 import console.Key;
 import console.Keys;
@@ -103,7 +104,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void saveTable() {
         Utils.writeFile(file, TablePrinter.toCsv(getTable()) + Const.NEW_LINE);
-        setLogMessage("Saved in [" + file.toString() + "]");
+        setLogMessage(Utils.colorText("Saved in [" + file.toString() + "]", ConsoleColor.CYAN));
     }
 
     private void close() {
