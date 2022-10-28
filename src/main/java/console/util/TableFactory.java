@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class TableFactory {
-    public static Table<String> createStringTable(List<String> header, List<List<String>> data) {
-        return new Table<>(header, data, x -> x, () -> "");
+    public static Table<String> createStringTable(List<String> header, List<List<String>> data, boolean quotesWrapped) {
+        return new Table<>(header, data, x -> x, () -> "", quotesWrapped);
     }
 
     public static Table<String> createEmptyStringTable() {
-        return new Table<>(new ArrayList<>(), new ArrayList<>(), x -> x, () -> "");
+        return new Table<>(new ArrayList<>(), new ArrayList<>(), x -> x, () -> "", false);
     }
 
     public static Table<LocalDate> createDateTable(List<String> header, List<List<LocalDate>> data) {
@@ -29,7 +29,8 @@ public class TableFactory {
                         return Utils.printDayFromDate(x);
                     }
                 },
-                () -> Const.INVALID_DATE
+                () -> Const.INVALID_DATE,
+                false
         );
     }
 

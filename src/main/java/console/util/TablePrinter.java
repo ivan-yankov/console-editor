@@ -14,16 +14,24 @@ public class TablePrinter {
     private static final String FOCUS_COLOR = ConsoleColor.BLACK + ConsoleColor.DARK_CYAN_B;
 
     public static <T> String toCsv(Table<T> table) {
-        String header = String.join(Const.COMMA, table.getHeader());
+        String header = table
+                .getHeader()
+                .stream()
+                .map(x -> printCsvCellValue(table, x))
+                .collect(Collectors.joining(Const.COMMA));
+
         String data = table
                 .getDataStream()
-                .map(row -> row.stream().map(x -> table.getPrintValue().apply(x)).collect(Collectors.joining(Const.COMMA)))
-                .collect(Collectors.joining(Const.NEW_LINE));
+                .map(row -> row
+                        .stream()
+                        .map(x -> printCsvCellValue(table, x))
+                        .collect(Collectors.joining(Const.COMMA))
+                ).collect(Collectors.joining(Const.NEW_LINE));
         return header + Const.NEW_LINE + data;
     }
 
     public static <T> List<String> headerToConsole(Table<T> table) {
-        if (!table.isValid()) new ArrayList<>();
+        if (!table.isValid()) return new ArrayList<>();
 
         List<String> headerSeparatorItems = new ArrayList<>();
         for (int i = 0; i < table.getHeader().size(); i++) {
@@ -35,7 +43,7 @@ public class TablePrinter {
         result.add(headerSeparator);
         List<String> header = new ArrayList<>();
         for (int i = 0; i < table.getHeader().size(); i++) {
-            String value = printCellValue(
+            String value = printConsoleCellValue(
                     table.getHeader().get(i),
                     table.fieldSize(i),
                     false
@@ -55,7 +63,7 @@ public class TablePrinter {
         for (int i = 0; i < table.getRowCount(); i++) {
             List<String> row = new ArrayList<>();
             for (int j = 0; j < table.getColCount(); j++) {
-                String value = printCellValue(
+                String value = printConsoleCellValue(
                         table.getPrintValue().apply(table.getCellValue(i, j)),
                         table.fieldSize(j),
                         focus.isValid() && i == focus.getRow() && j == focus.getCol()
@@ -68,10 +76,23 @@ public class TablePrinter {
         return Optional.of(result);
     }
 
-    private static String printCellValue(String value, int fieldSize, boolean focused) {
+    private static String printConsoleCellValue(String value, int fieldSize, boolean focused) {
         String text = Utils.containsLetter(value)
                 ? value + Utils.generateString(fieldSize - value.length(), ' ')
                 : String.format("%" + fieldSize + "s", value);
         return focused ? FOCUS_COLOR + text + ConsoleColor.RESET : text;
+    }
+
+    private static <T> String printCsvCellValue(Table<T> table, T value) {
+        String s = table.getPrintValue().apply(value);
+        return printCsvCellValue(table, s);
+    }
+
+    private static <T> String printCsvCellValue(Table<T> table, String value) {
+        if (table.isQuotesWrapped()) {
+            return Const.QUOTES + value + Const.QUOTES;
+        } else {
+            return value;
+        }
     }
 }

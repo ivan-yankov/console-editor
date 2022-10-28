@@ -182,7 +182,7 @@ public class ConsoleTable<T> {
         printTitle();
         printHeader();
         printPage();
-        Utils.writeln(getHelp());
+        printHelp();
         printLog();
         printMode();
         printUserInput();
@@ -233,6 +233,10 @@ public class ConsoleTable<T> {
         }
     }
 
+    private void printHelp() {
+        Utils.writeln(getHelp());
+    }
+
     private List<String> getHeader() {
         return TablePrinter.headerToConsole(getTable());
     }
@@ -243,7 +247,8 @@ public class ConsoleTable<T> {
 
     private void printLog() {
         if (!getLogMessage().isEmpty()) {
-            Utils.writeln("Information: " + getLogMessage(), LOG_COLOR);
+            Utils.writeln(getLogMessage(), LOG_COLOR);
+            Utils.writeln();
             setLogMessage("");
         }
     }
@@ -282,7 +287,7 @@ public class ConsoleTable<T> {
     private int maxTableLinesPerPage() {
         int helpLines = (int) getHelp().chars().filter(x -> x == '\n').count();
         int headerLines = getHeader().size();
-        int additionalLines = 2; // for title and mode
+        int additionalLines = 4; // for title, mode and log
         return consoleLines - helpLines - headerLines - additionalLines;
     }
 }

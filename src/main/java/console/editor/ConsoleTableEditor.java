@@ -44,7 +44,8 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
 
         Stream<Command> editModeCommands = Stream.of(
                 new Command(Keys.ESC, this::onEsc, "Discard changes"),
-                new Command(Keys.ENTER, this::onEnter, "Accept new value")
+                new Command(Keys.ENTER, this::onEnter, "Accept new value"),
+                new Command(Keys.BACK_SPACE, this::onBackspace, "Delete prev")
         );
 
         Map<Mode, Stream<Command>> result = new HashMap<>();
@@ -90,6 +91,14 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
         setUserInput("");
     }
 
+    private void onBackspace() {
+        if (getUserInput().length() <= 1) {
+            setUserInput("");
+        } else {
+            setUserInput(getUserInput().substring(0, getUserInput().length() - 1));
+        }
+    }
+
     private void onUserKeyPress(Key k) {
         if (!Keys.asList().contains(k)) {
             setUserInput(getUserInput() + k.getName());
@@ -98,7 +107,7 @@ public class ConsoleTableEditor extends ConsoleTable<String> {
 
     private void saveTable() {
         Utils.writeFile(file, TablePrinter.toCsv(getTable()) + Const.NEW_LINE);
-        setLogMessage("Saved in " + file.toString());
+        setLogMessage("Saved in [" + file.toString() + "]");
     }
 
     private void close() {

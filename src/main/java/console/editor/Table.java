@@ -1,7 +1,5 @@
 package console.editor;
 
-import console.util.Utils;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -14,12 +12,14 @@ public class Table<T> {
     private final List<List<T>> data;
     private final Function<T, String> printValue;
     private final Supplier<T> emptyValue;
+    private final boolean quotesWrapped;
 
-    public Table(List<String> header, List<List<T>> data, Function<T, String> printValue, Supplier<T> emptyValue) {
+    public Table(List<String> header, List<List<T>> data, Function<T, String> printValue, Supplier<T> emptyValue, boolean quotesWrapped) {
         this.header = header;
         this.data = data;
         this.printValue = printValue;
         this.emptyValue = emptyValue;
+        this.quotesWrapped = quotesWrapped;
     }
 
     public List<String> getHeader() {
@@ -32,6 +32,10 @@ public class Table<T> {
 
     public Supplier<T> getEmptyValue() {
         return emptyValue;
+    }
+
+    public boolean isQuotesWrapped() {
+        return quotesWrapped;
     }
 
     public Stream<List<T>> getDataStream() {
@@ -54,8 +58,8 @@ public class Table<T> {
         return header.size();
     }
 
-    public boolean hasData() {
-        return data.size() > 1;
+    public boolean isEmpty() {
+        return data.isEmpty();
     }
 
     public boolean isValid() {
