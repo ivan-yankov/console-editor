@@ -30,7 +30,7 @@ public class TablePrinter {
         return header + Const.NEW_LINE + data;
     }
 
-    public static <T> List<String> headerToConsole(Table<T> table) {
+    public static <T> List<String> headerToConsole(Table<T> table, boolean withRowIndexes) {
         if (!table.isValid()) return new ArrayList<>();
 
         List<String> headerSeparatorItems = new ArrayList<>();
@@ -38,6 +38,9 @@ public class TablePrinter {
             headerSeparatorItems.add(Utils.generateString(table.fieldSize(i), Const.EQUALS_SYMBOL));
         }
         String headerSeparator = String.join(Const.COL_SEPARATOR, headerSeparatorItems);
+        if (withRowIndexes) {
+            headerSeparator = index(table.getRowCount(), 0) + headerSeparator;
+        }
 
         List<String> result = new ArrayList<>();
         result.add(headerSeparator);
@@ -50,13 +53,17 @@ public class TablePrinter {
             );
             header.add(value);
         }
-        result.add(String.join(Const.COL_SEPARATOR, header));
+        String headerStr = String.join(Const.COL_SEPARATOR, header);
+        if (withRowIndexes) {
+            headerStr = index(table.getRowCount(), 0) + headerStr;
+        }
+        result.add(headerStr);
         result.add(headerSeparator);
 
         return result;
     }
 
-    public static <T> Optional<List<String>> dataToConsole(Table<T> table, Focus focus) {
+    public static <T> Optional<List<String>> dataToConsole(Table<T> table, Focus focus, boolean withRowIndexes) {
         if (!table.isValid()) return Optional.empty();
 
         List<String> result = new ArrayList<>();
@@ -70,10 +77,25 @@ public class TablePrinter {
                 );
                 row.add(value);
             }
-            result.add(String.join(Const.COL_SEPARATOR, row));
+            String rowStr = String.join(Const.COL_SEPARATOR, row);
+            if (withRowIndexes) {
+                rowStr = index(table.getRowCount(), i + 1) + rowStr;
+            }
+            result.add(rowStr);
         }
 
         return Optional.of(result);
+    }
+
+    private static String index(int rowCount, int index) {
+        int n = Integer.toString(rowCount).length();
+        String f = "%" + n + "s";
+        if (index > 0) {
+            return Utils.colorText(String.format(f, index), ConsoleColor.DARK_GRAY_B + ConsoleColor.BLACK) +
+                    Const.COL_SEPARATOR;
+        } else {
+            return Utils.generateString(n, ' ') + Const.COL_SEPARATOR;
+        }
     }
 
     private static String printConsoleCellValue(String value, int fieldSize, boolean focused) {

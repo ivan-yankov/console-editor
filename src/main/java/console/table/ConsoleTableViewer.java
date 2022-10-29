@@ -228,7 +228,7 @@ public class ConsoleTableViewer<T> {
     private List<String> getHeader() {
         List<String> header = new ArrayList<>();
         header.add(title);
-        header.addAll(TablePrinter.headerToConsole(getTable()));
+        header.addAll(TablePrinter.headerToConsole(getTable(), true));
         return header;
     }
 
@@ -251,7 +251,7 @@ public class ConsoleTableViewer<T> {
 
     private List<String> getPage() {
         List<List<String>> pages = Utils.sliding(
-                TablePrinter.dataToConsole(table, focus).orElse(List.of("Invalid table")),
+                TablePrinter.dataToConsole(table, focus, true).orElse(List.of("Invalid table")),
                 maxTableLinesPerPage()
         );
         if (!pages.isEmpty()) {
