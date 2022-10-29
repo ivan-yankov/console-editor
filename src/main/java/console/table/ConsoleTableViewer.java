@@ -5,6 +5,7 @@ import console.model.Command;
 import console.model.Pair;
 import console.util.TablePrinter;
 import console.util.Utils;
+import either.Either;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ public class ConsoleTableViewer<T> {
     private Mode mode;
     private String logMessage;
     private int page;
+    private boolean showRowIndexes;
 
     public ConsoleTableViewer(Table<T> table, int consoleLines, int consoleColumns, Supplier<String> consoleReadLine) {
         this.table = table;
@@ -38,6 +40,7 @@ public class ConsoleTableViewer<T> {
         this.mode = Mode.SELECT;
         this.logMessage = "";
         this.page = 0;
+        this.showRowIndexes = false;
     }
 
     public Supplier<String> getConsoleReadLine() {
@@ -94,6 +97,14 @@ public class ConsoleTableViewer<T> {
         this.mode = mode;
     }
 
+    protected boolean isShowRowIndexes() {
+        return showRowIndexes;
+    }
+
+    protected void setShowRowIndexes(boolean showRowIndexes) {
+        this.showRowIndexes = showRowIndexes;
+    }
+
     protected void resetFocus() {
         getFocus().setRow(0);
         getFocus().setCol(0);
@@ -111,15 +122,15 @@ public class ConsoleTableViewer<T> {
     private List<Pair<Key, Command>> commands() {
         List<Pair<Key, Command>> c = new ArrayList<>();
 
-        c.add(new Pair<>(Keys.TAB, new Command(this::onTab, "Next")));
-        c.add(new Pair<>(Keys.LEFT, new Command(this::onLeft, "Prev column")));
-        c.add(new Pair<>(Keys.RIGHT, new Command(this::onRight, "Next column")));
-        c.add(new Pair<>(Keys.UP, new Command(this::onUp, "Prev row")));
-        c.add(new Pair<>(Keys.DOWN, new Command(this::onDown, "Next row")));
-        c.add(new Pair<>(Keys.HOME, new Command(this::onHome, "Firs column")));
-        c.add(new Pair<>(Keys.END, new Command(this::onEnd, "Last column")));
-        c.add(new Pair<>(Keys.PAGE_UP, new Command(this::prevPage, "Prev page")));
-        c.add(new Pair<>(Keys.PAGE_DOWN, new Command(this::nextPage, "Nex page")));
+        c.add(new Pair<>(Key.TAB, new Command(this::onTab, "Next")));
+        c.add(new Pair<>(Key.LEFT, new Command(this::onLeft, "Prev column")));
+        c.add(new Pair<>(Key.RIGHT, new Command(this::onRight, "Next column")));
+        c.add(new Pair<>(Key.UP, new Command(this::onUp, "Prev row")));
+        c.add(new Pair<>(Key.DOWN, new Command(this::onDown, "Next row")));
+        c.add(new Pair<>(Key.HOME, new Command(this::onHome, "Firs column")));
+        c.add(new Pair<>(Key.END, new Command(this::onEnd, "Last column")));
+        c.add(new Pair<>(Key.PAGE_UP, new Command(this::prevPage, "Prev page")));
+        c.add(new Pair<>(Key.PAGE_DOWN, new Command(this::nextPage, "Nex page")));
 
         c.addAll(addCommands());
 
@@ -201,10 +212,11 @@ public class ConsoleTableViewer<T> {
     }
 
     private void processCommand() {
-        Key k = ConsoleReader.readKey();
+        Either<String, Key> input = ConsoleReader.readKey();
+        String inputKeyName = input.getRight().isPresent() ? input.getRight().get().getName() : "";
         commands()
                 .stream()
-                .filter(x -> x.getKey().getName().equals(k.getName()))
+                .filter(x -> x.getKey().getName().equals(inputKeyName))
                 .map(Pair::getValue)
                 .findFirst()
                 .orElse(Utils.doNothing())
@@ -228,7 +240,7 @@ public class ConsoleTableViewer<T> {
     private List<String> getHeader() {
         List<String> header = new ArrayList<>();
         header.add(title);
-        header.addAll(TablePrinter.headerToConsole(getTable(), true));
+        header.addAll(TablePrinter.headerToConsole(getTable(), showRowIndexes));
         return header;
     }
 
@@ -251,7 +263,7 @@ public class ConsoleTableViewer<T> {
 
     private List<String> getPage() {
         List<List<String>> pages = Utils.sliding(
-                TablePrinter.dataToConsole(table, focus, true).orElse(List.of("Invalid table")),
+                TablePrinter.dataToConsole(table, focus, showRowIndexes).orElse(List.of("Invalid table")),
                 maxTableLinesPerPage()
         );
         if (!pages.isEmpty()) {

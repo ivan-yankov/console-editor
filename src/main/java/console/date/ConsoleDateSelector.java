@@ -2,7 +2,6 @@ package console.date;
 
 import console.Const;
 import console.Key;
-import console.Keys;
 import console.model.Pair;
 import console.model.Command;
 import console.table.ConsoleTableViewer;
@@ -32,10 +31,10 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     protected List<Pair<Key, Command>> addCommands() {
         List<Pair<Key, Command>> c = new ArrayList<>();
 
-        c.add(new Pair<>(Keys.ESC, new Command(this::onEsc, "Close")));
-        c.add(new Pair<>(Keys.ENTER, new Command(this::onEnter, "Accept")));
-        c.add(new Pair<>(new Key("-"), new Command(this::previousMonth, "Prev month")));
-        c.add(new Pair<>(new Key("+"), new Command(this::nextMonth, "Next month")));
+        c.add(new Pair<>(Key.ESC, new Command(this::onEsc, "Close")));
+        c.add(new Pair<>(Key.ENTER, new Command(this::onEnter, "Accept")));
+        c.add(new Pair<>(Key.MINUS, new Command(this::previousMonth, "Prev month")));
+        c.add(new Pair<>(Key.MINUS, new Command(this::nextMonth, "Next month")));
 
         return c;
     }

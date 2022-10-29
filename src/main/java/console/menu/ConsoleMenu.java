@@ -1,7 +1,6 @@
 package console.menu;
 
 import console.Key;
-import console.Keys;
 import console.model.Command;
 import console.model.Pair;
 import console.table.ConsoleTableViewer;
@@ -19,7 +18,7 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     @Override
     protected List<Pair<Key, Command>> addCommands() {
         List<Pair<Key, Command>> c = new ArrayList<>();
-        c.add(new Pair<>(Keys.ENTER, new Command(this::onEnter, "Execute")));
+        c.add(new Pair<>(Key.ENTER, new Command(this::onEnter, "Execute")));
         return c;
     }
 
