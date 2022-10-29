@@ -34,7 +34,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         c.add(new Pair<>(Key.ESC, new Command(this::onEsc, "Close")));
         c.add(new Pair<>(Key.ENTER, new Command(this::onEnter, "Accept")));
         c.add(new Pair<>(Key.MINUS, new Command(this::previousMonth, "Prev month")));
-        c.add(new Pair<>(Key.MINUS, new Command(this::nextMonth, "Next month")));
+        c.add(new Pair<>(Key.PLUS, new Command(this::nextMonth, "Next month")));
 
         return c;
     }

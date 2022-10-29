@@ -16,10 +16,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ConsoleTableFactory {
-    public static ConsoleDateSelector createDateConsoleSelector(int consoleLines, int consoleColumns, Consumer<LocalDate> select, Supplier<String> consoleReadLine) {
-        return createDateConsoleSelector(Utils.firstDayOfCurrentMonth(), consoleLines, consoleColumns, select, consoleReadLine);
-    }
-
     public static ConsoleDateSelector createDateConsoleSelector(LocalDate firstDayOfMonth, int consoleLines, int consoleColumns, Consumer<LocalDate> select, Supplier<String> consoleReadLine) {
         return new ConsoleDateSelector(
                 TableFactory.createDateTable(
