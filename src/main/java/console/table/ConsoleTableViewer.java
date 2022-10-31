@@ -272,7 +272,7 @@ public class ConsoleTableViewer<T> {
         }
     }
 
-    public List<String> getCommandsHelp() {
+    private List<String> getCommandsHelp() {
         int fieldSize = commands()
                 .stream()
                 .map(x -> Math.max(x.getKey().getName().length(), x.getValue().getLabel().length()))

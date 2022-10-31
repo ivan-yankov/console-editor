@@ -1,5 +1,8 @@
 package console.table;
 
+import console.Utils;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -16,7 +19,7 @@ public class Table<T> {
 
     public Table(List<String> header, List<List<T>> data, Function<T, String> printValue, Supplier<T> emptyValue, boolean quotesWrapped) {
         this.header = header;
-        this.data = data;
+        this.data = Utils.asMutableList(data);
         this.printValue = printValue;
         this.emptyValue = emptyValue;
         this.quotesWrapped = quotesWrapped;
@@ -77,6 +80,10 @@ public class Table<T> {
     }
 
     public void swapRows(int i, int j) {
+        if (!isValidRowIndex(i) || !isValidColIndex(j)) {
+            return;
+        }
+
         for(int c = 0; c < getColCount(); c++) {
             T tmp = data.get(i).get(c);
             data.get(i).set(c, data.get(j).get(c));
@@ -84,7 +91,7 @@ public class Table<T> {
         }
     }
 
-    public void insertRowAt(int index) {
+    public void insertEmptyRow(int index) {
         List<T> items = header.stream().map(x -> emptyValue.get()).collect(Collectors.toList());
         if (data.isEmpty()) {
             data.add(items);
@@ -94,16 +101,28 @@ public class Table<T> {
     }
 
     public void deleteRow(int row) {
-        data.remove(row);
+        if (isValidRowIndex(row)) {
+            data.remove(row);
+        }
     }
 
     public void deleteCol(int col) {
-        header.remove(col);
-        data.forEach(x -> x.remove(col));
+        if (isValidColIndex(col)) {
+            header.remove(col);
+            data.forEach(x -> x.remove(col));
+        }
     }
 
     public void updateData(List<List<T>> data) {
         this.data.clear();
         this.data.addAll(data);
+    }
+
+    private boolean isValidRowIndex(int index) {
+        return index >= 0 && index < getRowCount();
+    }
+
+    private boolean isValidColIndex(int index) {
+        return index >= 0 && index < getColCount();
     }
 }

@@ -59,4 +59,12 @@ public class Utils {
         }
         return result;
     }
+
+    public static <T> List<List<T>> asMutableList(List<List<T>> list) {
+        List<List<T>> result = new ArrayList<>();
+        for (List<T> t : list) {
+            result.add(new ArrayList<>(t));
+        }
+        return result;
+    }
 }

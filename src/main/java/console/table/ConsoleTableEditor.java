@@ -104,7 +104,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     private void insertRow() {
-        getTable().insertRowAt(getFocus().getRow() + 1);
+        getTable().insertEmptyRow(getFocus().getRow() + 1);
         if (!getFocus().isValid()) {
             resetFocus();
         }
