@@ -3,6 +3,7 @@ package console.menu;
 import console.Key;
 import console.model.Command;
 import console.model.Pair;
+import console.operations.ConsoleOperations;
 import console.table.ConsoleTableViewer;
 import console.table.Table;
 
@@ -11,8 +12,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class ConsoleMenu extends ConsoleTableViewer<Command> {
-    public ConsoleMenu(Table<Command> table, int consoleLines, int consoleColumns, Supplier<String> consoleReadLine) {
-        super(table, consoleLines, consoleColumns, consoleReadLine);
+    public ConsoleMenu(Table<Command> table, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations) {
+        super(table, consoleLines, consoleColumns, consoleOperations);
     }
 
     @Override

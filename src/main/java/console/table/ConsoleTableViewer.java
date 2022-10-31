@@ -3,6 +3,8 @@ package console.table;
 import console.*;
 import console.model.Command;
 import console.model.Pair;
+import console.operations.ConsoleOperations;
+import console.operations.FileOperations;
 import console.util.TablePrinter;
 import console.util.Utils;
 import either.Either;
@@ -10,7 +12,6 @@ import either.Either;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ConsoleTableViewer<T> {
@@ -22,7 +23,7 @@ public class ConsoleTableViewer<T> {
     private final Focus focus;
     private final int consoleLines;
     private final int consoleColumns;
-    private final Supplier<String> consoleReadLine;
+    private final ConsoleOperations consoleOperations;
 
     private String title;
     private Mode mode;
@@ -30,12 +31,12 @@ public class ConsoleTableViewer<T> {
     private int page;
     private boolean showRowIndexes;
 
-    public ConsoleTableViewer(Table<T> table, int consoleLines, int consoleColumns, Supplier<String> consoleReadLine) {
+    public ConsoleTableViewer(Table<T> table, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations) {
         this.table = table;
         this.focus = new Focus(0, 0);
         this.consoleLines = consoleLines;
         this.consoleColumns = consoleColumns;
-        this.consoleReadLine = consoleReadLine;
+        this.consoleOperations = consoleOperations;
         this.title = "";
         this.mode = Mode.SELECT;
         this.logMessage = "";
@@ -43,8 +44,8 @@ public class ConsoleTableViewer<T> {
         this.showRowIndexes = false;
     }
 
-    public Supplier<String> getConsoleReadLine() {
-        return consoleReadLine;
+    public ConsoleOperations getConsoleOperations() {
+        return consoleOperations;
     }
 
     public void setTitle(String title) {
@@ -204,11 +205,11 @@ public class ConsoleTableViewer<T> {
 
     private void render() {
         clearConsole();
-        Utils.writeln(String.join(Const.NEW_LINE, getHeader()));
-        Utils.writeln(String.join(Const.NEW_LINE, getPage()));
-        Utils.writeln(String.join(Const.NEW_LINE, getFooter()));
+        consoleOperations.writeln(String.join(Const.NEW_LINE, getHeader()));
+        consoleOperations.writeln(String.join(Const.NEW_LINE, getPage()));
+        consoleOperations.writeln(String.join(Const.NEW_LINE, getFooter()));
         setLogMessage("");
-        Utils.write(getModeString());
+        consoleOperations.write(getModeString());
     }
 
     private void processCommand() {
@@ -233,7 +234,7 @@ public class ConsoleTableViewer<T> {
             Process p = pb.inheritIO().start();
             p.waitFor();
         } catch (Exception e) {
-            Utils.writeError("Unable to clear the console: " + e.getMessage());
+            consoleOperations.writeError("Unable to clear the console: " + e.getMessage());
         }
     }
 

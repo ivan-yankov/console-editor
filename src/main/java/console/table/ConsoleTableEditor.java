@@ -4,6 +4,8 @@ import console.*;
 import console.date.ConsoleDateSelector;
 import console.model.Command;
 import console.model.Pair;
+import console.operations.ConsoleOperations;
+import console.operations.FileOperations;
 import console.util.ConsoleTableFactory;
 import console.util.TablePrinter;
 import console.util.Utils;
@@ -14,14 +16,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private final Path file;
+    private final FileOperations fileOperations;
 
-    public ConsoleTableEditor(Table<String> table, Path file, int consoleLines, int consoleColumns, Supplier<String> consoleReadLine) {
-        super(table, consoleLines, consoleColumns, consoleReadLine);
+    public ConsoleTableEditor(Table<String> table, Path file, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations, FileOperations fileOperations) {
+        super(table, consoleLines, consoleColumns, consoleOperations);
         this.file = file;
+        this.fileOperations = fileOperations;
     }
 
     @Override
@@ -50,7 +53,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     protected void readUserInput() {
         try {
             RawConsoleInput.resetConsoleMode();
-            String userInput = getConsoleReadLine().get();
+            String userInput = getConsoleOperations().consoleReadLine().get();
             if (!userInput.isEmpty()) {
                 getTable().setCellValue(userInput, getFocus().getRow(), getFocus().getCol());
             }
@@ -73,14 +76,14 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                     getConsoleLines(),
                     getConsoleColumns(),
                     date -> getTable().setCellValue(Utils.printDate(date), getFocus().getRow(), getFocus().getCol()),
-                    getConsoleReadLine()
+                    getConsoleOperations()
             );
             dateSelector.show();
         }
     }
 
     private void saveTable() {
-        Utils.writeFile(file, TablePrinter.toCsv(getTable()) + Const.NEW_LINE);
+        fileOperations.writeFile(file, TablePrinter.toCsv(getTable()) + Const.NEW_LINE);
         setLogMessage(Utils.colorText("Saved in [" + file.toString() + "]", ConsoleColor.CYAN));
     }
 

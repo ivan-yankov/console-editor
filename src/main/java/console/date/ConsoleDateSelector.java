@@ -1,9 +1,10 @@
 package console.date;
 
+import console.operations.ConsoleOperations;
 import console.Const;
 import console.Key;
-import console.model.Pair;
 import console.model.Command;
+import console.model.Pair;
 import console.table.ConsoleTableViewer;
 import console.table.Mode;
 import console.table.Table;
@@ -11,16 +12,17 @@ import console.util.DataFactory;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     private final Consumer<LocalDate> select;
     private LocalDate firstDayOfMonth;
 
-    public ConsoleDateSelector(Table<LocalDate> table, int consoleLines, int consoleColumns, LocalDate firstDayOfMonth, Consumer<LocalDate> select, Supplier<String> consoleReadLine) {
-        super(table, consoleLines, consoleColumns, consoleReadLine);
+    public ConsoleDateSelector(Table<LocalDate> table, int consoleLines, int consoleColumns, LocalDate firstDayOfMonth, Consumer<LocalDate> select, ConsoleOperations consoleOperations) {
+        super(table, consoleLines, consoleColumns, consoleOperations);
         this.firstDayOfMonth = firstDayOfMonth;
         this.select = select;
         setTitle(createTitle());

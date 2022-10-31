@@ -1,20 +1,24 @@
 package console.table;
 
+import console.operations.ConsoleOperations;
 import console.Const;
+import console.operations.DefaultConsoleOperations;
+import console.operations.DefaultFileOperations;
 import console.util.ConsoleTableFactory;
-import console.util.Utils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ConsoleTableEditorMain {
     public static void main(String[] args) {
+        ConsoleOperations consoleOperations = new DefaultConsoleOperations();
+
         if (args.length < 3) {
-            Utils.writeError("Missing required argument. Required 3 provided " + args.length);
-            Utils.writeln("Program arguments:");
-            Utils.writeln(Const.TAB + "number-of-console-lines [required]: Number of lines of the console");
-            Utils.writeln(Const.TAB + "number-of-console-columns [required]: Number of columns of the console");
-            Utils.writeln(Const.TAB + "input-file [required]: CSV file with at least header line");
+            consoleOperations.writeError("Missing required argument. Required 3 provided " + args.length);
+            consoleOperations.writeln("Program arguments:");
+            consoleOperations.writeln(Const.TAB + "number-of-console-lines [required]: Number of lines of the console");
+            consoleOperations.writeln(Const.TAB + "number-of-console-columns [required]: Number of columns of the console");
+            consoleOperations.writeln(Const.TAB + "input-file [required]: CSV file with at least header line");
             return;
         }
 
@@ -27,10 +31,11 @@ public class ConsoleTableEditorMain {
                 lines,
                 columns,
                 csvFile.toString(),
-                Utils.consoleReadLine()
+                consoleOperations,
+                new DefaultFileOperations(consoleOperations)
         ).show();
 
-        Utils.writeln();
+        consoleOperations.writeln();
         System.exit(0);
     }
 }

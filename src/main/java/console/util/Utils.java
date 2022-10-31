@@ -3,58 +3,20 @@ package console.util;
 import console.ConsoleColor;
 import console.model.Command;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class Utils {
-    public static Optional<String> readFile(Path file) {
-        try {
-            return Optional.of(Files.readString(file));
-        } catch (IOException e) {
-            writeError("Unable to read file: " + e.getMessage());
-            return Optional.empty();
-        }
-    }
-
-    public static void writeFile(Path file, String contents) {
-        try {
-            Files.writeString(file, contents);
-        } catch (IOException e) {
-            writeError("Unable to write file: " + e.getMessage());
-        }
-    }
-
-    public static void writeError(String s) {
-        System.err.println(s);
-    }
-
     public static String generateString(int n, Character symbol) {
         return new String(new char[n]).replace('\0', symbol);
     }
 
     public static boolean containsLetter(String s) {
         return s.chars().anyMatch(Character::isLetter);
-    }
-
-    public static void writeln() {
-        System.out.println();
-    }
-
-    public static void writeln(String s) {
-        System.out.println(s);
-    }
-
-    public static void write(String s) {
-        System.out.print(s);
     }
 
     public static String colorText(String s, String color) {
@@ -89,10 +51,6 @@ public class Utils {
     public static Command doNothing() {
         return new Command(() -> {
         }, "");
-    }
-
-    public static Supplier<String> consoleReadLine() {
-        return System.console()::readLine;
     }
 
     public static <T> List<List<T>> asList(T[][] array) {

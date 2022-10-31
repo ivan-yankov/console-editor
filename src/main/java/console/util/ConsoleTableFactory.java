@@ -4,6 +4,8 @@ import console.date.ConsoleDateSelector;
 import console.menu.ConsoleMenu;
 import console.model.Command;
 import console.model.Pair;
+import console.operations.ConsoleOperations;
+import console.operations.FileOperations;
 import console.table.ConsoleTableEditor;
 import console.table.Table;
 
@@ -12,11 +14,10 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ConsoleTableFactory {
-    public static ConsoleDateSelector createDateConsoleSelector(LocalDate firstDayOfMonth, int consoleLines, int consoleColumns, Consumer<LocalDate> select, Supplier<String> consoleReadLine) {
+    public static ConsoleDateSelector createDateConsoleSelector(LocalDate firstDayOfMonth, int consoleLines, int consoleColumns, Consumer<LocalDate> select, ConsoleOperations consoleOperations) {
         return new ConsoleDateSelector(
                 TableFactory.createDateTable(
                         DataFactory.createHeaderForDateConsoleSelector(),
@@ -26,19 +27,19 @@ public class ConsoleTableFactory {
                 consoleColumns,
                 firstDayOfMonth,
                 select,
-                consoleReadLine
+                consoleOperations
         );
     }
 
-    public static ConsoleTableEditor createConsoleTableEditor(Path csvFile, int lines, int columns, String title, Supplier<String> consoleReadLine) {
-        String csv = Utils.readFile(csvFile).orElse("");
+    public static ConsoleTableEditor createConsoleTableEditor(Path csvFile, int lines, int columns, String title, ConsoleOperations consoleOperations, FileOperations fileOperations) {
+        String csv = fileOperations.readFile(csvFile).orElse("");
         Table<String> table = TableParser.fromCsv(csv);
-        ConsoleTableEditor editor = new ConsoleTableEditor(table, csvFile, lines, columns, consoleReadLine);
+        ConsoleTableEditor editor = new ConsoleTableEditor(table, csvFile, lines, columns, consoleOperations, fileOperations);
         editor.setTitle(title);
         return editor;
     }
 
-    public static ConsoleMenu createConsoleMenu(List<Pair<String, List<Command>>> commands, int consoleLines, int consoleColumns, String title, Supplier<String> consoleReadLine) {
+    public static ConsoleMenu createConsoleMenu(List<Pair<String, List<Command>>> commands, int consoleLines, int consoleColumns, String title, ConsoleOperations consoleOperations) {
         List<String> header = commands.stream().map(Pair::getKey).collect(Collectors.toList());
         int numberOfRows = commands.stream().map(x -> x.getValue().size()).max(Comparator.naturalOrder()).orElse(0);
         int numberOfColumns = header.size();
@@ -61,7 +62,7 @@ public class ConsoleTableFactory {
                 false
         );
 
-        ConsoleMenu menu = new ConsoleMenu(table, consoleLines, consoleColumns, consoleReadLine);
+        ConsoleMenu menu = new ConsoleMenu(table, consoleLines, consoleColumns, consoleOperations);
         menu.setTitle(title);
         return menu;
     }
