@@ -6,18 +6,28 @@ import either.Either;
 
 import java.util.function.Supplier;
 
-public interface ConsoleOperations {
-    void writeln();
+public class ConsoleOperations {
+    public void writeln() {
+        System.out.println();
+    }
 
-    void writeln(String s);
+    public void writeln(String s) {
+        System.out.println(s);
+    }
 
-    void write(String s);
+    public void write(String s) {
+        System.out.print(s);
+    }
 
-    Supplier<String> consoleReadLine();
+    public Supplier<String> consoleReadLine() {
+        return System.console()::readLine;
+    }
 
-    void writeError(String s);
+    public void writeError(String s) {
+        System.err.println(s);
+    }
 
-    default Either<String, Key> readKey() {
+    public Either<String, Key> readKey() {
         return ConsoleReader.readKey();
     }
 }

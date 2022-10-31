@@ -2,16 +2,15 @@ package console.table;
 
 import console.operations.ConsoleOperations;
 import console.Const;
-import console.operations.DefaultConsoleOperations;
-import console.operations.DefaultFileOperations;
 import console.factory.ConsoleTableFactory;
+import console.operations.FileOperations;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ConsoleTableEditorMain {
     public static void main(String[] args) {
-        ConsoleOperations consoleOperations = new DefaultConsoleOperations();
+        ConsoleOperations consoleOperations = new ConsoleOperations();
 
         if (args.length < 3) {
             consoleOperations.writeError("Missing required argument. Required 3 provided " + args.length);
@@ -32,7 +31,7 @@ public class ConsoleTableEditorMain {
                 columns,
                 csvFile.toString(),
                 consoleOperations,
-                new DefaultFileOperations(consoleOperations)
+                new FileOperations(consoleOperations)
         ).show();
 
         consoleOperations.writeln();
