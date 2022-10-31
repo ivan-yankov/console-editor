@@ -1,5 +1,9 @@
 package console.operations;
 
+import console.ConsoleReader;
+import console.Key;
+import either.Either;
+
 import java.util.function.Supplier;
 
 public class DefaultConsoleOperations implements ConsoleOperations {
@@ -28,4 +32,8 @@ public class DefaultConsoleOperations implements ConsoleOperations {
         System.err.println(s);
     }
 
+    @Override
+    public Either<String, Key> readKey() {
+        return ConsoleReader.readKey();
+    }
 }

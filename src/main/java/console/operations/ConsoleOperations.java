@@ -1,5 +1,9 @@
 package console.operations;
 
+import console.ConsoleReader;
+import console.Key;
+import either.Either;
+
 import java.util.function.Supplier;
 
 public interface ConsoleOperations {
@@ -12,4 +16,6 @@ public interface ConsoleOperations {
     Supplier<String> consoleReadLine();
 
     void writeError(String s);
+
+    Either<String, Key> readKey();
 }

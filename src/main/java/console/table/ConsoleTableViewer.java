@@ -211,7 +211,7 @@ public class ConsoleTableViewer<T> {
     }
 
     private void processCommand() {
-        Either<String, Key> input = ConsoleReader.readKey();
+        Either<String, Key> input = consoleOperations.readKey();
         String inputKeyName = input.getRight().isPresent() ? input.getRight().get().getName() : "";
         commands()
                 .stream()
