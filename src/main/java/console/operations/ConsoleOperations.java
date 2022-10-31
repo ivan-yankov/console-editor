@@ -17,5 +17,7 @@ public interface ConsoleOperations {
 
     void writeError(String s);
 
-    Either<String, Key> readKey();
+    default Either<String, Key> readKey() {
+        return ConsoleReader.readKey();
+    }
 }
