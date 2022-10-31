@@ -4,9 +4,7 @@ import console.*;
 import console.model.Command;
 import console.model.Pair;
 import console.operations.ConsoleOperations;
-import console.operations.FileOperations;
-import console.util.TablePrinter;
-import console.util.Utils;
+import console.Utils;
 import either.Either;
 
 import java.util.ArrayList;

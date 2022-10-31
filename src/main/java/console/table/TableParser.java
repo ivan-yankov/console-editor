@@ -1,7 +1,7 @@
-package console.util;
+package console.table;
 
 import console.Const;
-import console.table.Table;
+import console.factory.TableFactory;
 
 import java.util.Arrays;
 import java.util.List;

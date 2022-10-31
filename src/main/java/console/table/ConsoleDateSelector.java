@@ -1,14 +1,11 @@
-package console.date;
+package console.table;
 
-import console.operations.ConsoleOperations;
 import console.Const;
 import console.Key;
 import console.model.Command;
 import console.model.Pair;
-import console.table.ConsoleTableViewer;
-import console.table.Mode;
-import console.table.Table;
-import console.util.DataFactory;
+import console.operations.ConsoleOperations;
+import console.factory.DataFactory;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;

@@ -1,14 +1,12 @@
 package console.table;
 
 import console.*;
-import console.date.ConsoleDateSelector;
 import console.model.Command;
 import console.model.Pair;
 import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
-import console.util.ConsoleTableFactory;
-import console.util.TablePrinter;
-import console.util.Utils;
+import console.factory.ConsoleTableFactory;
+import console.Utils;
 
 import java.awt.*;
 import java.awt.datatransfer.*;

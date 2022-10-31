@@ -4,7 +4,7 @@ import console.operations.ConsoleOperations;
 import console.Const;
 import console.operations.DefaultConsoleOperations;
 import console.operations.DefaultFileOperations;
-import console.util.ConsoleTableFactory;
+import console.factory.ConsoleTableFactory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

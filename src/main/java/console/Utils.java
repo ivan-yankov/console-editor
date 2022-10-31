@@ -1,6 +1,5 @@
-package console.util;
+package console;
 
-import console.ConsoleColor;
 import console.model.Command;
 
 import java.time.LocalDate;
