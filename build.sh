@@ -1,1 +1,1 @@
-mvn clean compile package
+mvn clean compile test package
