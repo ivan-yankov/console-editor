@@ -46,14 +46,11 @@ public class FakeConsoleOperations extends ConsoleOperations {
         this.error = error;
     }
 
-    public void setInputSeq(List<Either<String, Key>> inputKeySeq) {
-        for (int i = inputKeySeq.size() - 1; i >= 0; i--) {
-            this.inputSeq.push(inputKeySeq.get(i));
+    public void setInputSeq(List<Either<String, Key>> inputSeq) {
+        this.inputSeq.clear();
+        for (int i = inputSeq.size() - 1; i >= 0; i--) {
+            this.inputSeq.push(inputSeq.get(i));
         }
-    }
-
-    public void clearInputKeySeq() {
-        inputSeq.clear();
     }
 
     public boolean allExecuted() {

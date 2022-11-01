@@ -40,7 +40,6 @@ public class ConsoleTableViewerTest {
                 consoleOperations.getOutput()
         );
 
-        consoleOperations.clearInputKeySeq();
         consoleOperations.setInputSeq(List.of(Either.right(Key.TAB), Either.right(Key.ESC)));
 
         tableViewer.setMode(Mode.SELECT);
