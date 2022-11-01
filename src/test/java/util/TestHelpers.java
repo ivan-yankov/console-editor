@@ -25,7 +25,7 @@ public class TestHelpers {
         }
     }
 
-    private static Path resourcePath(String dir, String name) {
+    public static Path resourcePath(String dir, String name) {
         return Paths.get("src", "test", "resources", dir, name);
     }
 }

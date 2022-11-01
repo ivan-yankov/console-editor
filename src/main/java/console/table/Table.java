@@ -60,10 +60,6 @@ public class Table<T> {
         return header.size();
     }
 
-    public boolean isEmpty() {
-        return data.isEmpty();
-    }
-
     public boolean isValid() {
         return getDataStream().allMatch(row -> row.size() == header.size());
     }

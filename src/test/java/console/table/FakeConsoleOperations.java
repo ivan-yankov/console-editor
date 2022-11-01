@@ -10,7 +10,7 @@ import java.util.Stack;
 import java.util.function.Supplier;
 
 public class FakeConsoleOperations extends ConsoleOperations {
-    private Supplier<String> input;
+    private final Supplier<String> input;
     private String output;
     private String error;
     private final Stack<Either<String, Key>> inputSeq;
@@ -26,30 +26,18 @@ public class FakeConsoleOperations extends ConsoleOperations {
         return input;
     }
 
-    public void setInput(Supplier<String> input) {
-        this.input = input;
-    }
-
     public String getOutput() {
         return output;
-    }
-
-    public void setOutput(String output) {
-        this.output = output;
     }
 
     public String getError() {
         return error;
     }
 
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public void setInputSeq(List<Either<String, Key>> inputSeq) {
-        this.inputSeq.clear();
-        for (int i = inputSeq.size() - 1; i >= 0; i--) {
-            this.inputSeq.push(inputSeq.get(i));
+    public void setInputSeq(List<Key> inputKeys) {
+        inputSeq.clear();
+        for (int i = inputKeys.size() - 1; i >= 0; i--) {
+            this.inputSeq.push(Either.right(inputKeys.get(i)));
         }
     }
 
