@@ -2,11 +2,25 @@ package console.operations;
 
 import console.ConsoleReader;
 import console.Key;
+import console.model.Command;
 import either.Either;
 
 import java.util.function.Supplier;
 
 public class ConsoleOperations {
+    public void clearConsole() {
+        try {
+            String os = System.getProperty("os.name");
+            ProcessBuilder pb = os.contains("Windows")
+                    ? new ProcessBuilder("cmd", "/c", "cls")
+                    : new ProcessBuilder("clear");
+            Process p = pb.inheritIO().start();
+            p.waitFor();
+        } catch (Exception e) {
+            writeError("Unable to clear the console: " + e.getMessage());
+        }
+    }
+
     public void writeln() {
         System.out.println();
     }

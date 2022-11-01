@@ -1,16 +1,11 @@
 package console.table;
 
 import console.Const;
-import console.Key;
-import console.model.Command;
-import console.model.Pair;
-import console.operations.ConsoleOperations;
 import console.factory.DataFactory;
+import console.operations.ConsoleOperations;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
@@ -27,22 +22,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     }
 
     @Override
-    protected List<Pair<Key, Command>> addCommands() {
-        List<Pair<Key, Command>> c = new ArrayList<>();
-
-        c.add(new Pair<>(Key.ESC, new Command(this::onEsc, "Close")));
-        c.add(new Pair<>(Key.ENTER, new Command(this::onEnter, "Accept")));
-        c.add(new Pair<>(Key.MINUS, new Command(this::previousMonth, "Prev month")));
-        c.add(new Pair<>(Key.PLUS, new Command(this::nextMonth, "Next month")));
-
-        return c;
-    }
-
-    private void onEsc() {
-        setMode(Mode.CLOSE);
-    }
-
-    private void onEnter() {
+    protected void onEnter() {
         LocalDate value = getTable().getCellValue(getFocus().getRow(), getFocus().getCol());
         if (!value.equals(Const.INVALID_DATE)) {
             select.accept(value);
@@ -50,7 +30,8 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         }
     }
 
-    private void previousMonth() {
+    @Override
+    protected void onPageUp() {
         firstDayOfMonth = firstDayOfMonth.minusMonths(1);
         getTable().updateData(DataFactory.createDataForDateConsoleSelector(firstDayOfMonth));
         setTitle(createTitle());
@@ -58,12 +39,28 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         getFocus().setCol(0);
     }
 
-    private void nextMonth() {
+    @Override
+    protected void onPageDown() {
         firstDayOfMonth = firstDayOfMonth.plusMonths(1);
         getTable().updateData(DataFactory.createDataForDateConsoleSelector(firstDayOfMonth));
         setTitle(createTitle());
         getFocus().setRow(0);
         getFocus().setCol(0);
+    }
+
+    @Override
+    protected String getPageUpLabel() {
+        return "Prev month";
+    }
+
+    @Override
+    protected String getPageDownLabel() {
+        return "Next month";
+    }
+
+    @Override
+    protected String getEnterLabel() {
+        return "Accept";
     }
 
     private String createTitle() {

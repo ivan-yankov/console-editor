@@ -32,12 +32,10 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
         c.add(new Pair<>(Key.F2, new Command(this::editCell, "Edit")));
         c.add(new Pair<>(Key.CTRL_F2, new Command(this::selectDate, "Select date")));
         c.add(new Pair<>(Key.F3, new Command(this::saveTable, "Save")));
-        c.add(new Pair<>(Key.F4, new Command(this::close, "Close")));
         c.add(new Pair<>(Key.F5, new Command(this::moveRowUp, "Move up")));
         c.add(new Pair<>(Key.F6, new Command(this::moveRowDown, "Move down")));
         c.add(new Pair<>(Key.F7, new Command(this::insertRow, "Insert after")));
         c.add(new Pair<>(Key.F8, new Command(this::deleteRow, "Delete row")));
-        c.add(new Pair<>(Key.F9, new Command(this::toggleRowIndexes, "Row indexes")));
         c.add(new Pair<>(Key.CTRL_DELETE, new Command(this::deleteColumn, "Delete column")));
         c.add(new Pair<>(Key.CTRL_X, new Command(this::cut, "Cut")));
         c.add(new Pair<>(Key.CTRL_C, new Command(this::copy, "Copy")));
@@ -48,17 +46,36 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     @Override
-    protected void readUserInput() {
-        try {
-            RawConsoleInput.resetConsoleMode();
-            String userInput = getConsoleOperations().consoleReadLine().get();
-            if (!userInput.isEmpty()) {
-                getTable().setCellValue(userInput, getFocus().getRow(), getFocus().getCol());
+    protected boolean processCommandAllowed() {
+        return getMode() != Mode.EDIT;
+    }
+
+    @Override
+    protected void processCustom() {
+        if (getMode() == Mode.EDIT) {
+            try {
+                RawConsoleInput.resetConsoleMode();
+                String userInput = getConsoleOperations().consoleReadLine().get();
+                if (!userInput.isEmpty()) {
+                    getTable().setCellValue(userInput, getFocus().getRow(), getFocus().getCol());
+                }
+                setMode(Mode.SELECT);
+            } catch (IOException e) {
+                // ignored
             }
-            setMode(Mode.SELECT);
-        } catch (IOException e) {
-            // ignored
         }
+    }
+
+    @Override
+    protected List<String> getHelp() {
+        List<String> help = new ArrayList<>();
+        if (getMode() == Mode.EDIT) {
+            help.add("");
+            help.add(Utils.colorText("Enter to accept. Empty input to escape editing.", ConsoleColor.DARK_GRAY));
+        } else {
+            help.addAll(getCommandsHelp());
+        }
+        return help;
     }
 
     private void editCell() {
@@ -83,10 +100,6 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private void saveTable() {
         fileOperations.writeFile(file, TablePrinter.toCsv(getTable()) + Const.NEW_LINE);
         setLogMessage(Utils.colorText("Saved in [" + file.toString() + "]", ConsoleColor.CYAN));
-    }
-
-    private void close() {
-        setMode(Mode.CLOSE);
     }
 
     private void moveRowUp() {
@@ -176,9 +189,5 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
             StringSelection stringSelection = new StringSelection(value);
             getClipboard().setContents(stringSelection, null);
         }
-    }
-
-    private void toggleRowIndexes() {
-        setShowRowIndexes(!isShowRowIndexes());
     }
 }

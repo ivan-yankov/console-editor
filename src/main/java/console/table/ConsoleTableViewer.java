@@ -46,16 +46,24 @@ public class ConsoleTableViewer<T> {
         return consoleOperations;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public int getConsoleLines() {
         return consoleLines;
     }
 
     public int getConsoleColumns() {
         return consoleColumns;
+    }
+
+    public Table<T> getTable() {
+        return table;
+    }
+
+    public Focus getFocus() {
+        return focus;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getLogMessage() {
@@ -66,50 +74,38 @@ public class ConsoleTableViewer<T> {
         this.logMessage = logMessage;
     }
 
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
     public void show() {
         do {
             render();
-            if (getMode() == Mode.EDIT) {
-                readUserInput();
-            } else {
+            if (processCommandAllowed()) {
                 processCommand();
+            } else {
+                processCustom();
             }
         } while (getMode() != Mode.CLOSE);
     }
 
-    protected void readUserInput() {
+    protected boolean processCommandAllowed() {
+        return true;
     }
 
-    protected Table<T> getTable() {
-        return table;
+    protected void processCustom() {
     }
 
-    protected Focus getFocus() {
-        return focus;
-    }
-
-    protected Mode getMode() {
-        return mode;
-    }
-
-    protected void setMode(Mode mode) {
-        this.mode = mode;
-    }
-
-    protected boolean isShowRowIndexes() {
-        return showRowIndexes;
-    }
-
-    protected void setShowRowIndexes(boolean showRowIndexes) {
-        this.showRowIndexes = showRowIndexes;
-    }
-
-    protected void resetFocus() {
+    protected final void resetFocus() {
         getFocus().setRow(0);
         getFocus().setCol(0);
     }
 
-    protected void invalidateFocus() {
+    protected final void invalidateFocus() {
         getFocus().setRow(-1);
         getFocus().setCol(-1);
     }
@@ -118,9 +114,77 @@ public class ConsoleTableViewer<T> {
         return new ArrayList<>();
     }
 
+    protected void onPageUp() {
+        if (page > 0) {
+            page--;
+            focus.setRow(focus.getRow() - maxTableLinesPerPage());
+        }
+    }
+
+    protected void onPageDown() {
+        if (page < numberOfPages() - 1) {
+            page++;
+            int r = focus.getRow() + maxTableLinesPerPage();
+            if (r >= getTable().getRowCount()) {
+                r = getTable().getRowCount() - 1;
+            }
+            focus.setRow(r);
+        }
+    }
+
+    protected void onEnter() {
+    }
+
+    protected String getPageUpLabel() {
+        return "Prev page";
+    }
+
+    protected String getPageDownLabel() {
+        return "Nex page";
+    }
+
+    protected String getEnterLabel() {
+        return "";
+    }
+
+    protected List<String> getHelp() {
+        return getCommandsHelp();
+    }
+
+    protected final List<String> getCommandsHelp() {
+        List<Pair<Key, Command>> availableCommands = commands()
+                .stream()
+                .filter(x -> !x.getValue().getLabel().isEmpty())
+                .collect(Collectors.toList());
+
+        int fieldSize = availableCommands
+                .stream()
+                .map(x -> Math.max(x.getKey().getName().length(), x.getValue().getLabel().length()))
+                .max(Comparator.naturalOrder())
+                .orElse(15) + 1;
+
+        int helpLength = fieldSize * 2;
+
+        StringBuilder help = new StringBuilder();
+        int currentRowLength = 0;
+        help.append(Const.NEW_LINE);
+        for (Pair<Key, Command> entry : availableCommands) {
+            if (currentRowLength + helpLength > consoleColumns) {
+                help.append(Const.NEW_LINE);
+                currentRowLength = 0;
+            }
+            help.append(commandColoredHelp(entry.getKey(), entry.getValue(), fieldSize));
+            currentRowLength += helpLength;
+        }
+        return List.of(help.toString().split(Const.NEW_LINE));
+    }
+
     private List<Pair<Key, Command>> commands() {
         List<Pair<Key, Command>> c = new ArrayList<>();
 
+        c.add(new Pair<>(Key.ENTER, new Command(this::onEnter, getEnterLabel())));
+        c.add(new Pair<>(Key.ESC, new Command(this::onEsc, "Close")));
+        c.add(new Pair<>(Key.F1, new Command(this::toggleRowIndexes, "Row indexes")));
         c.add(new Pair<>(Key.TAB, new Command(this::onTab, "Next")));
         c.add(new Pair<>(Key.LEFT, new Command(this::onLeft, "Prev column")));
         c.add(new Pair<>(Key.RIGHT, new Command(this::onRight, "Next column")));
@@ -128,12 +192,20 @@ public class ConsoleTableViewer<T> {
         c.add(new Pair<>(Key.DOWN, new Command(this::onDown, "Next row")));
         c.add(new Pair<>(Key.HOME, new Command(this::onHome, "Firs column")));
         c.add(new Pair<>(Key.END, new Command(this::onEnd, "Last column")));
-        c.add(new Pair<>(Key.PAGE_UP, new Command(this::prevPage, "Prev page")));
-        c.add(new Pair<>(Key.PAGE_DOWN, new Command(this::nextPage, "Nex page")));
+        c.add(new Pair<>(Key.PAGE_UP, new Command(this::onPageUp, getPageUpLabel())));
+        c.add(new Pair<>(Key.PAGE_DOWN, new Command(this::onPageDown, getPageDownLabel())));
 
         c.addAll(addCommands());
 
         return c;
+    }
+
+    private void onEsc() {
+        setMode(Mode.CLOSE);
+    }
+
+    private void toggleRowIndexes() {
+        showRowIndexes = !showRowIndexes;
     }
 
     private void onTab() {
@@ -183,26 +255,8 @@ public class ConsoleTableViewer<T> {
         focus.setCol(table.getColCount() - 1);
     }
 
-    private void prevPage() {
-        if (page > 0) {
-            page--;
-            focus.setRow(focus.getRow() - maxTableLinesPerPage());
-        }
-    }
-
-    private void nextPage() {
-        if (page < numberOfPages() - 1) {
-            page++;
-            int r = focus.getRow() + maxTableLinesPerPage();
-            if (r >= getTable().getRowCount()) {
-                r = getTable().getRowCount() - 1;
-            }
-            focus.setRow(r);
-        }
-    }
-
     private void render() {
-        clearConsole();
+        consoleOperations.clearConsole();
         consoleOperations.writeln(String.join(Const.NEW_LINE, getHeader()));
         consoleOperations.writeln(String.join(Const.NEW_LINE, getPage()));
         consoleOperations.writeln(String.join(Const.NEW_LINE, getFooter()));
@@ -223,19 +277,6 @@ public class ConsoleTableViewer<T> {
                 .execute();
     }
 
-    private void clearConsole() {
-        try {
-            String os = System.getProperty("os.name");
-            ProcessBuilder pb = os.contains("Windows")
-                    ? new ProcessBuilder("cmd", "/c", "cls")
-                    : new ProcessBuilder("clear");
-            Process p = pb.inheritIO().start();
-            p.waitFor();
-        } catch (Exception e) {
-            consoleOperations.writeError("Unable to clear the console: " + e.getMessage());
-        }
-    }
-
     private List<String> getHeader() {
         List<String> header = new ArrayList<>();
         header.add(title);
@@ -244,13 +285,7 @@ public class ConsoleTableViewer<T> {
     }
 
     private List<String> getFooter() {
-        List<String> footer = new ArrayList<>();
-        if (getMode() == Mode.EDIT) {
-            footer.add("");
-            footer.add(Utils.colorText("Enter empty input to escape edit", ConsoleColor.DARK_GRAY));
-        } else {
-            footer.addAll(getCommandsHelp());
-        }
+        List<String> footer = new ArrayList<>(getHelp());
         footer.add(getLogMessage());
         return footer;
     }
@@ -270,29 +305,6 @@ public class ConsoleTableViewer<T> {
         } else {
             return new ArrayList<>();
         }
-    }
-
-    private List<String> getCommandsHelp() {
-        int fieldSize = commands()
-                .stream()
-                .map(x -> Math.max(x.getKey().getName().length(), x.getValue().getLabel().length()))
-                .max(Comparator.naturalOrder())
-                .orElse(15) + 1;
-
-        int helpLength = fieldSize * 2;
-
-        StringBuilder help = new StringBuilder();
-        int currentRowLength = 0;
-        help.append(Const.NEW_LINE);
-        for (Pair<Key, Command> entry : commands()) {
-            if (currentRowLength + helpLength > consoleColumns) {
-                help.append(Const.NEW_LINE);
-                currentRowLength = 0;
-            }
-            help.append(commandColoredHelp(entry.getKey(), entry.getValue(), fieldSize));
-            currentRowLength += helpLength;
-        }
-        return List.of(help.toString().split(Const.NEW_LINE));
     }
 
     private String commandColoredHelp(Key key, Command command, int fieldSize) {
