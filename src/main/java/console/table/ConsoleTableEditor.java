@@ -99,7 +99,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void saveTable() {
         fileOperations.writeFile(file, TablePrinter.toCsv(getTable()) + Const.NEW_LINE);
-        setLogMessage(Utils.colorText("Saved in [" + file.toString() + "]", ConsoleColor.CYAN));
+        setLogMessage(Utils.colorText("Saved " + file.toString(), ConsoleColor.CYAN));
     }
 
     private void moveRowUp() {
