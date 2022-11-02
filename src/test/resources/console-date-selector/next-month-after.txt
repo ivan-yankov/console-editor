@@ -1,0 +1,14 @@
+December, 2022
+=== | === | === | === | === | === | ===
+Mon | Tue | Wed | Thu | Fri | Sat | Sun
+=== | === | === | === | === | === | ===
+[30m[46m   [0m |     |     |   1 |   2 |   3 |   4
+  5 |   6 |   7 |   8 |   9 |  10 |  11
+ 12 |  13 |  14 |  15 |  16 |  17 |  18
+ 19 |  20 |  21 |  22 |  23 |  24 |  25
+ 26 |  27 |  28 |  29 |  30 |  31 |    
+
+[33mEnter[0m       [90mAccept[0m      [33mEsc[0m         [90mClose[0m       [33mF1[0m          [90mRow indexes[0m [33mTab[0m         [90mNext[0m        [33mLeft[0m        [90mPrev column[0m [33mRight[0m       [90mNext column[0m [33mUp[0m          [90mPrev row[0m    [33mDown[0m        [90mNext row[0m    
+[33mHome[0m        [90mFirs column[0m [33mEnd[0m         [90mLast column[0m [33mPageUp[0m      [90mPrev month[0m  [33mPageDown[0m    [90mNext month[0m  
+
+[1m[92mSelect: [0m

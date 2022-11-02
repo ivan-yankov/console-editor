@@ -31,8 +31,11 @@ public class Utils {
     }
 
     public static LocalDate firstDayOfCurrentMonth() {
-        LocalDate today = LocalDate.now();
-        return today.minusDays(today.getDayOfMonth() - 1);
+        return firstDayOfMonth(LocalDate.now());
+    }
+
+    public static LocalDate firstDayOfMonth(LocalDate date) {
+        return date.minusDays(date.getDayOfMonth() - 1);
     }
 
     public static <T> long numberOfSlides(List<T> items, long step) {
@@ -60,11 +63,15 @@ public class Utils {
         return result;
     }
 
-    public static <T> List<List<T>> asMutableList(List<List<T>> list) {
+    public static <T> List<List<T>> asMutableList2d(List<List<T>> list) {
         List<List<T>> result = new ArrayList<>();
         for (List<T> t : list) {
-            result.add(new ArrayList<>(t));
+            result.add(asMutableList(t));
         }
         return result;
+    }
+
+    public static <T> List<T> asMutableList(List<T> list) {
+        return new ArrayList<>(list);
     }
 }

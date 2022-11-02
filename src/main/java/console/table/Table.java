@@ -17,8 +17,8 @@ public class Table<T> {
     private final boolean quotesWrapped;
 
     public Table(List<String> header, List<List<T>> data, Function<T, String> printValue, Supplier<T> emptyValue, boolean quotesWrapped) {
-        this.header = header;
-        this.data = Utils.asMutableList(data);
+        this.header = Utils.asMutableList(header);
+        this.data = Utils.asMutableList2d(data);
         this.printValue = printValue;
         this.emptyValue = emptyValue;
         this.quotesWrapped = quotesWrapped;

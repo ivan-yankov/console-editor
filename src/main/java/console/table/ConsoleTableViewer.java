@@ -1,10 +1,12 @@
 package console.table;
 
-import console.*;
+import console.ConsoleColor;
+import console.Const;
+import console.Key;
+import console.Utils;
 import console.model.Command;
 import console.model.Pair;
 import console.operations.ConsoleOperations;
-import console.Utils;
 import either.Either;
 
 import java.util.ArrayList;
@@ -60,6 +62,10 @@ public class ConsoleTableViewer<T> {
 
     public Focus getFocus() {
         return focus;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public void setTitle(String title) {

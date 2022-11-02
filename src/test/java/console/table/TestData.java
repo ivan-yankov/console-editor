@@ -18,6 +18,10 @@ public class TestData {
         this.commandsAfter = commandsAfter;
     }
 
+    public String getTableName() {
+        return tableName;
+    }
+
     public String getTestName() {
         return testName;
     }
@@ -28,9 +32,5 @@ public class TestData {
 
     public List<Key> getCommandsAfter() {
         return commandsAfter;
-    }
-
-    public Table<String> getTable() {
-        return TableParser.fromCsv(TestHelpers.readResource("table", tableName));
     }
 }
