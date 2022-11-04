@@ -39,7 +39,13 @@ public class ConsoleTableFactory {
         );
     }
 
-    public static ConsoleTableEditor createConsoleTableEditor(Path csvFile, int lines, int columns, String title, ConsoleOperations consoleOperations, FileOperations fileOperations) {
+    public static ConsoleTableEditor createConsoleTableEditor(
+            Path csvFile,
+            int lines,
+            int columns,
+            String title,
+            ConsoleOperations consoleOperations,
+            FileOperations fileOperations) {
         String csv = fileOperations.readFile(csvFile).orElse("");
         Table<String> table = TableParser.fromCsv(csv);
         ConsoleTableEditor editor = new ConsoleTableEditor(table, csvFile, lines, columns, consoleOperations, fileOperations);
@@ -47,7 +53,12 @@ public class ConsoleTableFactory {
         return editor;
     }
 
-    public static ConsoleMenu createConsoleMenu(List<Pair<String, List<Command>>> commands, int consoleLines, int consoleColumns, String title, ConsoleOperations consoleOperations) {
+    public static ConsoleMenu createConsoleMenu(
+            List<Pair<String, List<Command>>> commands,
+            int consoleLines,
+            int consoleColumns,
+            String title,
+            ConsoleOperations consoleOperations) {
         List<String> header = commands.stream().map(Pair::getKey).collect(Collectors.toList());
         int numberOfRows = commands.stream().map(x -> x.getValue().size()).max(Comparator.naturalOrder()).orElse(0);
         int numberOfColumns = header.size();
