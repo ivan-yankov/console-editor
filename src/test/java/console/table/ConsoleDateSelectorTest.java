@@ -2,7 +2,6 @@ package console.table;
 
 import console.Key;
 import console.Utils;
-import console.factory.ConsoleTableFactory;
 import console.factory.DataFactory;
 import console.factory.TableFactory;
 import org.junit.Assert;
@@ -11,11 +10,13 @@ import util.TestHelpers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ConsoleDateSelectorTest {
     @Test
     public void show() {
-        LocalDate date = Utils.firstDayOfMonth(LocalDate.of(2022, 11, 2));
+        LocalDate date = LocalDate.of(2022, 11, 2);
+        LocalDate firstDayOfMonth = Utils.firstDayOfMonth(date);
         LocalDate expectedDate = LocalDate.of(2022, 11, 3);
 
         List<TestData> testData = List.of(
@@ -29,9 +30,17 @@ public class ConsoleDateSelectorTest {
                 testData,
                 (tn) -> TableFactory.createDateTable(
                         DataFactory.createHeaderForDateConsoleSelector(),
-                        DataFactory.createDataForDateConsoleSelector(date)
+                        DataFactory.createDataForDateConsoleSelector(firstDayOfMonth)
                 ),
-                (t, l, c, f, fOps, cOps) -> ConsoleTableFactory.createDateConsoleSelector(date, l, c, d -> Assert.assertTrue(d.isEqual(expectedDate)), cOps)
+                (table, lines, columns, file, fOps, cOps) -> new ConsoleDateSelector(
+                        table,
+                        lines,
+                        columns,
+                        firstDayOfMonth,
+                        () -> date,
+                        d -> Assert.assertTrue(d.isEqual(expectedDate)),
+                        cOps
+                )
         );
     }
 }

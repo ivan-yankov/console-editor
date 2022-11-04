@@ -8,17 +8,25 @@ import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     private final Consumer<LocalDate> select;
     private LocalDate firstDayOfMonth;
 
-    public ConsoleDateSelector(Table<LocalDate> table, int consoleLines, int consoleColumns, LocalDate firstDayOfMonth, Consumer<LocalDate> select, ConsoleOperations consoleOperations) {
+    public ConsoleDateSelector(
+            Table<LocalDate> table,
+            int consoleLines,
+            int consoleColumns,
+            LocalDate firstDayOfMonth,
+            Supplier<LocalDate> todayDate,
+            Consumer<LocalDate> select,
+            ConsoleOperations consoleOperations) {
         super(table, consoleLines, consoleColumns, consoleOperations);
         this.firstDayOfMonth = firstDayOfMonth;
         this.select = select;
         setTitle(createTitle());
-        setFocusOnToday();
+        selectDate(todayDate.get());
     }
 
     @Override
@@ -67,11 +75,10 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         return firstDayOfMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.US) + ", " + firstDayOfMonth.getYear();
     }
 
-    private void setFocusOnToday() {
-        LocalDate today = LocalDate.now();
+    private void selectDate(LocalDate date) {
         for (int i = 0; i < getTable().getRowCount(); i++) {
             for (int j = 0; j < getTable().getColCount(); j++) {
-                if (getTable().getCellValue(i, j).equals(today)) {
+                if (getTable().getCellValue(i, j).equals(date)) {
                     getFocus().setRow(i);
                     getFocus().setCol(j);
                 }

@@ -19,7 +19,12 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ConsoleTableFactory {
-    public static ConsoleDateSelector createDateConsoleSelector(LocalDate firstDayOfMonth, int consoleLines, int consoleColumns, Consumer<LocalDate> select, ConsoleOperations consoleOperations) {
+    public static ConsoleDateSelector createDateConsoleSelector(
+            LocalDate firstDayOfMonth,
+            int consoleLines,
+            int consoleColumns,
+            Consumer<LocalDate> select,
+            ConsoleOperations consoleOperations) {
         return new ConsoleDateSelector(
                 TableFactory.createDateTable(
                         DataFactory.createHeaderForDateConsoleSelector(),
@@ -28,6 +33,7 @@ public class ConsoleTableFactory {
                 consoleLines,
                 consoleColumns,
                 firstDayOfMonth,
+                LocalDate::now,
                 select,
                 consoleOperations
         );
