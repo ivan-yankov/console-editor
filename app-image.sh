@@ -3,7 +3,7 @@ export JVM_VERSION=11
 
 export JVM_XMS=2G
 export JVM_XMX=6G
-export MAIN_CLASS=console.table.ConsoleTableEditorMain
+export MAIN_CLASS=console.ConsoleTableEditorMain
 
 # array with application jar files, paths are relative to the project directory
 export JARS=("target/console-utils-1.0-jar-with-dependencies.jar" "lib/raw-console-input-1.0-jar-with-dependencies.jar")
