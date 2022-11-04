@@ -1,23 +1,29 @@
-package console.table;
+package console;
 
-import console.operations.ConsoleOperations;
-import console.Const;
 import console.factory.ConsoleTableFactory;
+import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class ConsoleTableEditorMain {
+    private static List<ProgramArgument> arguments = List.of(
+            new ProgramArgument("console-lines", "Number of lines of the current console"),
+            new ProgramArgument("console-columns", "Number of columns of the current console"),
+            new ProgramArgument("input-file", "CSV file to be edited")
+    );
+
     public static void main(String[] args) {
         ConsoleOperations consoleOperations = new ConsoleOperations();
 
-        if (args.length < 3) {
-            consoleOperations.writeError("Missing required argument. Required 3 provided " + args.length);
-            consoleOperations.writeln("Program arguments:");
-            consoleOperations.writeln(Const.TAB + "number-of-console-lines [required]: Number of lines of the console");
-            consoleOperations.writeln(Const.TAB + "number-of-console-columns [required]: Number of columns of the console");
-            consoleOperations.writeln(Const.TAB + "input-file [required]: CSV file with at least header line");
+        if (args.length < arguments.size()) {
+            arguments
+                    .stream()
+                    .skip(args.length)
+                    .map(x -> Const.TAB + x.getName() + ": " + x.getDescription())
+                    .forEach(consoleOperations::writeln);
             return;
         }
 
