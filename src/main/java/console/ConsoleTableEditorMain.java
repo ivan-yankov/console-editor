@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class ConsoleTableEditorMain {
-    private static List<ProgramArgument> arguments = List.of(
+    private static final List<ProgramArgument> arguments = List.of(
             new ProgramArgument("console-lines", "Number of lines of the current console"),
             new ProgramArgument("console-columns", "Number of columns of the current console"),
             new ProgramArgument("input-file", "CSV file to be edited")
@@ -19,6 +19,7 @@ public class ConsoleTableEditorMain {
         ConsoleOperations consoleOperations = new ConsoleOperations();
 
         if (args.length < arguments.size()) {
+            consoleOperations.writeln("Missing required argument.");
             arguments
                     .stream()
                     .skip(args.length)
