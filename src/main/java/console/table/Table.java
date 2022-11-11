@@ -75,7 +75,7 @@ public class Table<T> {
     }
 
     public void swapRows(int i, int j) {
-        if (!isValidRowIndex(i) || !isValidColIndex(j)) {
+        if (!isValidRowIndex(i) || !isValidRowIndex(j)) {
             return;
         }
 
