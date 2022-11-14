@@ -2,6 +2,7 @@ package console.table;
 
 import console.Utils;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -111,6 +112,19 @@ public class Table<T> {
     public void updateData(List<List<T>> data) {
         this.data.clear();
         this.data.addAll(data);
+    }
+
+    public List<String> getErrors() {
+        List<String> errors = new ArrayList<>();
+        errors.add("File contains invalid table");
+
+        for (int i = 0; i < getRowCount(); i++) {
+            if (data.get(i).size() != getColCount()) {
+                errors.add("Row " + (i + 2) + " wrong number of columns. Expected " + getColCount() + " actual " + data.get(i).size());
+            }
+        }
+
+        return errors;
     }
 
     private boolean isValidRowIndex(int index) {

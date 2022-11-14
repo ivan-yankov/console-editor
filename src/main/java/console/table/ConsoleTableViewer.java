@@ -303,7 +303,7 @@ public class ConsoleTableViewer<T> {
 
     private List<String> getPage() {
         List<List<String>> pages = Utils.sliding(
-                TablePrinter.dataToConsole(table, focus, showRowIndexes).orElse(List.of("Invalid table")),
+                TablePrinter.dataToConsole(table, focus, showRowIndexes).orElse(table.getErrors()),
                 maxTableLinesPerPage()
         );
         if (!pages.isEmpty()) {
