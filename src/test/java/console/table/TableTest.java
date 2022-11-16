@@ -1,7 +1,6 @@
 package console.table;
 
 import console.factory.CellFactory;
-import console.factory.TableFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,7 +64,7 @@ public class TableTest {
 
         for (int i = 0; i < actualData.size(); i++) {
             for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j), actualData.get(i).get(j));
+                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
         }
     }
 
@@ -88,7 +87,7 @@ public class TableTest {
 
         for (int i = 0; i < actualData.size(); i++) {
             for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j), actualData.get(i).get(j));
+                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
         }
     }
 
@@ -108,7 +107,7 @@ public class TableTest {
 
         for (int i = 0; i < actualData.size(); i++) {
             for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j), actualData.get(i).get(j));
+                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
         }
     }
 
@@ -135,7 +134,7 @@ public class TableTest {
 
         for (int i = 0; i < actualData.size(); i++) {
             for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j), actualData.get(i).get(j));
+                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
         }
     }
 
@@ -159,7 +158,7 @@ public class TableTest {
 
         for (int i = 0; i < actualData.size(); i++) {
             for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j), actualData.get(i).get(j));
+                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
         }
     }
 
@@ -184,7 +183,7 @@ public class TableTest {
 
         for (int i = 0; i < actualData.size(); i++) {
             for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j), actualData.get(i).get(j));
+                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
         }
     }
 
@@ -211,12 +210,12 @@ public class TableTest {
         Assert.assertEquals(2, table.getHeader().size());
 
         for (int i = 0; i < table.getHeader().size(); i++) {
-            Assert.assertEquals(expectedHeader.get(i), table.getHeader().get(i));
+            Assert.assertEquals(expectedHeader.get(i).getValue(), table.getHeader().get(i).getValue());
         }
 
         for (int i = 0; i < actualData.size(); i++) {
             for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j), actualData.get(i).get(j));
+                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
         }
     }
 
@@ -243,12 +242,12 @@ public class TableTest {
         Assert.assertEquals(3, table.getHeader().size());
 
         for (int i = 0; i < table.getHeader().size(); i++) {
-            Assert.assertEquals(expectedHeader.get(i), table.getHeader().get(i));
+            Assert.assertEquals(expectedHeader.get(i).getValue(), table.getHeader().get(i).getValue());
         }
 
         for (int i = 0; i < actualData.size(); i++) {
             for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j), actualData.get(i).get(j));
+                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
         }
     }
 
