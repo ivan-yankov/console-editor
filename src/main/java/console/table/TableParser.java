@@ -16,7 +16,7 @@ public class TableParser {
         List<List<Cell<String>>> data = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         for (int i = 0; i < csvLines.length; i++) {
-            Optional<List<Cell<String>>> parsed = parseLine(csvLines[i].trim());
+            Optional<List<Cell<String>>> parsed = parseCsvLine(csvLines[i].trim());
             if (parsed.isPresent()) {
                 if (i > 0 && parsed.get().size() != data.get(0).size()) {
                     errors.add(Utils.wrongNumberOfColumnsMessage(i + 1, data.get(0).size(), data.get(i).size()));
@@ -40,18 +40,20 @@ public class TableParser {
         }
     }
 
-    public static Optional<List<Cell<String>>> parseLine(String line) {
+    public static Optional<List<Cell<String>>> parseCsvLine(String line) {
         List<Cell<String>> cells = new ArrayList<>();
 
         String current = line;
         while (!current.isEmpty()) {
             boolean quotesWrapped = current.startsWith(Const.QUOTES);
-            int ci;
+            int ci = -1;
             if (quotesWrapped) {
                 int qi = current.indexOf(Const.QUOTES, 1);
-                if (qi < 0) return Optional.empty();
+                if (qi < 0) {
+                    return Optional.empty();
+                }
                 do {
-                    ci = current.indexOf(Const.COMMA);
+                    ci = current.indexOf(Const.COMMA, ci + 1);
                 } while (ci >= 0 && ci < qi);
             } else {
                 ci = current.indexOf(Const.COMMA);
