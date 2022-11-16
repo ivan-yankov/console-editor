@@ -40,6 +40,6 @@ public class DataFactory {
             monthDays.add(Const.INVALID_DATE);
         }
 
-        return Utils.sliding(monthDays.stream().map(x -> new Cell<>(x, false, Utils::printDate)).collect(Collectors.toList()), numberOfDaysInWeek);
+        return Utils.sliding(monthDays.stream().map(CellFactory::createDateCell).collect(Collectors.toList()), numberOfDaysInWeek);
     }
 }

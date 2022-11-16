@@ -25,15 +25,15 @@ public class Utils {
     }
 
     public static String printDate(LocalDate date) {
-        if (date.equals(Const.INVALID_DATE)) {
-            return "";
-        } else {
-            return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        }
+        return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
     public static String printDayFromDate(LocalDate date) {
-        return Integer.toString(date.getDayOfMonth());
+        if (date.equals(Const.INVALID_DATE)) {
+            return "";
+        } else {
+            return Integer.toString(date.getDayOfMonth());
+        }
     }
 
     public static LocalDate firstDayOfCurrentMonth() {

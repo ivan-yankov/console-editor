@@ -1,5 +1,6 @@
 package console.table;
 
+import console.factory.CellFactory;
 import console.factory.TableFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -280,7 +281,7 @@ public class TableTest {
         List<Cell<String>> header = asCellList(List.of("Column 1", "Column 2", "Column 3"));
         List<List<Cell<String>>> cellData = data.stream().map(this::asCellList).collect(Collectors.toList());
 
-        return new Table<>(header, cellData, TableFactory.emptyStringCell());
+        return new Table<>(header, cellData, CellFactory::createEmptyStringCell);
     }
 
     private List<Cell<String>> asCellList(List<String> data) {
