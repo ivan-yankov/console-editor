@@ -5,52 +5,57 @@ import console.Utils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Table<T> {
-    private final List<String> header;
-    private final List<List<T>> data;
-    private final Function<T, String> printValue;
-    private final Supplier<T> emptyValue;
-    private final boolean quotesWrapped;
+    private final List<Cell<String>> header;
+    private final List<List<Cell<T>>> data;
+    private final Supplier<Cell<T>> emptyCell;
+    private final List<String> errors;
 
-    public Table(List<String> header, List<List<T>> data, Function<T, String> printValue, Supplier<T> emptyValue, boolean quotesWrapped) {
+    public Table(List<Cell<String>> header, List<List<Cell<T>>> data, Supplier<Cell<T>> emptyCell) {
         this.header = Utils.asMutableList(header);
         this.data = Utils.asMutableList2d(data);
-        this.printValue = printValue;
-        this.emptyValue = emptyValue;
-        this.quotesWrapped = quotesWrapped;
+        this.emptyCell = emptyCell;
+        this.errors = new ArrayList<>();
+        validate();
     }
 
-    public List<String> getHeader() {
-        return header;
+    public List<Cell<String>> getHeader() {
+        return List.copyOf(header);
     }
 
-    public Function<T, String> getPrintValue() {
-        return printValue;
+    public List<List<Cell<T>>> getData() {
+        return List.copyOf(data);
     }
 
-    public Supplier<T> getEmptyValue() {
-        return emptyValue;
+    public List<String> getErrors() {
+        return List.copyOf(errors);
     }
 
-    public boolean isQuotesWrapped() {
-        return quotesWrapped;
+    public void addError(String error) {
+        errors.add(error);
     }
 
-    public Stream<List<T>> getDataStream() {
-        return data.stream();
-    }
-
-    public T getCellValue(int row, int col) {
+    public Cell<T> getCell(int row, int col) {
         return data.get(row).get(col);
     }
 
+    public T getCellValue(int row, int col) {
+        return getCell(row, col).getValue();
+    }
+
+    public void setCell(Cell<T> cell, int row, int col) {
+        data.get(row).set(col, cell);
+    }
+
     public void setCellValue(T value, int row, int col) {
-        data.get(row).set(col, value);
+        data.get(row).set(col, data.get(row).get(col).withValue(value));
+    }
+
+    public void setEmptyCellValue(int row, int col) {
+        setCell(emptyCell.get(), row, col);
     }
 
     public int getRowCount() {
@@ -62,17 +67,17 @@ public class Table<T> {
     }
 
     public boolean isValid() {
-        return getDataStream().allMatch(row -> row.size() == header.size());
+        return errors.isEmpty();
     }
 
     public int fieldSize(int col) {
         int dataField = data
                 .stream()
-                .map(row -> printValue.apply(row.get(col)))
+                .map(row -> row.get(col).toConsoleString())
                 .map(String::length)
                 .max(Comparator.naturalOrder())
                 .orElse(0);
-        return Math.max(header.get(col).length(), dataField);
+        return Math.max(header.get(col).getValue().length(), dataField);
     }
 
     public void swapRows(int i, int j) {
@@ -80,15 +85,18 @@ public class Table<T> {
             return;
         }
 
-        for(int c = 0; c < getColCount(); c++) {
-            T tmp = data.get(i).get(c);
+        for (int c = 0; c < getColCount(); c++) {
+            Cell<T> tmp = data.get(i).get(c);
             data.get(i).set(c, data.get(j).get(c));
             data.get(j).set(c, tmp);
         }
     }
 
     public void insertEmptyRow(int index) {
-        List<T> items = header.stream().map(x -> emptyValue.get()).collect(Collectors.toList());
+        List<Cell<T>> items = header
+                .stream()
+                .map(x -> emptyCell.get())
+                .collect(Collectors.toList());
         if (data.isEmpty()) {
             data.add(items);
         } else {
@@ -109,22 +117,10 @@ public class Table<T> {
         }
     }
 
-    public void updateData(List<List<T>> data) {
+    public void updateData(List<List<Cell<T>>> data) {
         this.data.clear();
         this.data.addAll(data);
-    }
-
-    public List<String> getErrors() {
-        List<String> errors = new ArrayList<>();
-        errors.add("File contains invalid table");
-
-        for (int i = 0; i < getRowCount(); i++) {
-            if (data.get(i).size() != getColCount()) {
-                errors.add("Row " + (i + 2) + " wrong number of columns. Expected " + getColCount() + " actual " + data.get(i).size());
-            }
-        }
-
-        return errors;
+        validate();
     }
 
     private boolean isValidRowIndex(int index) {
@@ -133,5 +129,11 @@ public class Table<T> {
 
     private boolean isValidColIndex(int index) {
         return index >= 0 && index < getColCount();
+    }
+
+    private void validate() {
+        Utils.zipWithIndex(data.stream())
+                .filter(x -> x.getKey().size() != getColCount())
+                .forEach(x -> errors.add(Utils.wrongNumberOfColumnsMessage(x.getValue() + 2, getColCount(), x.getKey().size())));
     }
 }

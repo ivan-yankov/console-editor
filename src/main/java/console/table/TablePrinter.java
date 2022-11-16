@@ -16,14 +16,15 @@ public class TablePrinter {
         String header = table
                 .getHeader()
                 .stream()
-                .map(x -> printCsvCellValue(table, x))
+                .map(Cell::toCsvString)
                 .collect(Collectors.joining(Const.COMMA));
 
         String data = table
-                .getDataStream()
+                .getData()
+                .stream()
                 .map(row -> row
                         .stream()
-                        .map(x -> printCsvCellValue(table, x))
+                        .map(Cell::toCsvString)
                         .collect(Collectors.joining(Const.COMMA))
                 ).collect(Collectors.joining(Const.NEW_LINE));
         return header + Const.NEW_LINE + data;
@@ -46,7 +47,7 @@ public class TablePrinter {
         List<String> header = new ArrayList<>();
         for (int i = 0; i < table.getHeader().size(); i++) {
             String value = printConsoleCellValue(
-                    table.getHeader().get(i),
+                    table.getHeader().get(i).toConsoleString(),
                     table.fieldSize(i),
                     false
             );
@@ -70,7 +71,7 @@ public class TablePrinter {
             List<String> row = new ArrayList<>();
             for (int j = 0; j < table.getColCount(); j++) {
                 String value = printConsoleCellValue(
-                        table.getPrintValue().apply(table.getCellValue(i, j)),
+                        table.getCell(i, j).toConsoleString(),
                         table.fieldSize(j),
                         focus.isValid() && i == focus.getRow() && j == focus.getCol()
                 );
@@ -102,18 +103,5 @@ public class TablePrinter {
                 ? value + Utils.generateString(fieldSize - value.length(), ' ')
                 : String.format("%" + fieldSize + "s", value);
         return focused ? FOCUS_COLOR + text + ConsoleColor.RESET : text;
-    }
-
-    private static <T> String printCsvCellValue(Table<T> table, T value) {
-        String s = table.getPrintValue().apply(value);
-        return printCsvCellValue(table, s);
-    }
-
-    private static <T> String printCsvCellValue(Table<T> table, String value) {
-        if (table.isQuotesWrapped()) {
-            return Const.QUOTES + value + Const.QUOTES;
-        } else {
-            return value;
-        }
     }
 }

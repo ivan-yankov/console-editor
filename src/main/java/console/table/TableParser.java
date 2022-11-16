@@ -1,57 +1,78 @@
 package console.table;
 
 import console.Const;
+import console.Utils;
 import console.factory.TableFactory;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class TableParser {
     public static Table<String> fromCsv(String csv) {
         if (csv.isEmpty()) return TableFactory.createEmptyStringTable();
 
         String[] csvLines = csv.split(Const.NEW_LINE);
+        List<List<Cell<String>>> data = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+        for (int i = 0; i < csvLines.length; i++) {
+            Optional<List<Cell<String>>> parsed = parseLine(csvLines[i].trim());
+            if (parsed.isPresent()) {
+                if (i > 0 && parsed.get().size() != data.get(0).size()) {
+                    errors.add(Utils.wrongNumberOfColumnsMessage(i + 1, data.get(0).size(), data.get(i).size()));
+                } else {
+                    data.add(parsed.get());
+                }
+            } else {
+                errors.add("Unable to parse line " + (i + 1) + " of the csv file");
+            }
+        }
 
-        String firstLine = csvLines[0].trim();
-        boolean quotesWrapped = firstLine.startsWith(Const.QUOTES) && firstLine.endsWith(Const.QUOTES);
-
-        List<List<String>> data = Arrays
-                .stream(csvLines)
-                .map(String::trim)
-                .map(x -> parseLine(x, quotesWrapped))
-                .collect(Collectors.toList());
-
-        if (data.size() > 0) {
-            return TableFactory.createStringTable(
+        if (!data.isEmpty()) {
+            Table<String> table = TableFactory.createStringTable(
                     data.get(0),
-                    data.subList(1, data.size()),
-                    quotesWrapped
+                    data.subList(1, data.size())
             );
+            errors.forEach(table::addError);
+            return table;
         } else {
             return TableFactory.createEmptyStringTable();
         }
     }
 
-    private static List<String> parseLine(String line, boolean quotesWrapped) {
-        List<String> columns;
+    public static Optional<List<Cell<String>>> parseLine(String line) {
+        List<Cell<String>> cells = new ArrayList<>();
 
-        if (quotesWrapped) {
-            String escapedQuotesReplacement = UUID.randomUUID().toString();
-            String separator = UUID.randomUUID().toString();
-            String[] cols = line
-                    .replace(Const.ESCAPED_QUOTES, escapedQuotesReplacement)
-                    .replace("\",\"", separator)
-                    .replace(Const.QUOTES, "")
-                    .split(separator, -1);
-            columns = Arrays.stream(cols)
-                    .map(x -> x.replace(escapedQuotesReplacement, Const.ESCAPED_QUOTES))
-                    .collect(Collectors.toList());
-        } else {
-            columns = Arrays.asList(line.split(Const.COMMA, -1));
+        String current = line;
+        while (!current.isEmpty()) {
+            boolean quotesWrapped = current.startsWith(Const.QUOTES);
+            int ci;
+            if (quotesWrapped) {
+                int qi = current.indexOf(Const.QUOTES, 1);
+                if (qi < 0) return Optional.empty();
+                do {
+                    ci = current.indexOf(Const.COMMA);
+                } while (ci >= 0 && ci < qi);
+            } else {
+                ci = current.indexOf(Const.COMMA);
+            }
+
+            String cellValue;
+            if (ci < 0) {
+                cellValue = current;
+                current = "";
+            } else {
+                cellValue = current.substring(0, ci);
+                current = current.substring(ci + 1);
+            }
+
+            if (quotesWrapped) {
+                cellValue = cellValue.replace(Const.QUOTES, "");
+            }
+
+            cells.add(new Cell<>(cellValue, quotesWrapped, x -> x));
         }
 
-        return columns;
+        return Optional.of(cells);
     }
 }

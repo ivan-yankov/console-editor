@@ -175,7 +175,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void deleteCellValue() {
         if (getFocus().isValid()) {
-            getTable().setCellValue(getTable().getEmptyValue().get(), getFocus().getRow(), getFocus().getCol());
+            getTable().setEmptyCellValue(getFocus().getRow(), getFocus().getCol());
         }
     }
 

@@ -326,7 +326,7 @@ public class ConsoleTableViewer<T> {
 
     private long numberOfPages() {
         return Utils.numberOfSlides(
-                getTable().getDataStream().collect(Collectors.toList()),
+                getTable().getData(),
                 maxTableLinesPerPage()
         );
     }

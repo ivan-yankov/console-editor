@@ -2,6 +2,7 @@ package console.factory;
 
 import console.Const;
 import console.Utils;
+import console.table.Cell;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -13,13 +14,14 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class DataFactory {
-    public static List<String> createHeaderForDateConsoleSelector() {
+    public static List<Cell<String>> createHeaderForDateConsoleSelector() {
         return Arrays.stream(DayOfWeek.values())
                 .map(x -> x.getDisplayName(TextStyle.SHORT, Locale.US))
+                .map(x -> new Cell<>(x, false, y -> y))
                 .collect(Collectors.toList());
     }
 
-    public static List<List<LocalDate>> createDataForDateConsoleSelector(LocalDate firstDayOfMonth) {
+    public static List<List<Cell<LocalDate>>> createDataForDateConsoleSelector(LocalDate firstDayOfMonth) {
         int numberOfDaysInWeek = DayOfWeek.values().length;
 
         LocalDate lastDayOfMonth = firstDayOfMonth.plusDays(firstDayOfMonth.lengthOfMonth() - 1);
@@ -38,6 +40,6 @@ public class DataFactory {
             monthDays.add(Const.INVALID_DATE);
         }
 
-        return Utils.sliding(monthDays, numberOfDaysInWeek);
+        return Utils.sliding(monthDays.stream().map(x -> new Cell<>(x, false, Utils::printDate)).collect(Collectors.toList()), numberOfDaysInWeek);
     }
 }

@@ -1,14 +1,10 @@
 package console.factory;
 
-import console.table.ConsoleDateSelector;
-import console.table.ConsoleMenu;
+import console.table.*;
 import console.model.Command;
 import console.model.Pair;
 import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
-import console.table.ConsoleTableEditor;
-import console.table.Table;
-import console.table.TableParser;
 import console.Utils;
 
 import java.nio.file.Path;
@@ -59,7 +55,7 @@ public class ConsoleTableFactory {
             int consoleColumns,
             String title,
             ConsoleOperations consoleOperations) {
-        List<String> header = commands.stream().map(Pair::getKey).collect(Collectors.toList());
+        List<Cell<String>> header = commands.stream().map(x -> new Cell<>(x.getKey(), false, y -> y)).collect(Collectors.toList());
         int numberOfRows = commands.stream().map(x -> x.getValue().size()).max(Comparator.naturalOrder()).orElse(0);
         int numberOfColumns = header.size();
         Command[][] tableData = new Command[numberOfRows][numberOfColumns];
@@ -75,10 +71,11 @@ public class ConsoleTableFactory {
 
         Table<Command> table = new Table<>(
                 header,
-                Utils.asList(tableData),
-                Command::getLabel,
-                Utils::doNothing,
-                false
+                Utils.asList(tableData)
+                        .stream()
+                        .map(x -> x.stream().map(y -> new Cell<>(y, false, Command::getLabel)).collect(Collectors.toList()))
+                        .collect(Collectors.toList()),
+                () -> new Cell<>(Utils.doNothing(), false, Command::getLabel)
         );
 
         ConsoleMenu menu = new ConsoleMenu(table, consoleLines, consoleColumns, consoleOperations);

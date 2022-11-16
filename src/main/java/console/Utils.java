@@ -1,6 +1,7 @@
 package console;
 
 import console.model.Command;
+import console.model.Pair;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Utils {
     public static String generateString(int n, Character symbol) {
@@ -23,7 +25,11 @@ public class Utils {
     }
 
     public static String printDate(LocalDate date) {
-        return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        if (date.equals(Const.INVALID_DATE)) {
+            return "";
+        } else {
+            return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        }
     }
 
     public static String printDayFromDate(LocalDate date) {
@@ -73,5 +79,18 @@ public class Utils {
 
     public static <T> List<T> asMutableList(List<T> list) {
         return new ArrayList<>(list);
+    }
+
+    public static <T> Stream<Pair<T, Integer>> zipWithIndex(Stream<T> stream) {
+        List<Pair<T, Integer>> result = new ArrayList<>();
+        List<T> items = stream.collect(Collectors.toList());
+        for (int i = 0; i < items.size(); i++) {
+            result.add(new Pair<>(items.get(i), i));
+        }
+        return result.stream();
+    }
+
+    public static String wrongNumberOfColumnsMessage(int row, int expected, int actual) {
+        return "Line " + row + " of the csv file contains wrong number of columns. Expected " + expected + " actual " + actual;
     }
 }
