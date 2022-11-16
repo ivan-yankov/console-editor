@@ -2,6 +2,7 @@ package console.table;
 
 import console.Const;
 import console.Utils;
+import console.factory.CellFactory;
 import console.factory.TableFactory;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class TableParser {
             Optional<List<Cell<String>>> parsed = parseCsvLine(csvLines[i].trim());
             if (parsed.isPresent()) {
                 if (i > 0 && parsed.get().size() != data.get(0).size()) {
-                    errors.add(Utils.wrongNumberOfColumnsMessage(i + 1, data.get(0).size(), data.get(i).size()));
+                    errors.add(Utils.wrongNumberOfColumnsMessage(i + 1, data.get(0).size(), parsed.get().size()));
                 } else {
                     data.add(parsed.get());
                 }
@@ -73,6 +74,10 @@ public class TableParser {
             }
 
             cells.add(new Cell<>(cellValue, quotesWrapped, x -> x));
+        }
+
+        if (line.endsWith(Const.COMMA)) {
+            cells.add(CellFactory.createEmptyStringCell());
         }
 
         return Optional.of(cells);

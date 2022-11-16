@@ -18,7 +18,8 @@ public class TableParserTest {
 
         Assert.assertTrue(result.isPresent());
         assertEqualsList(expected, result.get().stream().map(Cell::getValue).collect(Collectors.toList()));
-        Assert.assertFalse(result.get().stream().allMatch(x -> x.toCsvString().startsWith(Const.QUOTES) && x.toCsvString().endsWith(Const.QUOTES)));
+        Assert.assertFalse(result.get().stream().allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertFalse(result.get().stream().allMatch(x -> isQuotesWrapped(x.toConsoleString())));
     }
 
     @Test
@@ -30,7 +31,8 @@ public class TableParserTest {
 
         Assert.assertTrue(result.isPresent());
         assertEqualsList(expected, result.get().stream().map(Cell::getValue).collect(Collectors.toList()));
-        Assert.assertTrue(result.get().stream().allMatch(x -> x.toCsvString().startsWith(Const.QUOTES) && x.toCsvString().endsWith(Const.QUOTES)));
+        Assert.assertTrue(result.get().stream().allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertFalse(result.get().stream().allMatch(x -> isQuotesWrapped(x.toConsoleString())));
     }
 
     @Test
@@ -42,10 +44,10 @@ public class TableParserTest {
 
         Assert.assertTrue(result.isPresent());
         assertEqualsList(expected, result.get().stream().map(Cell::getValue).collect(Collectors.toList()));
-        assertEqualsList(
-                List.of(false, true, false),
-                result.get().stream().map(x -> x.toCsvString().startsWith(Const.QUOTES) && x.toCsvString().endsWith(Const.QUOTES)).collect(Collectors.toList())
-        );
+        Assert.assertFalse(result.get().stream().limit(1).allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertTrue(result.get().stream().skip(1).limit(1).allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertFalse(result.get().stream().skip(2).allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertFalse(result.get().stream().allMatch(x -> isQuotesWrapped(x.toConsoleString())));
     }
 
     @Test
@@ -57,20 +59,48 @@ public class TableParserTest {
 
         Assert.assertTrue(result.isPresent());
         assertEqualsList(expected, result.get().stream().map(Cell::getValue).collect(Collectors.toList()));
-        assertEqualsList(
-                List.of(false, true, false),
-                result.get().stream().map(x -> x.toCsvString().startsWith(Const.QUOTES) && x.toCsvString().endsWith(Const.QUOTES)).collect(Collectors.toList())
-        );
+        Assert.assertFalse(result.get().stream().limit(1).allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertTrue(result.get().stream().skip(1).limit(1).allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertFalse(result.get().stream().skip(2).allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertFalse(result.get().stream().allMatch(x -> isQuotesWrapped(x.toConsoleString())));
     }
 
     @Test
     public void parseCsvLine_UnclosedQuotes_Fail() {
         String line = "Column 1,\"Column, 2,Column 3";
         Optional<List<Cell<String>>> result = TableParser.parseCsvLine(line);
-
-        List<String> expected = List.of("Column 1", "Column, 2", "Column 3");
-
         Assert.assertFalse(result.isPresent());
+    }
+
+    @Test
+    public void parseCsvLine_WithEmptyLastCell_Succeed() {
+        String line = "Column 1,Column 2,Column 3,";
+        Optional<List<Cell<String>>> result = TableParser.parseCsvLine(line);
+
+        List<String> expected = List.of("Column 1", "Column 2", "Column 3", "");
+
+        Assert.assertTrue(result.isPresent());
+        assertEqualsList(expected, result.get().stream().map(Cell::getValue).collect(Collectors.toList()));
+        Assert.assertFalse(result.get().stream().allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertFalse(result.get().stream().allMatch(x -> isQuotesWrapped(x.toConsoleString())));
+    }
+
+    @Test
+    public void parseCsvLine_WithEmptyLastQuotedCell_Succeed() {
+        String line = "Column 1,Column 2,Column 3,\"\"";
+        Optional<List<Cell<String>>> result = TableParser.parseCsvLine(line);
+
+        List<String> expected = List.of("Column 1", "Column 2", "Column 3", "");
+
+        Assert.assertTrue(result.isPresent());
+        assertEqualsList(expected, result.get().stream().map(Cell::getValue).collect(Collectors.toList()));
+        Assert.assertFalse(result.get().stream().limit(3).allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertTrue(result.get().stream().skip(3).allMatch(x -> isQuotesWrapped(x.toCsvString())));
+        Assert.assertFalse(result.get().stream().allMatch(x -> isQuotesWrapped(x.toConsoleString())));
+    }
+
+    private boolean isQuotesWrapped(String s) {
+        return s.startsWith(Const.QUOTES) && s.endsWith(Const.QUOTES);
     }
 
     private static <T> void assertEqualsList(List<T> l1, List<T> l2) {
