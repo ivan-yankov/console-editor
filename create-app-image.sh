@@ -1,3 +1,5 @@
+set -e
+
 dir=$PWD
 
 ./build.sh
