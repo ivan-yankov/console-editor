@@ -1,0 +1,50 @@
+[30m[100mTitle                                                                                                                                                                                                   [0m
+[30m[43m  | Integer | String                        | Double   | Date       | Time    [0m
+[30m[100m1[0m |       1 | [30m[46mThis is the first table line [0m |   100.00 | 25.10.2022 | 14:25:34
+[30m[100m2[0m |       2 | This is the second table line |  2000.00 | 26.10.2022 | 15:26:45
+[30m[100m3[0m |       3 | This is the third table line  | 30000.00 | 27.10.2022 | 15:35:34
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[92m[100m                                                                                                                                                                                                        [0m
+[36m[100m                                                                                                                                                                                                        [0m
+[32m[1mKey: [0m

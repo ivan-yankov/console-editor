@@ -98,7 +98,6 @@ public class ConsoleTableViewer<T> {
                 processCustomAction();
             }
         } while (getMode() != Mode.EXIT);
-        consoleOperations.clearConsole();
     }
 
     protected boolean allowCommand() {
@@ -272,15 +271,15 @@ public class ConsoleTableViewer<T> {
         consoleOperations.clearConsole();
         if (getMode() == Mode.HELP) {
             List<String> help = getHelp();
-            int verticalMarginSize = consoleLines - getFooter().size() - help.size() - 1;
+            int verticalMarginSize = consoleLines - getFooter().size() - help.size();
             consoleOperations.writeln(String.join(Const.NEW_LINE, help));
-            consoleOperations.writeln(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
+            consoleOperations.write(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
         } else {
             List<String> p = getPage();
-            int verticalMarginSize = maxTableLinesPerPage() - p.size() - 1;
+            int verticalMarginSize = maxTableLinesPerPage() - p.size();
             consoleOperations.writeln(String.join(Const.NEW_LINE, getHeader()));
             consoleOperations.writeln(String.join(Const.NEW_LINE, p));
-            consoleOperations.writeln(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
+            consoleOperations.write(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
         }
         consoleOperations.write(String.join(Const.NEW_LINE, getFooter()));
         setLogMessage("");

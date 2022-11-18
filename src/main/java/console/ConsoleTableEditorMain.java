@@ -41,6 +41,7 @@ public class ConsoleTableEditorMain {
                 new FileOperations(consoleOperations)
         ).show();
 
+        consoleOperations.clearConsole();
         System.exit(0);
     }
 }

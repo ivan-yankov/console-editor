@@ -1,0 +1,50 @@
+[30m[100mTitle                                                                                                                                                                                                   [0m
+[30m[43m  | Account    | Login Name | Password | Web Site | Comments[0m
+[30m[100m1[0m | [30m[46macc1      [0m | api-key    |      *** | www      |         
+[30m[100m2[0m | acc2       | api-key    |      *** | www      |         
+[30m[100m3[0m | acc3, acc4 | api-key    |      *** | www      |         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[92m[100m                                                                                                                                                                                                        [0m
+[36m[100m                                                                                                                                                                                                        [0m
+[32m[1mKey: [0m
