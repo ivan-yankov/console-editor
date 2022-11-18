@@ -5,14 +5,12 @@ import console.Utils;
 import console.factory.DataFactory;
 import console.factory.TableFactory;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import util.TestHelpers;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Ignore
 public class ConsoleDateSelectorTest {
     @Test
     public void show() {
