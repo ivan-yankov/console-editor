@@ -12,14 +12,15 @@ public class ConsoleOperations {
     public void clearConsole() {
         try {
             String os = System.getProperty("os.name");
-            ProcessBuilder pb = os.contains("Windows")
-                    ? new ProcessBuilder("cmd", "/c", "cls")
+            ProcessBuilder pb = os.toLowerCase().contains("windows")
+                    ? new ProcessBuilder("cmd /c cls")
                     : new ProcessBuilder("clear");
             Process p = pb.inheritIO().start();
             p.waitFor();
         } catch (Exception e) {
-            writeError("Unable to clear the console: " + e.getMessage());
+            writeError("Unable to execute command: " + e.getMessage());
         }
+
     }
 
     public void writeln() {

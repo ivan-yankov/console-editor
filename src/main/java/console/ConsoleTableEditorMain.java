@@ -42,6 +42,7 @@ public class ConsoleTableEditorMain {
         ).show();
 
         consoleOperations.clearConsole();
+
         System.exit(0);
     }
 }

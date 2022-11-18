@@ -6,6 +6,7 @@ import console.operations.ConsoleOperations;
 public class ConsoleMenu extends ConsoleTableViewer<Command> {
     public ConsoleMenu(Table<Command> table, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations) {
         super(table, consoleLines, consoleColumns, consoleOperations);
+        getSettings().setShowRowIndexes(false);
     }
 
     @Override
@@ -18,5 +19,15 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     @Override
     protected String getEnterDescription() {
         return "Execute";
+    }
+
+    @Override
+    protected boolean allowCommandMode() {
+        return false;
+    }
+
+    @Override
+    protected boolean renderFooter() {
+        return false;
     }
 }

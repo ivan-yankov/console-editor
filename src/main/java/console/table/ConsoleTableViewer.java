@@ -102,6 +102,12 @@ public class ConsoleTableViewer<T> {
                 processCustomAction();
             }
         } while (getMode() != Mode.EXIT);
+
+        consoleOperations.resetConsole();
+    }
+
+    protected boolean allowCommandMode() {
+        return true;
     }
 
     protected boolean allowCommand() {
@@ -109,6 +115,22 @@ public class ConsoleTableViewer<T> {
     }
 
     protected void processCustomAction() {
+    }
+
+    protected boolean renderFooter() {
+        return true;
+    }
+
+    protected String getPageUpDescription() {
+        return "Prev page";
+    }
+
+    protected String getPageDownDescription() {
+        return "Nex page";
+    }
+
+    protected String getEnterDescription() {
+        return "";
     }
 
     protected final void resetFocus() {
@@ -143,18 +165,6 @@ public class ConsoleTableViewer<T> {
         }
     }
 
-    protected String getPageUpDescription() {
-        return "Prev page";
-    }
-
-    protected String getPageDownDescription() {
-        return "Nex page";
-    }
-
-    protected String getEnterDescription() {
-        return "";
-    }
-
     protected String getHint() {
         if (getMode() == Mode.COMMAND) {
             return "Empty command to return to key mode.";
@@ -185,7 +195,10 @@ public class ConsoleTableViewer<T> {
     private List<Command> commands() {
         List<Command> c = new ArrayList<>();
 
-        c.add(new Command("", this::commandMode, "Command mode", Key.F4));
+        if (allowCommandMode()) {
+            c.add(new Command("", this::commandMode, "Command mode", Key.F4));
+        }
+
         c.add(new Command("enter", this::onEnter, getEnterDescription(), Key.ENTER));
         c.add(new Command("exit", this::exit, "Exit", Key.ESC));
         c.add(new Command("help", this::helpMode, "Help", Key.F1));
@@ -285,7 +298,9 @@ public class ConsoleTableViewer<T> {
             consoleOperations.writeln(String.join(Const.NEW_LINE, p));
             consoleOperations.write(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
         }
-        consoleOperations.write(String.join(Const.NEW_LINE, getFooter()));
+        if (renderFooter()) {
+            consoleOperations.write(String.join(Const.NEW_LINE, getFooter()));
+        }
         setLogMessage("");
     }
 
@@ -380,6 +395,10 @@ public class ConsoleTableViewer<T> {
     }
 
     private int maxTableLinesPerPage() {
-        return consoleLines - getHeader().size() - getFooter().size();
+        if (renderFooter()) {
+            return consoleLines - getHeader().size() - getFooter().size();
+        } else {
+            return consoleLines - getHeader().size();
+        }
     }
 }
