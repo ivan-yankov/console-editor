@@ -24,6 +24,11 @@ public class Utils {
         return color.isEmpty() ? ConsoleColor.RESET + s + ConsoleColor.RESET : color + s + ConsoleColor.RESET;
     }
 
+    public static String colorTextLine(String s, String color, int lineLength) {
+        String str = s + generateString(lineLength - s.length(), ' ');
+        return color.isEmpty() ? ConsoleColor.RESET + str + ConsoleColor.RESET : color + str + ConsoleColor.RESET;
+    }
+
     public static String printDate(LocalDate date) {
         return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
@@ -57,7 +62,7 @@ public class Utils {
     }
 
     public static Command doNothing() {
-        return new Command(() -> {
+        return new Command("", () -> {
         }, "");
     }
 

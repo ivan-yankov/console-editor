@@ -82,7 +82,7 @@ public class TestHelpers {
 
             consoleOperations.setInputSeq(td.getCommandsAfter());
 
-            consoleTable.setMode(Mode.SELECT);
+            consoleTable.setMode(Mode.KEY);
             consoleTable.show();
 
             String afterMessage = td.getTestName() + "-after";

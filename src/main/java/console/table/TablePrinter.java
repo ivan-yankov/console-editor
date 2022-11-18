@@ -10,7 +10,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TablePrinter {
-    private static final String FOCUS_COLOR = ConsoleColor.BLACK + ConsoleColor.DARK_CYAN_B;
+    private static final String FOCUS_COLOR = ConsoleColor.BLACK + ConsoleColor.CYAN_B;
+    private static final String INDEXES_COLOR = ConsoleColor.BLACK + ConsoleColor.DARK_GRAY_B;
+    private static final String HEADER_COLOR = ConsoleColor.BLACK + ConsoleColor.YELLOW_B;
 
     public static <T> String toCsv(Table<T> table) {
         String header = table
@@ -33,17 +35,7 @@ public class TablePrinter {
     public static <T> List<String> headerToConsole(Table<T> table, boolean withRowIndexes) {
         if (!table.isValid()) return new ArrayList<>();
 
-        List<String> headerSeparatorItems = new ArrayList<>();
-        for (int i = 0; i < table.getHeader().size(); i++) {
-            headerSeparatorItems.add(Utils.generateString(table.fieldSize(i), Const.EQUALS_SYMBOL));
-        }
-        String headerSeparator = String.join(Const.COL_SEPARATOR, headerSeparatorItems);
-        if (withRowIndexes) {
-            headerSeparator = index(table.getRowCount(), 0) + headerSeparator;
-        }
-
         List<String> result = new ArrayList<>();
-        result.add(headerSeparator);
         List<String> header = new ArrayList<>();
         for (int i = 0; i < table.getHeader().size(); i++) {
             String value = printConsoleCellValue(
@@ -57,8 +49,7 @@ public class TablePrinter {
         if (withRowIndexes) {
             headerStr = index(table.getRowCount(), 0) + headerStr;
         }
-        result.add(headerStr);
-        result.add(headerSeparator);
+        result.add(Utils.colorText(headerStr, HEADER_COLOR));
 
         return result;
     }
@@ -91,7 +82,7 @@ public class TablePrinter {
         int n = Integer.toString(rowCount).length();
         String f = "%" + n + "s";
         if (index > 0) {
-            return Utils.colorText(String.format(f, index), ConsoleColor.DARK_GRAY_B + ConsoleColor.BLACK) +
+            return Utils.colorText(String.format(f, index), INDEXES_COLOR) +
                     Const.COL_SEPARATOR;
         } else {
             return Utils.generateString(n, ' ') + Const.COL_SEPARATOR;

@@ -73,9 +73,9 @@ public class ConsoleTableFactory {
                 header,
                 Utils.asList(tableData)
                         .stream()
-                        .map(x -> x.stream().map(y -> new Cell<>(y, false, Command::getLabel)).collect(Collectors.toList()))
+                        .map(x -> x.stream().map(y -> new Cell<>(y, false, Command::getDescription)).collect(Collectors.toList()))
                         .collect(Collectors.toList()),
-                () -> new Cell<>(Utils.doNothing(), false, Command::getLabel)
+                () -> new Cell<>(Utils.doNothing(), false, Command::getDescription)
         );
 
         ConsoleMenu menu = new ConsoleMenu(table, consoleLines, consoleColumns, consoleOperations);

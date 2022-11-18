@@ -1,12 +1,7 @@
 Title
-======= | ============================= | ======== | ========== | ========
-Integer | String                        | Double   | Date       | Time    
-======= | ============================= | ======== | ========== | ========
-      1 | This is the first table line  |   100.00 | 25.10.2022 | [30m[46m14:25:34[0m
-      2 | This is the second table line |  2000.00 | 26.10.2022 | 15:26:45
-      3 | This is the third table line  | 30000.00 | 27.10.2022 | 15:35:34
 
-[33mEsc[0m         [90mClose[0m       [33mF1[0m          [90mRow indexes[0m [33mTab[0m         [90mNext[0m        [33mLeft[0m        [90mPrev column[0m [33mRight[0m       [90mNext column[0m [33mUp[0m          [90mPrev row[0m    [33mDown[0m        [90mNext row[0m    [33mHome[0m        [90mFirs column[0m 
-[33mEnd[0m         [90mLast column[0m [33mPageUp[0m      [90mPrev page[0m   [33mPageDown[0m    [90mNex page[0m    
 
-[1m[92mSelect: [0m
+
+
+
+[1m[92mKey: [0m

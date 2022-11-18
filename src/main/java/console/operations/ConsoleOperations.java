@@ -2,9 +2,10 @@ package console.operations;
 
 import console.ConsoleReader;
 import console.Key;
-import console.model.Command;
+import console.RawConsoleInput;
 import either.Either;
 
+import java.io.IOException;
 import java.util.function.Supplier;
 
 public class ConsoleOperations {
@@ -43,5 +44,13 @@ public class ConsoleOperations {
 
     public Either<String, Key> readKey() {
         return ConsoleReader.readKey();
+    }
+
+    public void resetConsole() {
+        try {
+            RawConsoleInput.resetConsoleMode();
+        } catch (IOException e) {
+            // ignored
+        }
     }
 }

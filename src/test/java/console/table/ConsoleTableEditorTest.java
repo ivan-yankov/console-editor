@@ -1,11 +1,13 @@
 package console.table;
 
 import console.Key;
+import org.junit.Ignore;
 import org.junit.Test;
 import util.TestHelpers;
 
 import java.util.List;
 
+@Ignore
 public class ConsoleTableEditorTest {
     @Test
     public void show() {

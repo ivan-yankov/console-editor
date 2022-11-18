@@ -1,18 +1,15 @@
 package console.table;
 
 import console.*;
+import console.factory.ConsoleTableFactory;
 import console.model.Command;
-import console.model.Pair;
 import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
-import console.factory.ConsoleTableFactory;
-import console.Utils;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ConsoleTableEditor extends ConsoleTableViewer<String> {
@@ -26,56 +23,47 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     @Override
-    protected List<Pair<Key, Command>> addCommands() {
-        List<Pair<Key, Command>> c = new ArrayList<>();
+    protected List<Command> additionalCommands() {
+        return List.of(
+                new Command("edit", this::editCell, "Edit", Key.F2),
+                new Command("date", this::selectDate, "Select date", Key.CTRL_F2),
+                new Command("save", this::saveTable, "Save", Key.F3),
+                new Command("row-up", this::moveRowUp, "Move up", Key.F5),
+                new Command("row-down", this::moveRowDown, "Move down", Key.F6),
+                new Command("row-insert", this::insertRow, "Insert after", Key.F7),
+                new Command("row-del", this::deleteRow, "Delete row", Key.F8),
+                new Command("col-del", this::deleteColumn, "Delete column", Key.CTRL_DELETE),
+                new Command("cut", this::cut, "Cut", Key.CTRL_X),
+                new Command("copy", this::copy, "Copy", Key.CTRL_C),
+                new Command("paste", this::paste, "Paste", Key.CTRL_V),
+                new Command("del", this::deleteCellValue, "Delete", Key.DELETE)
 
-        c.add(new Pair<>(Key.F2, new Command(this::editCell, "Edit")));
-        c.add(new Pair<>(Key.CTRL_F2, new Command(this::selectDate, "Select date")));
-        c.add(new Pair<>(Key.F3, new Command(this::saveTable, "Save")));
-        c.add(new Pair<>(Key.F5, new Command(this::moveRowUp, "Move up")));
-        c.add(new Pair<>(Key.F6, new Command(this::moveRowDown, "Move down")));
-        c.add(new Pair<>(Key.F7, new Command(this::insertRow, "Insert after")));
-        c.add(new Pair<>(Key.F8, new Command(this::deleteRow, "Delete row")));
-        c.add(new Pair<>(Key.CTRL_DELETE, new Command(this::deleteColumn, "Delete column")));
-        c.add(new Pair<>(Key.CTRL_X, new Command(this::cut, "Cut")));
-        c.add(new Pair<>(Key.CTRL_C, new Command(this::copy, "Copy")));
-        c.add(new Pair<>(Key.CTRL_V, new Command(this::paste, "Paste")));
-        c.add(new Pair<>(Key.DELETE, new Command(this::deleteCellValue, "Delete")));
-
-        return c;
+        );
     }
 
     @Override
-    protected boolean processCommandAllowed() {
+    protected boolean allowCommand() {
         return getMode() != Mode.EDIT;
     }
 
     @Override
-    protected void processCustom() {
+    protected void processCustomAction() {
         if (getMode() == Mode.EDIT) {
-            try {
-                RawConsoleInput.resetConsoleMode();
-                String userInput = getConsoleOperations().consoleReadLine().get();
-                if (!userInput.isEmpty()) {
-                    getTable().setCellValue(userInput, getFocus().getRow(), getFocus().getCol());
-                }
-                setMode(Mode.SELECT);
-            } catch (IOException e) {
-                // ignored
+            getConsoleOperations().resetConsole();
+            String userInput = getConsoleOperations().consoleReadLine().get();
+            if (!userInput.isEmpty()) {
+                getTable().setCellValue(userInput, getFocus().getRow(), getFocus().getCol());
             }
+            setMode(Mode.KEY);
         }
     }
 
     @Override
-    protected List<String> getHelp() {
-        List<String> help = new ArrayList<>();
+    protected String getHint() {
         if (getMode() == Mode.EDIT) {
-            help.add("");
-            help.add(Utils.colorText("Enter to accept. Empty input to escape editing.", ConsoleColor.DARK_GRAY));
-        } else {
-            help.addAll(getCommandsHelp());
+            return "Enter to accept the input. Empty input to discard editing.";
         }
-        return help;
+        return super.getHint();
     }
 
     private void editCell() {
@@ -99,7 +87,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void saveTable() {
         fileOperations.writeFile(file, TablePrinter.toCsv(getTable()) + Const.NEW_LINE);
-        setLogMessage(Utils.colorText("Saved " + file.toString(), ConsoleColor.CYAN));
+        setLogMessage("Saved " + file.toString());
     }
 
     private void moveRowUp() {

@@ -1,50 +1,7 @@
 Title
-======= | ======
-Integer | String
-======= | ======
-[30m[46m      1[0m | Text  
-      2 | Text  
-      3 | Text  
-      4 | Text  
-      5 | Text  
-      6 | Text  
-      7 | Text  
-      8 | Text  
-      9 | Text  
-     10 | Text  
-     11 | Text  
-     12 | Text  
-     13 | Text  
-     14 | Text  
-     15 | Text  
-     16 | Text  
-     17 | Text  
-     18 | Text  
-     19 | Text  
-     20 | Text  
-     21 | Text  
-     22 | Text  
-     23 | Text  
-     24 | Text  
-     25 | Text  
-     26 | Text  
-     27 | Text  
-     28 | Text  
-     29 | Text  
-     30 | Text  
-     31 | Text  
-     32 | Text  
-     33 | Text  
-     34 | Text  
-     35 | Text  
-     36 | Text  
-     37 | Text  
-     38 | Text  
-     39 | Text  
-     40 | Text  
-     41 | Text  
 
-[33mEsc[0m         [90mClose[0m       [33mF1[0m          [90mRow indexes[0m [33mTab[0m         [90mNext[0m        [33mLeft[0m        [90mPrev column[0m [33mRight[0m       [90mNext column[0m [33mUp[0m          [90mPrev row[0m    [33mDown[0m        [90mNext row[0m    [33mHome[0m        [90mFirs column[0m 
-[33mEnd[0m         [90mLast column[0m [33mPageUp[0m      [90mPrev page[0m   [33mPageDown[0m    [90mNex page[0m    
 
-[1m[92mSelect: [0m
+
+
+
+[1m[92mKey: [0m

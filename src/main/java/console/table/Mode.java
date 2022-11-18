@@ -1,7 +1,9 @@
 package console.table;
 
 public enum Mode {
-    SELECT,
-    CLOSE,
-    EDIT
+    KEY,
+    COMMAND,
+    HELP,
+    EDIT,
+    EXIT
 }

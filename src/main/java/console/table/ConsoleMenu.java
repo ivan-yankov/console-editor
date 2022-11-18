@@ -16,7 +16,7 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     }
 
     @Override
-    protected String getEnterLabel() {
+    protected String getEnterDescription() {
         return "Execute";
     }
 }

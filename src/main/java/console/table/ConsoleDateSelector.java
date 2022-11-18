@@ -34,7 +34,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         LocalDate value = getTable().getCellValue(getFocus().getRow(), getFocus().getCol());
         if (!value.equals(Const.INVALID_DATE)) {
             select.accept(value);
-            setMode(Mode.CLOSE);
+            setMode(Mode.EXIT);
         }
     }
 
@@ -57,17 +57,17 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     }
 
     @Override
-    protected String getPageUpLabel() {
+    protected String getPageUpDescription() {
         return "Prev month";
     }
 
     @Override
-    protected String getPageDownLabel() {
+    protected String getPageDownDescription() {
         return "Next month";
     }
 
     @Override
-    protected String getEnterLabel() {
+    protected String getEnterDescription() {
         return "Accept";
     }
 
