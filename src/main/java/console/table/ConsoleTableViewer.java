@@ -25,12 +25,12 @@ public class ConsoleTableViewer<T> {
     private final int consoleLines;
     private final int consoleColumns;
     private final ConsoleOperations consoleOperations;
+    private final TableViewerSettings settings;
 
     private String title;
     private Mode mode;
     private String logMessage;
     private int page;
-    private boolean showRowIndexes;
 
     public ConsoleTableViewer(Table<T> table, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations) {
         this.table = table;
@@ -42,7 +42,7 @@ public class ConsoleTableViewer<T> {
         this.mode = Mode.KEY;
         this.logMessage = "";
         this.page = 0;
-        this.showRowIndexes = true;
+        this.settings = new TableViewerSettings(true, true);
     }
 
     public ConsoleOperations getConsoleOperations() {
@@ -67,6 +67,10 @@ public class ConsoleTableViewer<T> {
 
     public String getTitle() {
         return title;
+    }
+
+    public TableViewerSettings getSettings() {
+        return settings;
     }
 
     public void setTitle(String title) {
@@ -217,7 +221,7 @@ public class ConsoleTableViewer<T> {
     }
 
     private void toggleRowIndexes() {
-        showRowIndexes = !showRowIndexes;
+        settings.setShowRowIndexes(!settings.isShowRowIndexes());
     }
 
     private void onTab() {
@@ -321,7 +325,7 @@ public class ConsoleTableViewer<T> {
     private List<String> getHeader() {
         List<String> header = new ArrayList<>();
         header.add(Utils.colorTextLine(title, TITLE_COLOR, consoleColumns));
-        header.addAll(TablePrinter.headerToConsole(getTable(), showRowIndexes));
+        header.addAll(TablePrinter.headerToConsole(getTable(), settings.isShowRowIndexes()));
         return header;
     }
 
@@ -340,7 +344,7 @@ public class ConsoleTableViewer<T> {
 
     private List<String> getPage() {
         List<List<String>> pages = Utils.sliding(
-                TablePrinter.dataToConsole(table, focus, showRowIndexes).orElse(table.getErrors()),
+                TablePrinter.dataToConsole(table, focus, settings.isShowRowIndexes()).orElse(table.getErrors()),
                 maxTableLinesPerPage()
         );
         if (!pages.isEmpty()) {

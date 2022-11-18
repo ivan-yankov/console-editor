@@ -11,6 +11,7 @@ import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private final Path file;
@@ -36,8 +37,8 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                 new Command("cut", this::cut, "Cut", Key.CTRL_X),
                 new Command("copy", this::copy, "Copy", Key.CTRL_C),
                 new Command("paste", this::paste, "Paste", Key.CTRL_V),
-                new Command("del", this::deleteCellValue, "Delete", Key.DELETE)
-
+                new Command("del", this::deleteCellValue, "Delete", Key.DELETE),
+                new Command("auto-corr-dec", this::autoCorrectDecimalSymbol, "Replace comma with dot if input is a number and if only numbers are presented in the table column")
         );
     }
 
@@ -52,7 +53,11 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
             getConsoleOperations().resetConsole();
             String userInput = getConsoleOperations().consoleReadLine().get();
             if (!userInput.isEmpty()) {
-                getTable().setCellValue(userInput, getFocus().getRow(), getFocus().getCol());
+                getTable().setCellValue(
+                        getAutoCorrector().autoCorrectUserInput(userInput),
+                        getFocus().getRow(),
+                        getFocus().getCol()
+                );
             }
             setMode(Mode.KEY);
         }
@@ -64,6 +69,17 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
             return "Enter to accept the input. Empty input to discard editing.";
         }
         return super.getHint();
+    }
+
+    private AutoCorrector getAutoCorrector() {
+        return new AutoCorrector(
+                getSettings().isAutoCorrectDecimalSymbol(),
+                getTable()
+                        .getData()
+                        .stream()
+                        .map(x -> x.get(getFocus().getCol()).getValue())
+                        .collect(Collectors.toList())
+        );
     }
 
     private void editCell() {
@@ -177,5 +193,10 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
             StringSelection stringSelection = new StringSelection(value);
             getClipboard().setContents(stringSelection, null);
         }
+    }
+
+    private void autoCorrectDecimalSymbol() {
+        getSettings().setAutoCorrectDecimalSymbol(!getSettings().isAutoCorrectDecimalSymbol());
+        setLogMessage("Auto correct of decimal symbol is " + (getSettings().isAutoCorrectDecimalSymbol() ? "enabled" : "disabled"));
     }
 }
