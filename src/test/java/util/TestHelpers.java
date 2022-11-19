@@ -48,7 +48,7 @@ public class TestHelpers {
 
         for (TestData td : testData) {
             FakeConsoleOperations consoleOperations = new FakeConsoleOperations();
-            consoleOperations.setInputSeq(td.getCommandsBefore());
+            consoleOperations.setCommands(td.getCommandsBefore());
 
             E consoleTable = newConsoleTable.apply(
                     newTable.apply(td.getTableName()),
@@ -64,6 +64,7 @@ public class TestHelpers {
                 title = "Title";
             }
             consoleTable.setTitle(title);
+            consoleTable.setMode(Mode.COMMAND);
             consoleTable.show();
 
             String beforeMessage = td.getTestName() + "-before";
@@ -80,9 +81,9 @@ public class TestHelpers {
                 );
             }
 
-            consoleOperations.setInputSeq(td.getCommandsAfter());
+            consoleOperations.setCommands(td.getCommandsAfter());
 
-            consoleTable.setMode(Mode.KEY);
+            consoleTable.setMode(Mode.COMMAND);
             consoleTable.show();
 
             String afterMessage = td.getTestName() + "-after";

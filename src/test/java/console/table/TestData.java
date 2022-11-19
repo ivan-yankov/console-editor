@@ -1,16 +1,14 @@
 package console.table;
 
-import console.Key;
-
 import java.util.List;
 
 public class TestData {
     private final String tableName;
     private final String testName;
-    private final List<Key> commandsBefore;
-    private final List<Key> commandsAfter;
+    private final List<String> commandsBefore;
+    private final List<String> commandsAfter;
 
-    public TestData(String tableName, String testName, List<Key> commandsBefore, List<Key> commandsAfter) {
+    public TestData(String tableName, String testName, List<String> commandsBefore, List<String> commandsAfter) {
         this.tableName = tableName;
         this.testName = testName;
         this.commandsBefore = commandsBefore;
@@ -25,11 +23,11 @@ public class TestData {
         return testName;
     }
 
-    public List<Key> getCommandsBefore() {
+    public List<String> getCommandsBefore() {
         return commandsBefore;
     }
 
-    public List<Key> getCommandsAfter() {
+    public List<String> getCommandsAfter() {
         return commandsAfter;
     }
 }

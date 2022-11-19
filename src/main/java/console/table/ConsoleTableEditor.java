@@ -17,7 +17,12 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private final Path file;
     private final FileOperations fileOperations;
 
-    public ConsoleTableEditor(Table<String> table, Path file, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations, FileOperations fileOperations) {
+    public ConsoleTableEditor(Table<String> table,
+                              Path file,
+                              int consoleLines,
+                              int consoleColumns,
+                              ConsoleOperations consoleOperations,
+                              FileOperations fileOperations) {
         super(table, consoleLines, consoleColumns, consoleOperations);
         this.file = file;
         this.fileOperations = fileOperations;
@@ -33,7 +38,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                 new Command("row-down", this::moveRowDown, "Move down", Key.F6),
                 new Command("row-insert", this::insertRow, "Insert after", Key.F7),
                 new Command("row-del", this::deleteRow, "Delete row", Key.F8),
-                new Command("col-del", this::deleteColumn, "Delete column", Key.CTRL_DELETE),
+                new Command("col-del", this::deleteColumn, "Delete column"),
                 new Command("cut", this::cut, "Cut", Key.CTRL_X),
                 new Command("copy", this::copy, "Copy", Key.CTRL_C),
                 new Command("paste", this::paste, "Paste", Key.CTRL_V),

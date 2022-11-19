@@ -10,39 +10,27 @@ import java.util.Stack;
 import java.util.function.Supplier;
 
 public class FakeConsoleOperations extends ConsoleOperations {
-    private final Supplier<String> input;
     private String output;
-    private String error;
-    private final Stack<Either<String, Key>> inputSeq;
+    private final Stack<String> commands;
 
     public FakeConsoleOperations() {
-        this.input = () -> "";
         this.output = "";
-        this.error = "";
-        this.inputSeq = new Stack<>();
-    }
-
-    public Supplier<String> getInput() {
-        return input;
+        this.commands = new Stack<>();
     }
 
     public String getOutput() {
         return output;
     }
 
-    public String getError() {
-        return error;
-    }
-
-    public void setInputSeq(List<Key> inputKeys) {
-        inputSeq.clear();
-        for (int i = inputKeys.size() - 1; i >= 0; i--) {
-            this.inputSeq.push(Either.right(inputKeys.get(i)));
+    public void setCommands(List<String> commands) {
+        this.commands.clear();
+        for (int i = commands.size() - 1; i >= 0; i--) {
+            this.commands.push(commands.get(i));
         }
     }
 
     public boolean allExecuted() {
-        return inputSeq.isEmpty();
+        return commands.isEmpty();
     }
 
     @Override
@@ -67,16 +55,15 @@ public class FakeConsoleOperations extends ConsoleOperations {
 
     @Override
     public Supplier<String> consoleReadLine() {
-        return input;
+        return commands::pop;
     }
 
     @Override
     public void writeError(String s) {
-        error += s;
     }
 
     @Override
     public Either<String, Key> readKey() {
-        return inputSeq.pop();
+        return Either.left("Unexpected call");
     }
 }

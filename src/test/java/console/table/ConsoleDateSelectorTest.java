@@ -1,6 +1,5 @@
 package console.table;
 
-import console.Key;
 import console.Utils;
 import console.factory.DataFactory;
 import console.factory.TableFactory;
@@ -19,9 +18,9 @@ public class ConsoleDateSelectorTest {
         LocalDate expectedDate = LocalDate.of(2022, 11, 3);
 
         List<TestData> testData = List.of(
-                new TestData("test.csv", "accept", List.of(Key.ESC), List.of(Key.RIGHT, Key.ENTER)),
-                new TestData("test.csv", "next-month", List.of(Key.ESC), List.of(Key.PAGE_DOWN, Key.ESC)),
-                new TestData("test.csv", "prev-month", List.of(Key.ESC), List.of(Key.PAGE_UP, Key.ESC))
+                new TestData("test.csv", "accept", List.of("exit"), List.of("right", "enter")),
+                new TestData("test.csv", "next-month", List.of("exit"), List.of("page-down", "exit")),
+                new TestData("test.csv", "prev-month", List.of("exit"), List.of("page-up", "exit"))
         );
 
         TestHelpers.testConsoleTable(

@@ -1,6 +1,5 @@
 package console.table;
 
-import console.Key;
 import org.junit.Test;
 import util.TestHelpers;
 
@@ -10,15 +9,15 @@ public class ConsoleTableEditorTest {
     @Test
     public void show() {
         List<TestData> testData = List.of(
-                new TestData("test.csv", "move-up", List.of(Key.ESC), List.of(Key.F5, Key.ESC)),
-                new TestData("test.csv", "move-down", List.of(Key.ESC), List.of(Key.F6, Key.ESC)),
-                new TestData("test.csv", "insert-after", List.of(Key.ESC), List.of(Key.F7, Key.ESC)),
-                new TestData("test.csv", "delete-row", List.of(Key.ESC), List.of(Key.F8, Key.ESC)),
-                new TestData("test.csv", "delete-column", List.of(Key.ESC), List.of(Key.CTRL_DELETE, Key.ESC)),
-                new TestData("test.csv", "cut", List.of(Key.ESC), List.of(Key.CTRL_X, Key.ESC)),
-                new TestData("test.csv", "copy", List.of(Key.ESC), List.of(Key.CTRL_C, Key.ESC)),
-                new TestData("test.csv", "paste", List.of(Key.ESC), List.of(Key.CTRL_V, Key.ESC)),
-                new TestData("test.csv", "delete", List.of(Key.ESC), List.of(Key.DELETE, Key.ESC))
+                new TestData("test.csv", "row-up", List.of("exit"), List.of("row-up", "exit")),
+                new TestData("test.csv", "row-down", List.of("exit"), List.of("row-down", "exit")),
+                new TestData("test.csv", "row-insert", List.of("exit"), List.of("row-insert", "exit")),
+                new TestData("test.csv", "row-del", List.of("exit"), List.of("row-del", "exit")),
+                new TestData("test.csv", "col-del", List.of("exit"), List.of("col-del", "exit")),
+                new TestData("test.csv", "cut", List.of("exit"), List.of("cut", "exit")),
+                new TestData("test.csv", "copy", List.of("exit"), List.of("copy", "exit")),
+                new TestData("test.csv", "paste", List.of("exit"), List.of("paste", "exit")),
+                new TestData("test.csv", "del", List.of("exit"), List.of("del", "exit"))
         );
 
         TestHelpers.testConsoleTable(

@@ -32,7 +32,10 @@ public class ConsoleTableViewer<T> {
     private String logMessage;
     private int page;
 
-    public ConsoleTableViewer(Table<T> table, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations) {
+    public ConsoleTableViewer(Table<T> table,
+                              int consoleLines,
+                              int consoleColumns,
+                              ConsoleOperations consoleOperations) {
         this.table = table;
         this.focus = new Focus(0, 0);
         this.consoleLines = consoleLines;
@@ -202,7 +205,7 @@ public class ConsoleTableViewer<T> {
         c.add(new Command("enter", this::onEnter, getEnterDescription(), Key.ENTER));
         c.add(new Command("exit", this::exit, "Exit", Key.ESC));
         c.add(new Command("help", this::helpMode, "Help", Key.F1));
-        c.add(new Command("indexes", this::toggleRowIndexes, "Row indexes", Key.CTRL_F1));
+        c.add(new Command("indexes", this::toggleRowIndexes, "Row indexes"));
         c.add(new Command("tab", this::onTab, "Next", Key.TAB));
         c.add(new Command("left", this::onLeft, "Prev column", Key.LEFT));
         c.add(new Command("right", this::onRight, "Next column", Key.RIGHT));
