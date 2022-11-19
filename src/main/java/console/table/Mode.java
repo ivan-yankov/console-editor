@@ -4,6 +4,7 @@ public enum Mode {
     KEY,
     COMMAND,
     HELP,
-    EDIT,
+    EDIT_CELL,
+    EDIT_HEADER,
     EXIT
 }

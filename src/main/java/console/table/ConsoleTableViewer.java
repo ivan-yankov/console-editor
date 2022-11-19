@@ -199,13 +199,12 @@ public class ConsoleTableViewer<T> {
         List<Command> c = new ArrayList<>();
 
         if (allowCommandMode()) {
-            c.add(new Command("", this::commandMode, "Command mode", Key.F4));
+            c.add(new Command("", this::commandMode, "Command mode", Key.F5));
         }
 
         c.add(new Command("enter", this::onEnter, getEnterDescription(), Key.ENTER));
         c.add(new Command("exit", this::exit, "Exit", Key.ESC));
         c.add(new Command("help", this::helpMode, "Help", Key.F1));
-        c.add(new Command("indexes", this::toggleRowIndexes, "Row indexes"));
         c.add(new Command("tab", this::onTab, "Next", Key.TAB));
         c.add(new Command("left", this::onLeft, "Prev column", Key.LEFT));
         c.add(new Command("right", this::onRight, "Next column", Key.RIGHT));
@@ -215,6 +214,7 @@ public class ConsoleTableViewer<T> {
         c.add(new Command("end", this::onEnd, "Last column", Key.END));
         c.add(new Command("page-up", this::onPageUp, getPageUpDescription(), Key.PAGE_UP));
         c.add(new Command("page-down", this::onPageDown, getPageDownDescription(), Key.PAGE_DOWN));
+        c.add(new Command("indexes", this::toggleRowIndexes, "Row indexes"));
 
         c.addAll(additionalCommands());
 
@@ -298,7 +298,9 @@ public class ConsoleTableViewer<T> {
             List<String> p = getPage();
             int verticalMarginSize = maxTableLinesPerPage() - p.size();
             consoleOperations.writeln(String.join(Const.NEW_LINE, getHeader()));
-            consoleOperations.writeln(String.join(Const.NEW_LINE, p));
+            if (!p.isEmpty()) {
+                consoleOperations.writeln(String.join(Const.NEW_LINE, p));
+            }
             consoleOperations.write(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
         }
         if (renderFooter()) {

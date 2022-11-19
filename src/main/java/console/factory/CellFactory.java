@@ -6,8 +6,12 @@ import console.table.Cell;
 import java.time.LocalDate;
 
 public class CellFactory {
+    public static Cell<String> createStringCell(String value) {
+        return new Cell<>(value, false, x -> x);
+    }
+
     public static Cell<String> createEmptyStringCell() {
-        return new Cell<>("", false, x -> x);
+        return createStringCell("");
     }
 
     public static Cell<LocalDate> createDateCell(LocalDate date) {

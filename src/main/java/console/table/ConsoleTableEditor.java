@@ -11,6 +11,7 @@ import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ConsoleTableEditor extends ConsoleTableViewer<String> {
@@ -32,12 +33,16 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     protected List<Command> additionalCommands() {
         return List.of(
                 new Command("edit", this::editCell, "Edit", Key.F2),
+                new Command("hedit", this::editHeader, "Edit", Key.F3),
                 new Command("date", this::selectDate, "Select date", Key.CTRL_F2),
-                new Command("save", this::saveTable, "Save", Key.F3),
+                new Command("save", this::saveTable, "Save", Key.F4),
                 new Command("row-up", this::moveRowUp, "Move up", Key.CTRL_UP),
                 new Command("row-down", this::moveRowDown, "Move down", Key.CTRL_DOWN),
                 new Command("row-insert", this::insertRow, "Insert after", Key.F7),
                 new Command("row-del", this::deleteRow, "Delete row", Key.F8),
+                new Command("col-left", this::moveColumnLeft, "Delete row", Key.CTRL_LEFT),
+                new Command("col-right", this::moveColumnRight, "Delete row", Key.CTRL_RIGHT),
+                new Command("col-insert", this::insertColumn, "Delete row", Key.CTRL_F7),
                 new Command("col-del", this::deleteColumn, "Delete column", Key.CTRL_F8),
                 new Command("cut", this::cut, "Cut", Key.CTRL_X),
                 new Command("copy", this::copy, "Copy", Key.CTRL_C),
@@ -49,31 +54,38 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     @Override
     protected boolean allowCommand() {
-        return getMode() != Mode.EDIT;
+        return getMode() != Mode.EDIT_CELL && getMode() != Mode.EDIT_HEADER;
     }
 
     @Override
     protected void processCustomAction() {
-        if (getMode() == Mode.EDIT) {
-            getConsoleOperations().resetConsole();
-            String userInput = getConsoleOperations().consoleReadLine().get();
-            if (!userInput.isEmpty()) {
-                getTable().setCellValue(
-                        getAutoCorrector().autoCorrectUserInput(userInput),
-                        getFocus().getRow(),
-                        getFocus().getCol()
-                );
-            }
-            setMode(Mode.KEY);
+        if (getMode() == Mode.EDIT_CELL) {
+            processUserInput(x -> getTable().setCellValue(
+                            getAutoCorrector().autoCorrectUserInput(x),
+                            getFocus().getRow(),
+                            getFocus().getCol()
+                    )
+            );
+        } else if (getMode() == Mode.EDIT_HEADER) {
+            processUserInput(x -> getTable().setHeaderValue(x, getFocus().getCol()));
         }
     }
 
     @Override
     protected String getHint() {
-        if (getMode() == Mode.EDIT) {
+        if (getMode() == Mode.EDIT_CELL) {
             return "Enter to accept the input. Empty input to discard editing.";
         }
         return super.getHint();
+    }
+
+    private void processUserInput(Consumer<String> userInputProcessor) {
+        getConsoleOperations().resetConsole();
+        String userInput = getConsoleOperations().consoleReadLine().get();
+        if (!userInput.isEmpty()) {
+            userInputProcessor.accept(userInput);
+        }
+        setMode(Mode.KEY);
     }
 
     private AutoCorrector getAutoCorrector() {
@@ -89,7 +101,13 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void editCell() {
         if (getFocus().isValid()) {
-            setMode(Mode.EDIT);
+            setMode(Mode.EDIT_CELL);
+        }
+    }
+
+    private void editHeader() {
+        if (getFocus().isValid()) {
+            setMode(Mode.EDIT_HEADER);
         }
     }
 
@@ -142,6 +160,27 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
             int row = getFocus().getRow() - 1;
             if (row < 0) row++;
             getFocus().setRow(row);
+        }
+    }
+
+    private void moveColumnLeft() {
+        if (getFocus().getCol() > 0) {
+            getTable().swapColumns(getFocus().getCol(), getFocus().getCol() - 1);
+            getFocus().setCol(getFocus().getCol() - 1);
+        }
+    }
+
+    private void moveColumnRight() {
+        if (getFocus().getCol() < getTable().getColCount() - 1) {
+            getTable().swapColumns(getFocus().getCol(), getFocus().getCol() + 1);
+            getFocus().setCol(getFocus().getCol() + 1);
+        }
+    }
+
+    private void insertColumn() {
+        getTable().insertEmptyColumn(getFocus().getCol() + 1);
+        if (!getFocus().isValid()) {
+            resetFocus();
         }
     }
 

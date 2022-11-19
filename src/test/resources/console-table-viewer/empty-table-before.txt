@@ -1,5 +1,4 @@
 [30m[100mTitle                                                                                                                                                                                                   [0m
-[30m[43m  | Integer | String | Double | Date | Time[0m
 
 
 
