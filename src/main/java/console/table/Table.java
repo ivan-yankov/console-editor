@@ -75,10 +75,6 @@ public class Table<T> {
         return errors.isEmpty();
     }
 
-    public boolean isEmpty() {
-        return data.isEmpty();
-    }
-
     public int fieldSize(int col) {
         int dataLongestField = data
                 .stream()

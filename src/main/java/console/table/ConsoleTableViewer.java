@@ -120,10 +120,6 @@ public class ConsoleTableViewer<T> {
     protected void processCustomAction() {
     }
 
-    protected boolean renderFooter() {
-        return true;
-    }
-
     protected String getPageUpDescription() {
         return "Prev page";
     }
@@ -224,6 +220,14 @@ public class ConsoleTableViewer<T> {
     protected void onEnter() {
     }
 
+    protected List<String> getFooter() {
+        return List.of(
+                Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
+                Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
+                Utils.colorText(getModeString(), MODE_COLOR)
+        );
+    }
+
     private void exit() {
         setMode(Mode.EXIT);
     }
@@ -289,23 +293,26 @@ public class ConsoleTableViewer<T> {
 
     private void render() {
         consoleOperations.clearConsole();
+        int verticalMarginSize;
         if (getMode() == Mode.HELP) {
             List<String> help = getHelp();
-            int verticalMarginSize = consoleLines - getFooter().size() - help.size();
+            verticalMarginSize = consoleLines - getFooter().size() - help.size();
             consoleOperations.writeln(String.join(Const.NEW_LINE, help));
-            consoleOperations.write(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
         } else {
             List<String> p = getPage();
-            int verticalMarginSize = maxTableLinesPerPage() - p.size();
+            verticalMarginSize = maxTableLinesPerPage() - p.size();
             consoleOperations.writeln(String.join(Const.NEW_LINE, getHeader()));
             if (!p.isEmpty()) {
                 consoleOperations.writeln(String.join(Const.NEW_LINE, p));
             }
+        }
+
+        List<String> footer = getFooter();
+        if (!footer.isEmpty()) {
             consoleOperations.write(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
+            consoleOperations.write(String.join(Const.NEW_LINE, footer));
         }
-        if (renderFooter()) {
-            consoleOperations.write(String.join(Const.NEW_LINE, getFooter()));
-        }
+
         setLogMessage("");
     }
 
@@ -347,14 +354,6 @@ public class ConsoleTableViewer<T> {
         header.add(Utils.colorTextLine(title, TITLE_COLOR, consoleColumns));
         header.addAll(TablePrinter.headerToConsole(getTable(), settings.isShowRowIndexes()));
         return header;
-    }
-
-    private List<String> getFooter() {
-        return List.of(
-                Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
-                Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
-                Utils.colorText(getModeString(), MODE_COLOR)
-        );
     }
 
     private String getModeString() {
@@ -400,10 +399,6 @@ public class ConsoleTableViewer<T> {
     }
 
     private int maxTableLinesPerPage() {
-        if (renderFooter()) {
-            return consoleLines - getHeader().size() - getFooter().size();
-        } else {
-            return consoleLines - getHeader().size();
-        }
+        return consoleLines - getHeader().size() - getFooter().size();
     }
 }

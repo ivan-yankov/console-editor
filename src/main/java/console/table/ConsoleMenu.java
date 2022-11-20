@@ -3,6 +3,8 @@ package console.table;
 import console.model.Command;
 import console.operations.ConsoleOperations;
 
+import java.util.List;
+
 public class ConsoleMenu extends ConsoleTableViewer<Command> {
     public ConsoleMenu(Table<Command> table, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations) {
         super(table, consoleLines, consoleColumns, consoleOperations);
@@ -27,7 +29,11 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     }
 
     @Override
-    protected boolean renderFooter() {
-        return false;
+    protected List<String> getFooter() {
+        if (getMode() == Mode.HELP) {
+            return super.getFooter();
+        } else {
+            return List.of();
+        }
     }
 }

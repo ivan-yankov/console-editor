@@ -33,7 +33,7 @@ public class TablePrinter {
     }
 
     public static <T> List<String> headerToConsole(Table<T> table, boolean withRowIndexes) {
-        if (!table.isValid() || table.isEmpty()) return new ArrayList<>();
+        if (!table.isValid() || table.getHeader().isEmpty()) return new ArrayList<>();
 
         List<String> result = new ArrayList<>();
         List<String> header = new ArrayList<>();
