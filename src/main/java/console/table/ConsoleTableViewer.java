@@ -206,8 +206,10 @@ public class ConsoleTableViewer<T> {
         c.add(new Command("right", this::onRight, "Next column", Key.RIGHT));
         c.add(new Command("up", this::onUp, "Prev row", Key.UP));
         c.add(new Command("down", this::onDown, "Next row", Key.DOWN));
-        c.add(new Command("home", this::onHome, "First column", Key.HOME));
-        c.add(new Command("end", this::onEnd, "Last column", Key.END));
+        c.add(new Command("first-col", this::onHome, "First column", Key.HOME));
+        c.add(new Command("last-col", this::onEnd, "Last column", Key.END));
+        c.add(new Command("first-row", this::onCtrlHome, "First crow", Key.CTRL_HOME));
+        c.add(new Command("last-row", this::onCtrlEnd, "Last row", Key.CTRL_END));
         c.add(new Command("page-up", this::onPageUp, getPageUpDescription(), Key.PAGE_UP));
         c.add(new Command("page-down", this::onPageDown, getPageDownDescription(), Key.PAGE_DOWN));
         c.add(new Command("indexes", this::toggleRowIndexes, "Row indexes"));
@@ -289,6 +291,15 @@ public class ConsoleTableViewer<T> {
 
     private void onEnd() {
         focus.setCol(table.getColCount() - 1);
+    }
+
+    private void onCtrlHome() {
+        focus.setRow(0);
+    }
+
+    private void onCtrlEnd() {
+        focus.setRow(table.getRowCount() - 1);
+        page = numberOfPages() - 1;
     }
 
     private void render() {
@@ -391,8 +402,8 @@ public class ConsoleTableViewer<T> {
                 ConsoleColor.RESET;
     }
 
-    private long numberOfPages() {
-        return Utils.numberOfSlides(
+    private int numberOfPages() {
+        return (int) Utils.numberOfSlides(
                 getTable().getData(),
                 maxTableLinesPerPage()
         );
