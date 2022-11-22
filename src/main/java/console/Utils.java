@@ -62,7 +62,7 @@ public class Utils {
     }
 
     public static Command doNothing() {
-        return new Command("", () -> {
+        return new Command("", x -> {
         }, "");
     }
 

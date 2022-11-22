@@ -32,23 +32,23 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     @Override
     protected List<Command> additionalCommands() {
         return List.of(
-                new Command("edit", this::editCell, "Edit", Key.F2),
-                new Command("hedit", this::editHeader, "Edit", Key.F3),
-                new Command("date", this::selectDate, "Select date", Key.CTRL_F2),
-                new Command("save", this::saveTable, "Save", Key.F4),
-                new Command("row-up", this::moveRowUp, "Move up", Key.CTRL_UP),
-                new Command("row-down", this::moveRowDown, "Move down", Key.CTRL_DOWN),
-                new Command("row-insert", this::insertRow, "Insert after", Key.F7),
-                new Command("row-del", this::deleteRow, "Delete row", Key.F8),
-                new Command("col-left", this::moveColumnLeft, "Delete row", Key.CTRL_LEFT),
-                new Command("col-right", this::moveColumnRight, "Delete row", Key.CTRL_RIGHT),
-                new Command("col-insert", this::insertColumn, "Delete row", Key.CTRL_F7),
-                new Command("col-del", this::deleteColumn, "Delete column", Key.CTRL_F8),
-                new Command("cut", this::cut, "Cut", Key.CTRL_X),
-                new Command("copy", this::copy, "Copy", Key.CTRL_C),
-                new Command("paste", this::paste, "Paste", Key.CTRL_V),
-                new Command("del", this::deleteCellValue, "Delete", Key.DELETE),
-                new Command("auto-corr-dec", this::autoCorrectDecimalSymbol, "Replace comma with dot if input is a number and if only numbers are presented in the table column")
+                new Command("edit", x -> editCell(), "Edit", Key.F2),
+                new Command("hedit", x -> editHeader(), "Edit", Key.F3),
+                new Command("date", x -> selectDate(), "Select date", Key.CTRL_F2),
+                new Command("save", x -> saveTable(), "Save", Key.F4),
+                new Command("row-up", x -> moveRowUp(), "Move up", Key.CTRL_UP),
+                new Command("row-down", x -> moveRowDown(), "Move down", Key.CTRL_DOWN),
+                new Command("row-insert", x -> insertRow(), "Insert after", Key.F7),
+                new Command("row-del", x -> deleteRow(), "Delete row", Key.F8),
+                new Command("col-left", x -> moveColumnLeft(), "Delete row", Key.CTRL_LEFT),
+                new Command("col-right", x -> moveColumnRight(), "Delete row", Key.CTRL_RIGHT),
+                new Command("col-insert", x -> insertColumn(), "Delete row", Key.CTRL_F7),
+                new Command("col-del", x -> deleteColumn(), "Delete column", Key.CTRL_F8),
+                new Command("cut", x -> cut(), "Cut", Key.CTRL_X),
+                new Command("copy", x -> copy(), "Copy", Key.CTRL_C),
+                new Command("paste", x -> paste(), "Paste", Key.CTRL_V),
+                new Command("del", x -> deleteCellValue(), "Delete", Key.DELETE),
+                new Command("auto-corr-dec-sym", this::autoCorrectDecimalSymbol, "Replace comma with dot if input is a number and if only numbers are presented in the table column")
         );
     }
 
@@ -239,8 +239,8 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
         }
     }
 
-    private void autoCorrectDecimalSymbol() {
-        getSettings().setAutoCorrectDecimalSymbol(!getSettings().isAutoCorrectDecimalSymbol());
+    private void autoCorrectDecimalSymbol(List<String> p) {
+        getSettings().setAutoCorrectDecimalSymbol(analyzeFlagParameter(p).orElse(getSettings().isAutoCorrectDecimalSymbol()));
         setLogMessage("Auto correct of decimal symbol is " + (getSettings().isAutoCorrectDecimalSymbol() ? "enabled" : "disabled"));
     }
 }

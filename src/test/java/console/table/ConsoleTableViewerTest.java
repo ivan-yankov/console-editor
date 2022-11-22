@@ -10,8 +10,8 @@ public class ConsoleTableViewerTest {
     @Test
     public void show() {
         List<TestData> testData = List.of(
-                new TestData("test.csv", "hide-row-indexes", List.of("exit"), List.of("indexes", "exit")),
-                new TestData("test.csv", "show-row-indexes", List.of("indexes", "exit"), List.of("indexes", "exit")),
+                new TestData("test.csv", "hide-row-indexes", List.of("exit"), List.of("row-indexes off", "exit")),
+                new TestData("test.csv", "show-row-indexes", List.of("row-indexes off", "exit"), List.of("row-indexes on", "exit")),
                 new TestData("test.csv", "on-tab", List.of("exit"), List.of("tab", "exit")),
                 new TestData("test.csv", "on-left", List.of("tab", "exit"), List.of("left", "exit")),
                 new TestData("test.csv", "on-right", List.of("exit"), List.of("right", "exit")),

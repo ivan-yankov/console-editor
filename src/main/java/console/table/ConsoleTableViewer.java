@@ -8,6 +8,7 @@ import either.Either;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -195,24 +196,24 @@ public class ConsoleTableViewer<T> {
         List<Command> c = new ArrayList<>();
 
         if (allowCommandMode()) {
-            c.add(new Command("", this::commandMode, "Command mode", Key.F5));
+            c.add(new Command("", x -> commandMode(), "Command mode", Key.F5));
         }
 
-        c.add(new Command("enter", this::onEnter, getEnterDescription(), Key.ENTER));
-        c.add(new Command("exit", this::exit, "Exit", Key.ESC));
-        c.add(new Command("help", this::helpMode, "Help", Key.F1));
-        c.add(new Command("tab", this::onTab, "Next", Key.TAB));
-        c.add(new Command("left", this::onLeft, "Prev column", Key.LEFT));
-        c.add(new Command("right", this::onRight, "Next column", Key.RIGHT));
-        c.add(new Command("up", this::onUp, "Prev row", Key.UP));
-        c.add(new Command("down", this::onDown, "Next row", Key.DOWN));
-        c.add(new Command("first-col", this::onHome, "First column", Key.HOME));
-        c.add(new Command("last-col", this::onEnd, "Last column", Key.END));
-        c.add(new Command("first-row", this::onCtrlHome, "First crow", Key.CTRL_HOME));
-        c.add(new Command("last-row", this::onCtrlEnd, "Last row", Key.CTRL_END));
-        c.add(new Command("page-up", this::onPageUp, getPageUpDescription(), Key.PAGE_UP));
-        c.add(new Command("page-down", this::onPageDown, getPageDownDescription(), Key.PAGE_DOWN));
-        c.add(new Command("indexes", this::toggleRowIndexes, "Row indexes"));
+        c.add(new Command("enter", x -> onEnter(), getEnterDescription(), Key.ENTER));
+        c.add(new Command("exit", x -> exit(), "Exit", Key.ESC));
+        c.add(new Command("help", x -> helpMode(), "Help", Key.F1));
+        c.add(new Command("tab", x -> onTab(), "Next", Key.TAB));
+        c.add(new Command("left", x -> onLeft(), "Prev column", Key.LEFT));
+        c.add(new Command("right", x -> onRight(), "Next column", Key.RIGHT));
+        c.add(new Command("up", x -> onUp(), "Prev row", Key.UP));
+        c.add(new Command("down", x -> onDown(), "Next row", Key.DOWN));
+        c.add(new Command("first-col", x -> onHome(), "First column", Key.HOME));
+        c.add(new Command("last-col", x -> onEnd(), "Last column", Key.END));
+        c.add(new Command("first-row", x -> onCtrlHome(), "First crow", Key.CTRL_HOME));
+        c.add(new Command("last-row", x -> onCtrlEnd(), "Last row", Key.CTRL_END));
+        c.add(new Command("page-up", x -> onPageUp(), getPageUpDescription(), Key.PAGE_UP));
+        c.add(new Command("page-down", x -> onPageDown(), getPageDownDescription(), Key.PAGE_DOWN));
+        c.add(new Command("row-indexes", this::rowIndexes, "Switch row indexes on or off"));
 
         c.addAll(additionalCommands());
 
@@ -230,6 +231,17 @@ public class ConsoleTableViewer<T> {
         );
     }
 
+    protected final Optional<Boolean> analyzeFlagParameter(List<String> p) {
+        if (!p.isEmpty()) {
+            if (p.get(0).equals("on")) {
+                return Optional.of(true);
+            } else if (p.get(0).equals("off")) {
+                return Optional.of(false);
+            }
+        }
+        return Optional.empty();
+    }
+
     private void exit() {
         setMode(Mode.EXIT);
     }
@@ -242,8 +254,8 @@ public class ConsoleTableViewer<T> {
         setMode(Mode.HELP);
     }
 
-    private void toggleRowIndexes() {
-        settings.setShowRowIndexes(!settings.isShowRowIndexes());
+    private void rowIndexes(List<String> p) {
+        settings.setShowRowIndexes(analyzeFlagParameter(p).orElse(settings.isShowRowIndexes()));
     }
 
     private void onTab() {
@@ -333,7 +345,7 @@ public class ConsoleTableViewer<T> {
             case KEY:
                 Either<String, Key> input = consoleOperations.readKey();
                 String inputKeyName = input.getRight().isPresent() ? input.getRight().get().getName() : "";
-                executeCommand(x -> x.hasKeyBinding() && x.getKeyBindingName().equals(inputKeyName));
+                executeCommand(x -> x.hasKeyBinding() && x.getKeyBindingName().equals(inputKeyName), List.of());
                 break;
             case COMMAND:
                 consoleOperations.resetConsole();
@@ -341,7 +353,8 @@ public class ConsoleTableViewer<T> {
                 if (cmd.isEmpty()) {
                     setMode(Mode.KEY);
                 } else {
-                    executeCommand(x -> x.getName().equals(cmd));
+                    String[] c = cmd.split(" ");
+                    executeCommand(x -> x.getName().equals(c[0]), List.of(c[1]));
                 }
                 break;
             case HELP:
@@ -351,14 +364,14 @@ public class ConsoleTableViewer<T> {
         }
     }
 
-    private void executeCommand(Predicate<Command> criteria) {
+    private void executeCommand(Predicate<Command> criteria, List<String> parameters) {
         commands()
                 .stream()
                 .filter(criteria)
                 .findFirst()
                 .orElse(Utils.doNothing())
                 .getAction()
-                .execute();
+                .accept(parameters);
     }
 
     private List<String> getHeader() {
