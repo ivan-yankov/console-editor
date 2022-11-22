@@ -295,6 +295,7 @@ public class ConsoleTableViewer<T> {
 
     private void onCtrlHome() {
         focus.setRow(0);
+        page = 0;
     }
 
     private void onCtrlEnd() {
