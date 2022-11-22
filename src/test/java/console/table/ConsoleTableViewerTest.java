@@ -23,10 +23,8 @@ public class ConsoleTableViewerTest {
                 new TestData("test.csv", "on-last-col", List.of("exit"), List.of("last-col", "exit")),
                 new TestData("multi-page.csv", "on-page-down", List.of("exit"), List.of("page-down", "exit")),
                 new TestData("multi-page.csv", "on-page-up", List.of("page-down", "exit"), List.of("page-up", "exit")),
-
                 new TestData("multi-page.csv", "on-first-row", append(fill(220, "tab"), "page-down", "page-down", "exit"), List.of("first-row", "exit")),
-//                new TestData("multi-page.csv", "on-last-row", List.of("exit"), List.of("last-row", "exit")),
-
+                new TestData("multi-page.csv", "on-last-row", List.of("exit"), List.of("last-row", "exit")),
                 new TestData("empty.csv", "empty-file", List.of("exit"), List.of("exit")),
                 new TestData("empty-table.csv", "empty-table", List.of("exit"), List.of("exit")),
                 new TestData("quotes.csv", "quotes-csv", List.of("exit"), List.of("exit"))
