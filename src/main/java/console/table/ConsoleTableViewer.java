@@ -5,10 +5,7 @@ import console.model.Command;
 import console.operations.ConsoleOperations;
 import either.Either;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -354,7 +351,7 @@ public class ConsoleTableViewer<T> {
                     setMode(Mode.KEY);
                 } else {
                     String[] c = cmd.split(" ");
-                    executeCommand(x -> x.getName().equals(c[0]), List.of(c[1]));
+                    executeCommand(x -> x.getName().equals(c[0]), Arrays.stream(c).skip(1).collect(Collectors.toList()));
                 }
                 break;
             case HELP:
