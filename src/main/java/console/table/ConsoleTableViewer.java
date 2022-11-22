@@ -1,6 +1,9 @@
 package console.table;
 
-import console.*;
+import console.ConsoleColor;
+import console.Const;
+import console.Key;
+import console.Utils;
 import console.model.Command;
 import console.operations.ConsoleOperations;
 import either.Either;
@@ -346,12 +349,16 @@ public class ConsoleTableViewer<T> {
                 break;
             case COMMAND:
                 consoleOperations.resetConsole();
-                String cmd = consoleOperations.consoleReadLine().get();
+                List<String> cmd = Arrays.stream(consoleOperations.consoleReadLine().get().split(" "))
+                        .filter(x -> !x.isEmpty())
+                        .collect(Collectors.toList());
                 if (cmd.isEmpty()) {
                     setMode(Mode.KEY);
                 } else {
-                    String[] c = cmd.split(" ");
-                    executeCommand(x -> x.getName().equals(c[0]), Arrays.stream(c).skip(1).collect(Collectors.toList()));
+                    executeCommand(
+                            x -> x.getName().equals(cmd.stream().findFirst().orElse("")),
+                            cmd.stream().skip(1).collect(Collectors.toList())
+                    );
                 }
                 break;
             case HELP:
