@@ -6,11 +6,18 @@ import console.Key;
 import console.Utils;
 import console.model.Command;
 import console.operations.ConsoleOperations;
-import either.Either;
+import yankov.functional.Either;
+import yankov.functional.ImmutableList;
+import yankov.utils.StringUtils;
 
-import java.util.*;
+import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
+import static console.table.ConsoleTableChangePropertyNames.TABLE;
 
 public class ConsoleTableViewer<T> {
     private static final String TITLE_COLOR = ConsoleColor.BLACK + ConsoleColor.DARK_GRAY_B;
@@ -21,7 +28,8 @@ public class ConsoleTableViewer<T> {
     private static final String HELP_KEY_BINDING_COLOR = ConsoleColor.YELLOW;
     private static final String HELP_DESC_COLOR = ConsoleColor.DARK_GRAY;
 
-    private final Table<T> table;
+    private Table<T> table;
+
     private final Focus focus;
     private final int consoleLines;
     private final int consoleColumns;
@@ -32,6 +40,8 @@ public class ConsoleTableViewer<T> {
     private Mode mode;
     private String logMessage;
     private int page;
+
+    private final PropertyChangeSupport propertyChangeSupport;
 
     public ConsoleTableViewer(Table<T> table,
                               int consoleLines,
@@ -47,6 +57,18 @@ public class ConsoleTableViewer<T> {
         this.logMessage = "";
         this.page = 0;
         this.settings = new TableViewerSettings(true, true);
+        this.propertyChangeSupport = new PropertyChangeSupport(this);
+        this.propertyChangeSupport.addPropertyChangeListener(new ConsoleTableChangeListener());
+    }
+
+    public Table<T> getTable() {
+        return table;
+    }
+
+    public void setTable(Table<T> table) {
+        Table<T> oldValue = this.table;
+        this.table = table;
+        propertyChangeSupport.firePropertyChange(TABLE, oldValue, this.table);
     }
 
     public ConsoleOperations getConsoleOperations() {
@@ -59,10 +81,6 @@ public class ConsoleTableViewer<T> {
 
     public int getConsoleColumns() {
         return consoleColumns;
-    }
-
-    public Table<T> getTable() {
-        return table;
     }
 
     public Focus getFocus() {
@@ -189,10 +207,10 @@ public class ConsoleTableViewer<T> {
                 .stream()
                 .filter(x -> !x.getDescription().isEmpty())
                 .map(x -> commandColoredHelp(x, nameFieldSize, keyBindingFieldSize))
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private List<Command> commands() {
+    private ImmutableList<Command> commands() {
         List<Command> c = new ArrayList<>();
 
         if (allowCommandMode()) {
@@ -217,7 +235,7 @@ public class ConsoleTableViewer<T> {
 
         c.addAll(additionalCommands());
 
-        return c;
+        return ImmutableList.of(c);
     }
 
     protected void onEnter() {
@@ -261,9 +279,9 @@ public class ConsoleTableViewer<T> {
     private void onTab() {
         int r = focus.getRow();
         int c = focus.getCol();
-        if (c == table.getColCount() - 1) {
+        if (c == getTable().getColCount() - 1) {
             focus.setCol(0);
-            if (r < table.getRowCount() - 1) {
+            if (r < getTable().getRowCount() - 1) {
                 focus.setRow(r + 1);
             } else {
                 focus.setRow(0);
@@ -280,7 +298,7 @@ public class ConsoleTableViewer<T> {
     }
 
     private void onRight() {
-        if (focus.getCol() < table.getColCount() - 1) {
+        if (focus.getCol() < getTable().getColCount() - 1) {
             focus.setCol(focus.getCol() + 1);
         }
     }
@@ -292,7 +310,7 @@ public class ConsoleTableViewer<T> {
     }
 
     private void onDown() {
-        if (focus.getRow() < table.getRowCount() - 1) {
+        if (focus.getRow() < getTable().getRowCount() - 1) {
             focus.setRow(focus.getRow() + 1);
         }
     }
@@ -302,7 +320,7 @@ public class ConsoleTableViewer<T> {
     }
 
     private void onEnd() {
-        focus.setCol(table.getColCount() - 1);
+        focus.setCol(getTable().getColCount() - 1);
     }
 
     private void onCtrlHome() {
@@ -311,7 +329,7 @@ public class ConsoleTableViewer<T> {
     }
 
     private void onCtrlEnd() {
-        focus.setRow(table.getRowCount() - 1);
+        focus.setRow(getTable().getRowCount() - 1);
         page = numberOfPages() - 1;
     }
 
@@ -349,15 +367,16 @@ public class ConsoleTableViewer<T> {
                 break;
             case COMMAND:
                 consoleOperations.resetConsole();
-                List<String> cmd = Arrays.stream(consoleOperations.consoleReadLine().get().split(" "))
+                ImmutableList<String> cmd = ImmutableList.from(consoleOperations.consoleReadLine().get().split(" "))
+                        .stream()
                         .filter(x -> !x.isEmpty())
-                        .collect(Collectors.toList());
+                        .toList();
                 if (cmd.isEmpty()) {
                     setMode(Mode.KEY);
                 } else {
                     executeCommand(
                             x -> x.getName().equals(cmd.stream().findFirst().orElse("")),
-                            cmd.stream().skip(1).collect(Collectors.toList())
+                            cmd.stream().skip(1).toList()
                     );
                 }
                 break;
@@ -391,10 +410,9 @@ public class ConsoleTableViewer<T> {
     }
 
     private List<String> getPage() {
-        List<List<String>> pages = Utils.sliding(
-                TablePrinter.dataToConsole(table, focus, settings.isShowRowIndexes()).orElse(table.getErrors()),
-                maxTableLinesPerPage()
-        );
+        ImmutableList<ImmutableList<String>> pages = TablePrinter
+                .dataToConsole(getTable(), focus, settings.isShowRowIndexes())
+                .sliding(maxTableLinesPerPage());
         if (!pages.isEmpty()) {
             return pages.get(page);
         } else {
@@ -403,28 +421,25 @@ public class ConsoleTableViewer<T> {
     }
 
     private String getVerticalMargin(int n) {
-        return Utils.generateString(n, '\n');
+        return StringUtils.fill(n, '\n');
     }
 
     private String commandColoredHelp(Command command, int nameFieldSize, int keyBindingFieldSize) {
         return HELP_CMD_COLOR +
                 command.getName() +
                 ConsoleColor.RESET +
-                Utils.generateString(nameFieldSize - command.getName().length(), ' ') +
+                StringUtils.fill(nameFieldSize - command.getName().length(), ' ') +
                 HELP_KEY_BINDING_COLOR +
                 command.getKeyBindingName() +
                 ConsoleColor.RESET +
-                Utils.generateString(keyBindingFieldSize - command.getKeyBindingName().length(), ' ') +
+                StringUtils.fill(keyBindingFieldSize - command.getKeyBindingName().length(), ' ') +
                 HELP_DESC_COLOR +
                 command.getDescription() +
                 ConsoleColor.RESET;
     }
 
     private int numberOfPages() {
-        return (int) Utils.numberOfSlides(
-                getTable().getData(),
-                maxTableLinesPerPage()
-        );
+        return (int) getTable().getData().numberOfSlides(maxTableLinesPerPage());
     }
 
     private int maxTableLinesPerPage() {

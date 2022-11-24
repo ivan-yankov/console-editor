@@ -16,10 +16,14 @@
     <dependencies>
         <dependency>
             <groupId>yankov</groupId>
+            <artifactId>java-utils</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>yankov</groupId>
             <artifactId>raw-console-input</artifactId>
             <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${pom.basedir}/lib/raw-console-input-1.0-jar-with-dependencies.jar</systemPath>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/junit/junit -->

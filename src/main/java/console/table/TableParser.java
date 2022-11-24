@@ -1,47 +1,50 @@
 package console.table;
 
 import console.Const;
-import console.Utils;
 import console.factory.CellFactory;
-import console.factory.TableFactory;
+import yankov.functional.Either;
+import yankov.functional.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class TableParser {
-    public static Table<String> fromCsv(String csv) {
-        if (csv.isEmpty()) return TableFactory.createEmptyStringTable();
+    public static Either<String, Table<String>> fromCsv(String csv) {
+        if (csv.isEmpty()) {
+            return Either.right(Table.empty(CellFactory::createEmptyStringCell));
+        }
 
         String[] csvLines = csv.split(Const.NEW_LINE);
+
         List<List<Cell<String>>> data = new ArrayList<>();
         List<String> errors = new ArrayList<>();
+
         for (int i = 0; i < csvLines.length; i++) {
-            Optional<List<Cell<String>>> parsed = parseCsvLine(csvLines[i].trim());
+            Optional<ImmutableList<Cell<String>>> parsed = parseCsvLine(csvLines[i].trim());
             if (parsed.isPresent()) {
-                if (i > 0 && parsed.get().size() != data.get(0).size()) {
-                    errors.add(Utils.wrongNumberOfColumnsMessage(i + 1, data.get(0).size(), parsed.get().size()));
-                } else {
-                    data.add(parsed.get());
-                }
+                data.add(parsed.get());
             } else {
                 errors.add("Unable to parse line " + (i + 1) + " of the csv file");
             }
         }
 
+        if (!errors.isEmpty()) {
+            return Either.left(String.join(Const.NEW_LINE, errors));
+        }
+
         if (!data.isEmpty()) {
-            Table<String> table = TableFactory.createStringTable(
-                    data.get(0),
-                    data.subList(1, data.size())
+            return Table.from(
+                    ImmutableList.of(data.get(0)),
+                    ImmutableList.fromList2d(data.subList(1, data.size())),
+                    CellFactory::createEmptyStringCell
             );
-            errors.forEach(table::addError);
-            return table;
         } else {
-            return TableFactory.createEmptyStringTable();
+            return Either.left("Unable to parse CSV table");
         }
     }
 
-    public static Optional<List<Cell<String>>> parseCsvLine(String line) {
+    public static Optional<ImmutableList<Cell<String>>> parseCsvLine(String line) {
         List<Cell<String>> cells = new ArrayList<>();
 
         String current = line;
@@ -80,6 +83,6 @@ public class TableParser {
             cells.add(CellFactory.createEmptyStringCell());
         }
 
-        return Optional.of(cells);
+        return Optional.of(ImmutableList.of(cells));
     }
 }

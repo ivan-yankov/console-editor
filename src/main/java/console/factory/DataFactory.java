@@ -1,27 +1,26 @@
 package console.factory;
 
 import console.Const;
-import console.Utils;
 import console.table.Cell;
+import yankov.functional.ImmutableList;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class DataFactory {
-    public static List<Cell<String>> createHeaderForDateConsoleSelector() {
-        return Arrays.stream(DayOfWeek.values())
+    public static ImmutableList<Cell<String>> createHeaderForDateConsoleSelector() {
+        return ImmutableList.from(DayOfWeek.values())
+                .stream()
                 .map(x -> x.getDisplayName(TextStyle.SHORT, Locale.US))
                 .map(x -> new Cell<>(x, false, y -> y))
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public static List<List<Cell<LocalDate>>> createDataForDateConsoleSelector(LocalDate firstDayOfMonth) {
+    public static ImmutableList<ImmutableList<Cell<LocalDate>>> createDataForDateConsoleSelector(LocalDate firstDayOfMonth) {
         int numberOfDaysInWeek = DayOfWeek.values().length;
 
         LocalDate lastDayOfMonth = firstDayOfMonth.plusDays(firstDayOfMonth.lengthOfMonth() - 1);
@@ -40,6 +39,6 @@ public class DataFactory {
             monthDays.add(Const.INVALID_DATE);
         }
 
-        return Utils.sliding(monthDays.stream().map(CellFactory::createDateCell).collect(Collectors.toList()), numberOfDaysInWeek);
+        return ImmutableList.of(monthDays).stream().map(CellFactory::createDateCell).toList().sliding(numberOfDaysInWeek);
     }
 }

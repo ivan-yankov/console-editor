@@ -3,10 +3,11 @@ package console.table;
 import console.ConsoleColor;
 import console.Const;
 import console.Utils;
+import yankov.functional.ImmutableList;
+import yankov.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TablePrinter {
@@ -32,8 +33,8 @@ public class TablePrinter {
         return header + Const.NEW_LINE + data;
     }
 
-    public static <T> List<String> headerToConsole(Table<T> table, boolean withRowIndexes) {
-        if (!table.isValid() || table.getHeader().isEmpty()) return new ArrayList<>();
+    public static <T> ImmutableList<String> headerToConsole(Table<T> table, boolean withRowIndexes) {
+        if (table.getHeader().isEmpty()) return ImmutableList.from();
 
         List<String> result = new ArrayList<>();
         List<String> header = new ArrayList<>();
@@ -51,12 +52,10 @@ public class TablePrinter {
         }
         result.add(Utils.colorText(headerStr, HEADER_COLOR));
 
-        return result;
+        return ImmutableList.of(result);
     }
 
-    public static <T> Optional<List<String>> dataToConsole(Table<T> table, Focus focus, boolean withRowIndexes) {
-        if (!table.isValid()) return Optional.empty();
-
+    public static <T> ImmutableList<String> dataToConsole(Table<T> table, Focus focus, boolean withRowIndexes) {
         List<String> result = new ArrayList<>();
         for (int i = 0; i < table.getRowCount(); i++) {
             List<String> row = new ArrayList<>();
@@ -75,7 +74,7 @@ public class TablePrinter {
             result.add(rowStr);
         }
 
-        return Optional.of(result);
+        return ImmutableList.of(result);
     }
 
     private static String index(int rowCount, int index) {
@@ -85,13 +84,13 @@ public class TablePrinter {
             return Utils.colorText(String.format(f, index), INDEXES_COLOR) +
                     Const.COL_SEPARATOR;
         } else {
-            return Utils.generateString(n, ' ') + Const.COL_SEPARATOR;
+            return StringUtils.fill(n, ' ') + Const.COL_SEPARATOR;
         }
     }
 
     private static String printConsoleCellValue(String value, int fieldSize, boolean focused) {
-        String text = Utils.containsLetter(value)
-                ? value + Utils.generateString(fieldSize - value.length(), ' ')
+        String text = StringUtils.containsLetter(value)
+                ? value + StringUtils.fill(fieldSize - value.length(), ' ')
                 : String.format("%" + fieldSize + "s", value);
         return focused ? FOCUS_COLOR + text + ConsoleColor.RESET : text;
     }

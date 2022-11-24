@@ -3,6 +3,9 @@ package console;
 import console.factory.ConsoleTableFactory;
 import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
+import console.table.ConsoleTableEditor;
+import console.table.ConsoleTableViewer;
+import yankov.functional.Either;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,14 +35,18 @@ public class ConsoleTableEditorMain {
         int columns = Integer.parseInt(args[1]);
         Path csvFile = Paths.get(args[2]);
 
-        ConsoleTableFactory.createConsoleTableEditor(
+        Either<String, ConsoleTableEditor> editor = ConsoleTableFactory.createConsoleTableEditor(
                 csvFile,
                 lines,
                 columns,
                 csvFile.toString(),
                 consoleOperations,
                 new FileOperations(consoleOperations)
-        ).show();
+        );
+        editor.fold(
+                ConsoleTableViewer::show,
+                consoleOperations::writeError
+        );
 
         consoleOperations.clearConsole();
 

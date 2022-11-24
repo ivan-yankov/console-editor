@@ -1,66 +1,89 @@
 package console.table;
 
-import console.Utils;
+import console.Const;
 import console.factory.CellFactory;
+import yankov.functional.Either;
+import yankov.functional.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class Table<T> {
-    private final List<Cell<String>> header;
-    private final List<List<Cell<T>>> data;
+    private final ImmutableList<Cell<String>> header;
+    private final ImmutableList<ImmutableList<Cell<T>>> data;
     private final Supplier<Cell<T>> emptyCell;
-    private final List<String> errors;
 
-    public Table(List<Cell<String>> header, List<List<Cell<T>>> data, Supplier<Cell<T>> emptyCell) {
-        this.header = Utils.asMutableList(header);
-        this.data = Utils.asMutableList2d(data);
+    private Table(ImmutableList<Cell<String>> header,
+                  ImmutableList<ImmutableList<Cell<T>>> data,
+                  Supplier<Cell<T>> emptyCell) {
+        this.header = header;
+        this.data = data;
         this.emptyCell = emptyCell;
-        this.errors = new ArrayList<>();
-        validate();
     }
 
-    public List<Cell<String>> getHeader() {
-        return List.copyOf(header);
+    public static <A> Either<String, Table<A>> from(ImmutableList<Cell<String>> header,
+                                                    ImmutableList<ImmutableList<Cell<A>>> data,
+                                                    Supplier<Cell<A>> emptyCell) {
+        List<String> errors = validate(header.size(), data);
+        if (errors.isEmpty()) {
+            return Either.right(new Table<>(header, data, emptyCell));
+        } else {
+            return Either.left(String.join(Const.NEW_LINE, errors));
+        }
     }
 
-    public List<List<Cell<T>>> getData() {
-        return List.copyOf(data);
+    public static <A> Table<A> empty(Supplier<Cell<A>> emptyCell) {
+        return new Table<>(ImmutableList.from(), ImmutableList.from(), emptyCell);
     }
 
-    public List<String> getErrors() {
-        return List.copyOf(errors);
+    private static <A> List<String> validate(int n, ImmutableList<ImmutableList<Cell<A>>> data) {
+        List<String> errors = new ArrayList<>();
+        data.zipWithIndex().stream()
+                .filter(x -> x._1().size() != n)
+                .forEach(x -> errors.add(wrongNumberOfColumnsMessage(x._2() + 2, n, x._1().size())));
+        return errors;
     }
 
-    public void addError(String error) {
-        errors.add(error);
+    private static String wrongNumberOfColumnsMessage(int row, int expected, int actual) {
+        return "Line " + row + " of the csv file contains wrong number of columns. Expected " + expected + " actual " + actual;
+    }
+
+    public ImmutableList<Cell<String>> getHeader() {
+        return header;
+    }
+
+    public ImmutableList<ImmutableList<Cell<T>>> getData() {
+        return data;
     }
 
     public Cell<T> getCell(int row, int col) {
         return data.get(row).get(col);
     }
 
-    public T getCellValue(int row, int col) {
-        return getCell(row, col).getValue();
+    public Either<String, Table<T>> withData(ImmutableList<ImmutableList<Cell<T>>> data) {
+        return from(header, data, emptyCell);
     }
 
-    public void setCell(Cell<T> cell, int row, int col) {
-        data.get(row).set(col, cell);
+    public Table<T> withCell(Cell<T> cell, int row, int col) {
+        return new Table<>(
+                header,
+                data.updateElement(row, data.get(row).updateElement(col, cell)),
+                emptyCell
+        );
     }
 
-    public void setCellValue(T value, int row, int col) {
-        data.get(row).set(col, data.get(row).get(col).withValue(value));
+    public Table<T> withEmptyCell(int row, int col) {
+        return withCell(emptyCell.get(), row, col);
     }
 
-    public void setEmptyCellValue(int row, int col) {
-        setCell(emptyCell.get(), row, col);
-    }
-
-    public void setHeaderValue(String value, int index) {
-        header.set(index, CellFactory.createStringCell(value));
+    public Table<T> withHeaderValue(String value, int index) {
+        return new Table<>(
+                header.updateElement(index, CellFactory.createStringCell(value)),
+                data,
+                emptyCell
+        );
     }
 
     public int getRowCount() {
@@ -69,10 +92,6 @@ public class Table<T> {
 
     public int getColCount() {
         return header.size();
-    }
-
-    public boolean isValid() {
-        return errors.isEmpty();
     }
 
     public int fieldSize(int col) {
@@ -86,81 +105,105 @@ public class Table<T> {
         return result == 0 ? 1 : result;
     }
 
-    public void swapRows(int i, int j) {
-        if (!isValidRowIndex(i) || !isValidRowIndex(j)) {
-            return;
+    public Table<T> swapRows(int i, int j) {
+        if (isInvalidRowIndex(i) || isInvalidRowIndex(j)) {
+            return this;
         }
 
-        for (int c = 0; c < getColCount(); c++) {
-            Cell<T> tmp = data.get(i).get(c);
-            data.get(i).set(c, data.get(j).get(c));
-            data.get(j).set(c, tmp);
-        }
+        return new Table<>(
+                header,
+                data.zipWithIndex().stream().map(r -> {
+                    if (r._2() == i) {
+                        return data.get(j);
+                    } else if (r._2() == j) {
+                        return data.get(i);
+                    } else {
+                        return r._1();
+                    }
+                }).toList(),
+                emptyCell
+        );
     }
 
-    public void swapColumns(int i, int j) {
-        if (!isValidColIndex(i) || !isValidColIndex(j)) {
-            return;
+    public Table<T> swapColumns(int i, int j) {
+        if (isInvalidColIndex(i) || isInvalidColIndex(j)) {
+            return this;
         }
 
-        for (int r = 0; r < getRowCount(); r++) {
-            Cell<T> tmp = data.get(r).get(i);
-            data.get(r).set(i, data.get(r).get(j));
-            data.get(r).set(j, tmp);
-        }
+        return new Table<>(
+                header.zipWithIndex().stream().map(h -> {
+                    if (h._2() == i) {
+                        return header.get(j);
+                    } else if (h._2() == j) {
+                        return header.get(i);
+                    } else {
+                        return h._1();
+                    }
+                }).toList(),
+                data.zipWithIndex().stream()
+                        .map(r -> r._1().zipWithIndex().stream()
+                                .map(c -> {
+                                    if (c._2() == i) {
+                                        return data.get(r._2()).get(j);
+                                    } else if (c._2() == j) {
+                                        return data.get(r._2()).get(i);
+                                    } else {
+                                        return c._1();
+                                    }
+                                }).toList()
+                        ).toList(),
+                emptyCell
+        );
     }
 
-    public void insertEmptyRow(int index) {
-        List<Cell<T>> items = new ArrayList<>();
-        for (int i = 0; i < getColCount(); i++) {
-            items.add(emptyCell.get());
-        }
+    public Table<T> insertEmptyRow(int index) {
+        return new Table<>(
+                header,
+                data.insert(index, ImmutableList.fill(getColCount(), emptyCell.get())),
+                emptyCell
+        );
+    }
+
+    public Table<T> insertEmptyColumn(int index) {
         if (data.isEmpty()) {
-            data.add(items);
-        } else {
-            data.add(index, items);
+            return this;
         }
+        return new Table<>(
+                header.insert(index, CellFactory.createEmptyStringCell()),
+                data.stream().map(r -> r.insert(index, emptyCell.get())).toList(),
+                emptyCell
+        );
     }
 
-    public void insertEmptyColumn(int index) {
-        header.add(index, CellFactory.createEmptyStringCell());
-        if (!data.isEmpty()) {
-            for (int i = 0; i < getRowCount(); i++) {
-                data.get(i).add(index, emptyCell.get());
-            }
+    public Table<T> deleteRow(int row) {
+        if (isInvalidRowIndex(row)) {
+            return this;
         }
+
+        return new Table<>(
+                header,
+                data.removeElement(row),
+                emptyCell
+        );
     }
 
-    public void deleteRow(int row) {
-        if (isValidRowIndex(row)) {
-            data.remove(row);
+    public Table<T> deleteCol(int col) {
+        if (isInvalidColIndex(col)) {
+            return this;
         }
+
+        return new Table<>(
+                header.removeElement(col),
+                data.stream().map(r -> r.removeElement(col)).toList(),
+                emptyCell
+        );
     }
 
-    public void deleteCol(int col) {
-        if (isValidColIndex(col)) {
-            header.remove(col);
-            data.forEach(x -> x.remove(col));
-        }
+    private boolean isInvalidRowIndex(int index) {
+        return index < 0 || index >= getRowCount();
     }
 
-    public void updateData(List<List<Cell<T>>> data) {
-        this.data.clear();
-        this.data.addAll(data);
-        validate();
-    }
-
-    private boolean isValidRowIndex(int index) {
-        return index >= 0 && index < getRowCount();
-    }
-
-    private boolean isValidColIndex(int index) {
-        return index >= 0 && index < getColCount();
-    }
-
-    private void validate() {
-        Utils.zipWithIndex(data.stream())
-                .filter(x -> x.getKey().size() != getColCount())
-                .forEach(x -> errors.add(Utils.wrongNumberOfColumnsMessage(x.getValue() + 2, getColCount(), x.getKey().size())));
+    private boolean isInvalidColIndex(int index) {
+        return index < 0 || index >= getColCount();
     }
 }

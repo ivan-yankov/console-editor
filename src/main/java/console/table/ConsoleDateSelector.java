@@ -31,7 +31,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
 
     @Override
     protected void onEnter() {
-        LocalDate value = getTable().getCellValue(getFocus().getRow(), getFocus().getCol());
+        LocalDate value = getTable().getCell(getFocus().getRow(), getFocus().getCol()).getValue();
         if (!value.equals(Const.INVALID_DATE)) {
             select.accept(value);
             setMode(Mode.EXIT);
@@ -41,7 +41,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     @Override
     protected void onPageUp() {
         firstDayOfMonth = firstDayOfMonth.minusMonths(1);
-        getTable().updateData(DataFactory.createDataForDateConsoleSelector(firstDayOfMonth));
+        setTable(getTable().withData(DataFactory.createDataForDateConsoleSelector(firstDayOfMonth)).getRight().orElse(getTable()));
         setTitle(createTitle());
         getFocus().setRow(0);
         getFocus().setCol(0);
@@ -50,7 +50,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     @Override
     protected void onPageDown() {
         firstDayOfMonth = firstDayOfMonth.plusMonths(1);
-        getTable().updateData(DataFactory.createDataForDateConsoleSelector(firstDayOfMonth));
+        setTable(getTable().withData(DataFactory.createDataForDateConsoleSelector(firstDayOfMonth)).getRight().orElse(getTable()));
         setTitle(createTitle());
         getFocus().setRow(0);
         getFocus().setCol(0);
@@ -78,7 +78,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     private void selectDate(LocalDate date) {
         for (int i = 0; i < getTable().getRowCount(); i++) {
             for (int j = 0; j < getTable().getColCount(); j++) {
-                if (getTable().getCellValue(i, j).equals(date)) {
+                if (getTable().getCell(i, j).getValue().equals(date)) {
                     getFocus().setRow(i);
                     getFocus().setCol(j);
                 }

@@ -1,289 +1,297 @@
 package console.table;
 
 import console.factory.CellFactory;
+import console.factory.TableFactory;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import yankov.functional.ImmutableList;
 
 public class TableTest {
     @Test
-    public void isValid_SameRowLength_True() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
-        Assert.assertTrue(createTable(data).isValid());
+    public void from_SameRowLength_CreateTable() {
+        Assert.assertTrue(
+                Table.from(
+                        asCellList(ImmutableList.fill(3, "")),
+                        ImmutableList.from(
+                                asCellList(ImmutableList.from("Data 11", "Data 12", "Data 13")),
+                                asCellList(ImmutableList.from("Data 21", "Data 22", "Data 23")),
+                                asCellList(ImmutableList.from("Data 31", "Data 32", "Data 33"))
+                        ),
+                        CellFactory::createEmptyStringCell
+                ).getRight().isPresent()
+        );
     }
 
     @Test
-    public void isValid_DifferentRowLength_False() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
-        Assert.assertFalse(createTable(data).isValid());
+    public void from_DifferentRowLength_Error() {
+        Assert.assertTrue(
+                Table.from(
+                        asCellList(ImmutableList.fill(3, "")),
+                        ImmutableList.from(
+                                asCellList(ImmutableList.from("Data 11", "Data 12", "Data 13")),
+                                asCellList(ImmutableList.from("Data 21", "Data 22")),
+                                asCellList(ImmutableList.from("Data 31", "Data 32", "Data 33"))
+                        ),
+                        CellFactory::createEmptyStringCell
+                ).getLeft().isPresent()
+        );
     }
 
     @Test
     public void fieldSize_HeaderLabelIsLongest_HeaderLabelLength() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
         Assert.assertEquals(createTable(data).fieldSize(1), 8);
     }
 
     @Test
     public void fieldSize_DataLabelIsLongest_DataLabelLength() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Some long data field", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Some long data field", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
         Assert.assertEquals(createTable(data).fieldSize(1), 20);
     }
 
     @Test
     public void swapRows_ValidIndexes_TableWithSwappedRows() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        Table<String> table = createTable(data);
-        table.swapRows(0, 1);
+        Table<String> table = createTable(data).swapRows(0, 1);
 
-        List<List<Cell<String>>> expectedData = new ArrayList<>();
-        expectedData.add(asCellList(List.of("Data 21", "Data 22", "Data 23")));
-        expectedData.add(asCellList(List.of("Data 11", "Data 12", "Data 13")));
-        expectedData.add(asCellList(List.of("Data 31", "Data 32", "Data 33")));
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        List<List<Cell<String>>> actualData = table.getData();
-
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
-        }
+        assertData(table, expectedData);
     }
 
     @Test
     public void swapRows_InvalidIndexes_TableWithoutChange() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        Table<String> table = createTable(data);
-        table.swapRows(3, 4);
+        Table<String> table = createTable(data).swapRows(3, 4);
 
-        List<List<Cell<String>>> expectedData = new ArrayList<>();
-        expectedData.add(asCellList(List.of("Data 11", "Data 12", "Data 13")));
-        expectedData.add(asCellList(List.of("Data 21", "Data 22", "Data 23")));
-        expectedData.add(asCellList(List.of("Data 31", "Data 32", "Data 33")));
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        List<List<Cell<String>>> actualData = table.getData();
-
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
-        }
+        assertData(table, expectedData);
     }
 
     @Test
     public void insertEmptyRow_EmptyData_InsertedRow() {
-        List<List<String>> data = new ArrayList<>();
+        Table<String> table = createTable(ImmutableList.from(), 3).insertEmptyRow(0);
 
-        Table<String> table = createTable(data);
-        table.insertEmptyRow(0);
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("", "", "")
+        );
 
-        List<List<Cell<String>>> expectedData = new ArrayList<>();
-        expectedData.add(asCellList(List.of("", "", "")));
-
-        List<List<Cell<String>>> actualData = table.getData();
-
-        Assert.assertEquals(1, actualData.size());
-
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
-        }
+        assertData(table, expectedData);
     }
 
     @Test
     public void insertEmptyRow_NonEmptyData_DataWithInsertedRowAtGivenIndex() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33"),
+                ImmutableList.from("Data 41", "Data 42", "Data 43")
+        );
 
-        Table<String> table = createTable(data);
-        table.insertEmptyRow(2);
+        Table<String> table = createTable(data).insertEmptyRow(2);
 
-        List<List<Cell<String>>> expectedData = new ArrayList<>();
-        expectedData.add(asCellList(List.of("Data 11", "Data 12", "Data 13")));
-        expectedData.add(asCellList(List.of("Data 21", "Data 22", "Data 23")));
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("", "", ""),
+                ImmutableList.from("Data 31", "Data 32", "Data 33"),
+                ImmutableList.from("Data 41", "Data 42", "Data 43")
+        );
 
-        expectedData.add(asCellList(List.of("", "", "")));
-        expectedData.add(asCellList(List.of("Data 31", "Data 32", "Data 33")));
+        assertData(table, expectedData);
+    }
 
-        List<List<Cell<String>>> actualData = table.getData();
+    @Test
+    public void insertEmptyCol_EmptyData_EmptyTable() {
+        Table<String> table = createTable(ImmutableList.from(), 0).insertEmptyColumn(0);
+        Assert.assertEquals(0, table.getColCount());
+    }
 
-        Assert.assertEquals(4, actualData.size());
+    @Test
+    public void insertEmptyCol_NonEmptyData_DataWithInsertedColAtGivenIndex() {
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13", "Data 14"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23", "Data 24"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33", "Data 34")
+        );
 
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
-        }
+        Table<String> table = createTable(data).insertEmptyColumn(2);
+
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "", "Data 13", "Data 14"),
+                ImmutableList.from("Data 21", "Data 22", "", "Data 23", "Data 24"),
+                ImmutableList.from("Data 31", "Data 32", "", "Data 33", "Data 34")
+        );
+
+        Assert.assertTrue(
+                ImmutableList.from("Column 1", "Column 2", "", "Column 3", "Column 4")
+                        .eq(table.getHeader().stream().map(Cell::getValue).toList())
+        );
+
+        assertData(table, expectedData);
     }
 
     @Test
     public void deleteRow_ValidIndex_TableWithoutDeletedRow() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        Table<String> table = createTable(data);
-        table.deleteRow(1);
+        Table<String> table = createTable(data).deleteRow(1);
 
-        List<List<Cell<String>>> expectedData = new ArrayList<>();
-        expectedData.add(asCellList(List.of("Data 11", "Data 12", "Data 13")));
-        expectedData.add(asCellList(List.of("Data 31", "Data 32", "Data 33")));
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        List<List<Cell<String>>> actualData = table.getData();
-
-        Assert.assertEquals(2, actualData.size());
-
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
-        }
+        assertData(table, expectedData);
     }
 
     @Test
     public void deleteRow_InvalidIndex_TableWithoutChange() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        Table<String> table = createTable(data);
-        table.deleteRow(3);
+        Table<String> table = createTable(data).deleteRow(3);
 
-        List<List<Cell<String>>> expectedData = new ArrayList<>();
-        expectedData.add(asCellList(List.of("Data 11", "Data 12", "Data 13")));
-        expectedData.add(asCellList(List.of("Data 21", "Data 22", "Data 23")));
-        expectedData.add(asCellList(List.of("Data 31", "Data 32", "Data 33")));
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        List<List<Cell<String>>> actualData = table.getData();
-
-        Assert.assertEquals(3, actualData.size());
-
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
-        }
+        assertData(table, expectedData);
     }
 
     @Test
     public void deleteCol_ValidIndex_TableWithoutDeletedColumns() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        Table<String> table = createTable(data);
-        table.deleteCol(0);
+        Table<String> table = createTable(data).deleteCol(1);
 
-        List<List<Cell<String>>> expectedData = new ArrayList<>();
-        expectedData.add(asCellList(List.of("Data 12", "Data 13")));
-        expectedData.add(asCellList(List.of("Data 22", "Data 23")));
-        expectedData.add(asCellList(List.of("Data 32", "Data 33")));
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 13"),
+                ImmutableList.from("Data 21", "Data 23"),
+                ImmutableList.from("Data 31", "Data 33")
+        );
 
-        List<Cell<String>> expectedHeader = asCellList(List.of("Column 2", "Column 3"));
+        Assert.assertTrue(
+                ImmutableList.from("Column 1", "Column 3")
+                        .eq(table.getHeader().stream().map(Cell::getValue).toList())
+        );
 
-        List<List<Cell<String>>> actualData = table.getData();
-
-        Assert.assertEquals(2, actualData.get(0).size());
-        Assert.assertEquals(2, table.getHeader().size());
-
-        for (int i = 0; i < table.getHeader().size(); i++) {
-            Assert.assertEquals(expectedHeader.get(i).getValue(), table.getHeader().get(i).getValue());
-        }
-
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
-        }
+        assertData(table, expectedData);
     }
 
     @Test
     public void deleteCol_InvalidIndex_TableWithoutChange() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        Table<String> table = createTable(data);
-        table.deleteCol(8);
+        Table<String> table = createTable(data).deleteCol(8);
 
-        List<List<Cell<String>>> expectedData = new ArrayList<>();
-        expectedData.add(asCellList(List.of("Data 11", "Data 12", "Data 13")));
-        expectedData.add(asCellList(List.of("Data 21", "Data 22", "Data 23")));
-        expectedData.add(asCellList(List.of("Data 31", "Data 32", "Data 33")));
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        List<Cell<String>> expectedHeader = asCellList(List.of("Column 1", "Column 2", "Column 3"));
+        Assert.assertTrue(
+                ImmutableList.from("Column 1", "Column 2", "Column 3")
+                        .eq(table.getHeader().stream().map(Cell::getValue).toList())
+        );
 
-        List<List<Cell<String>>> actualData = table.getData();
-
-        Assert.assertEquals(3, actualData.size());
-        Assert.assertEquals(3, table.getHeader().size());
-
-        for (int i = 0; i < table.getHeader().size(); i++) {
-            Assert.assertEquals(expectedHeader.get(i).getValue(), table.getHeader().get(i).getValue());
-        }
-
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(expectedData.get(i).get(j).getValue(), actualData.get(i).get(j).getValue());
-        }
+        assertData(table, expectedData);
     }
 
     @Test
-    public void updateData_NewData_TableWithUpdatedData() {
-        List<List<String>> data = new ArrayList<>();
-        data.add(List.of("Data 11", "Data 12", "Data 13"));
-        data.add(List.of("Data 21", "Data 22", "Data 23"));
-        data.add(List.of("Data 31", "Data 32", "Data 33"));
+    public void withData_NewData_TableWithUpdatedData() {
+        ImmutableList<ImmutableList<String>> data = ImmutableList.from(
+                ImmutableList.from("Data 11", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "Data 22", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "Data 33")
+        );
 
-        List<List<Cell<String>>> newData = new ArrayList<>();
-        newData.add(asCellList(List.of("", "Data 12", "Data 13")));
-        newData.add(asCellList(List.of("Data 21", "", "Data 23")));
-        newData.add(asCellList(List.of("Data 31", "Data 32", "")));
+        ImmutableList<ImmutableList<String>> newData = ImmutableList.from(
+                ImmutableList.from("", "Data 12", "Data 13"),
+                ImmutableList.from("Data 21", "", "Data 23"),
+                ImmutableList.from("Data 31", "Data 32", "")
+        );
 
-        Table<String> table = createTable(data);
-        table.updateData(newData);
+        Table<String> table = createTable(data)
+                .withData(newData.stream().map(this::asCellList).toList())
+                .getRight()
+                .orElse(Table.empty(CellFactory::createEmptyStringCell));
 
-        List<List<Cell<String>>> actualData = table.getData();
-
-        Assert.assertEquals(3, actualData.size());
-
-        for (int i = 0; i < actualData.size(); i++) {
-            for (int j = 0; j < actualData.get(i).size(); j++)
-                Assert.assertEquals(newData.get(i).get(j), actualData.get(i).get(j));
-        }
+        assertData(table, newData);
     }
 
-    private Table<String> createTable(List<List<String>> data) {
-        List<Cell<String>> header = asCellList(List.of("Column 1", "Column 2", "Column 3"));
-        List<List<Cell<String>>> cellData = data.stream().map(this::asCellList).collect(Collectors.toList());
+    private Table<String> createTable(ImmutableList<ImmutableList<String>> data, int headerSize) {
+        ImmutableList<Cell<String>> header = asCellList(
+                ImmutableList.fill(headerSize, "Column ")
+                        .zipWithIndex()
+                        .stream()
+                        .map(x -> x._1() + (x._2() + 1))
+                        .toList()
+        );
+        ImmutableList<ImmutableList<Cell<String>>> cellData = data.stream().map(this::asCellList).toList();
 
-        return new Table<>(header, cellData, CellFactory::createEmptyStringCell);
+        return TableFactory.createStringTable(header, cellData);
     }
 
-    private List<Cell<String>> asCellList(List<String> data) {
-        return data.stream().map(x -> new Cell<>(x, false, y -> y)).collect(Collectors.toList());
+    private Table<String> createTable(ImmutableList<ImmutableList<String>> data) {
+        return createTable(data, data.get(0).size());
+    }
+
+    private ImmutableList<Cell<String>> asCellList(ImmutableList<String> data) {
+        return data.stream().map(x -> new Cell<>(x, false, y -> y)).toList();
+    }
+
+    private void assertData(Table<String> table, ImmutableList<ImmutableList<String>> expectedData) {
+        Assert.assertEquals(expectedData.size(), table.getRowCount());
+        boolean check = expectedData
+                .zip(table.getData().stream().map(x -> x.stream().map(Cell::getValue).toList()).toList())
+                .stream()
+                .allMatch(x -> x._1().eq(x._2()));
+        Assert.assertTrue(check);
     }
 }

@@ -3,7 +3,7 @@ package console.table;
 import console.Const;
 import console.Key;
 import console.operations.ConsoleOperations;
-import either.Either;
+import yankov.functional.Either;
 
 import java.util.List;
 import java.util.Stack;
@@ -36,11 +36,6 @@ public class FakeConsoleOperations extends ConsoleOperations {
     @Override
     public void clearConsole() {
         output = "";
-    }
-
-    @Override
-    public void writeln() {
-        output += Const.NEW_LINE;
     }
 
     @Override

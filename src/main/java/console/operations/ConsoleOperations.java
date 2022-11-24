@@ -3,7 +3,7 @@ package console.operations;
 import console.ConsoleReader;
 import console.Key;
 import console.RawConsoleInput;
-import either.Either;
+import yankov.functional.Either;
 
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -21,10 +21,6 @@ public class ConsoleOperations {
             writeError("Unable to execute command: " + e.getMessage());
         }
 
-    }
-
-    public void writeln() {
-        System.out.println();
     }
 
     public void writeln(String s) {

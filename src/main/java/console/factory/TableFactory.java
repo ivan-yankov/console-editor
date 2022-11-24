@@ -3,25 +3,27 @@ package console.factory;
 import console.Const;
 import console.table.Cell;
 import console.table.Table;
+import console.table.TableColumnsMismatchException;
+import yankov.functional.ImmutableList;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TableFactory {
-    public static Table<String> createStringTable(List<Cell<String>> header, List<List<Cell<String>>> data) {
-        return new Table<>(header, data, CellFactory::createEmptyStringCell);
+    public static Table<String> createStringTable(ImmutableList<Cell<String>> header,
+                                                  ImmutableList<ImmutableList<Cell<String>>> data) {
+        return Table.from(header, data, CellFactory::createEmptyStringCell)
+                .getRight()
+                .orElseThrow(TableFactory::exception);
     }
 
-    public static Table<String> createEmptyStringTable() {
-        return new Table<>(new ArrayList<>(), new ArrayList<>(), CellFactory::createEmptyStringCell);
+    public static Table<LocalDate> createDateTable(ImmutableList<Cell<String>> header,
+                                                   ImmutableList<ImmutableList<Cell<LocalDate>>> data) {
+        return Table.from(header, data, () -> CellFactory.createDateCell(Const.INVALID_DATE))
+                .getRight()
+                .orElseThrow(TableFactory::exception);
     }
 
-    public static Table<LocalDate> createDateTable(List<Cell<String>> header, List<List<Cell<LocalDate>>> data) {
-        return new Table<>(
-                header,
-                data,
-                () -> CellFactory.createDateCell(Const.INVALID_DATE)
-        );
+    private static RuntimeException exception() {
+        return new TableColumnsMismatchException();
     }
 }

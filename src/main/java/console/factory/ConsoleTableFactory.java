@@ -1,18 +1,19 @@
 package console.factory;
 
-import console.table.*;
+import console.Utils;
 import console.model.Command;
-import console.model.Pair;
 import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
-import console.Utils;
+import console.table.*;
+import yankov.functional.Either;
+import yankov.functional.ImmutableList;
+import yankov.functional.tuples.Tuple;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 public class ConsoleTableFactory {
     public static ConsoleDateSelector createDateConsoleSelector(
@@ -35,7 +36,7 @@ public class ConsoleTableFactory {
         );
     }
 
-    public static ConsoleTableEditor createConsoleTableEditor(
+    public static Either<String, ConsoleTableEditor> createConsoleTableEditor(
             Path csvFile,
             int lines,
             int columns,
@@ -43,40 +44,51 @@ public class ConsoleTableFactory {
             ConsoleOperations consoleOperations,
             FileOperations fileOperations) {
         String csv = fileOperations.readFile(csvFile).orElse("");
-        Table<String> table = TableParser.fromCsv(csv);
-        ConsoleTableEditor editor = new ConsoleTableEditor(table, csvFile, lines, columns, consoleOperations, fileOperations);
-        editor.setTitle(title);
-        return editor;
+        Either<String, Table<String>> table = TableParser.fromCsv(csv);
+        if (table.getRight().isPresent()) {
+            ConsoleTableEditor editor = new ConsoleTableEditor(
+                    table.getRight().get(),
+                    csvFile,
+                    lines,
+                    columns,
+                    consoleOperations,
+                    fileOperations);
+            editor.setTitle(title);
+            return Either.right(editor);
+        }
+        return Either.left(table.getLeft().orElse("Unable to create console table editor"));
     }
 
     public static ConsoleMenu createConsoleMenu(
-            List<Pair<String, List<Command>>> commands,
+            ImmutableList<Tuple<String, ImmutableList<Command>>> commands,
             int consoleLines,
             int consoleColumns,
             String title,
             ConsoleOperations consoleOperations) {
-        List<Cell<String>> header = commands.stream().map(x -> new Cell<>(x.getKey(), false, y -> y)).collect(Collectors.toList());
-        int numberOfRows = commands.stream().map(x -> x.getValue().size()).max(Comparator.naturalOrder()).orElse(0);
+        ImmutableList<Cell<String>> header = commands.stream().map(x -> new Cell<>(x._1(), false, y -> y)).toList();
+        int numberOfRows = commands.stream().map(x -> x._2().size()).max(Comparator.naturalOrder()).orElse(0);
         int numberOfColumns = header.size();
         Command[][] tableData = new Command[numberOfRows][numberOfColumns];
         for (int i = 0; i < numberOfRows; i++) {
             for (int j = 0; j < numberOfColumns; j++) {
-                if (i < commands.get(j).getValue().size()) {
-                    tableData[i][j] = commands.get(j).getValue().get(i);
+                if (i < commands.get(j)._2().size()) {
+                    tableData[i][j] = commands.get(j)._2().get(i);
                 } else {
                     tableData[i][j] = Utils.doNothing();
                 }
             }
         }
 
-        Table<Command> table = new Table<>(
-                header,
-                Utils.asList(tableData)
+        Supplier<Cell<Command>> emptyCommandCell = () -> new Cell<>(Utils.doNothing(), false, Command::getDescription);
+
+        Table<Command> table = Table.from(
+                ImmutableList.of(header),
+                ImmutableList.fromArray2d(tableData)
                         .stream()
-                        .map(x -> x.stream().map(y -> new Cell<>(y, false, Command::getDescription)).collect(Collectors.toList()))
-                        .collect(Collectors.toList()),
-                () -> new Cell<>(Utils.doNothing(), false, Command::getDescription)
-        );
+                        .map(x -> x.stream().map(y -> new Cell<>(y, false, Command::getDescription)).toList())
+                        .toList(),
+                emptyCommandCell
+        ).getRight().orElse(Table.empty(emptyCommandCell));
 
         ConsoleMenu menu = new ConsoleMenu(table, consoleLines, consoleColumns, consoleOperations);
         menu.setTitle(title);

@@ -2,22 +2,25 @@ package console.table;
 
 import org.junit.Test;
 import util.TestHelpers;
+import yankov.functional.ImmutableList;
 
 import java.util.List;
+
+import static util.TestHelpers.listOf;
 
 public class ConsoleTableEditorTest {
     @Test
     public void show() {
-        List<TestData> testData = List.of(
-                new TestData("test.csv", "row-up", List.of("exit"), List.of("row-up", "exit")),
-                new TestData("test.csv", "row-down", List.of("exit"), List.of("row-down", "exit")),
-                new TestData("test.csv", "row-insert", List.of("exit"), List.of("row-insert", "exit")),
-                new TestData("test.csv", "row-del", List.of("exit"), List.of("row-del", "exit")),
-                new TestData("test.csv", "col-del", List.of("exit"), List.of("col-del", "exit")),
-                new TestData("test.csv", "cut", List.of("exit"), List.of("cut", "exit")),
-                new TestData("test.csv", "copy", List.of("exit"), List.of("copy", "exit")),
-                new TestData("test.csv", "paste", List.of("exit"), List.of("paste", "exit")),
-                new TestData("test.csv", "del", List.of("exit"), List.of("del", "exit"))
+        List<TestData> testData = ImmutableList.from(
+                new TestData("test.csv", "row-up", listOf("exit"), listOf("row-up", "exit")),
+                new TestData("test.csv", "row-down", listOf("exit"), listOf("row-down", "exit")),
+                new TestData("test.csv", "row-insert", listOf("exit"), listOf("row-insert", "exit")),
+                new TestData("test.csv", "row-del", listOf("exit"), listOf("row-del", "exit")),
+                new TestData("test.csv", "col-del", listOf("exit"), listOf("col-del", "exit")),
+                new TestData("test.csv", "cut", listOf("exit"), listOf("cut", "exit")),
+                new TestData("test.csv", "copy", listOf("exit"), listOf("copy", "exit")),
+                new TestData("test.csv", "paste", listOf("exit"), listOf("paste", "exit")),
+                new TestData("test.csv", "del", listOf("exit"), listOf("del", "exit"))
         );
 
         TestHelpers.testConsoleTable(

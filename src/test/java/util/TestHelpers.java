@@ -3,6 +3,7 @@ package util;
 import console.Const;
 import console.table.*;
 import org.junit.Assert;
+import yankov.functional.ImmutableList;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,7 +41,7 @@ public class TestHelpers {
     }
 
     public static Table<String> getResourceTable(String tableName) {
-        return TableParser.fromCsv(TestHelpers.readResource("table", tableName));
+        return TableParser.fromCsv(TestHelpers.readResource("table", tableName)).getRight().orElseThrow();
     }
 
     public static <T, E extends ConsoleTableViewer<?>> void testConsoleTable(String dir, List<TestData> testData, Function<String, Table<T>> newTable, NewConsoleTable<T, E> newConsoleTable) {
@@ -103,8 +104,12 @@ public class TestHelpers {
         }
 
         if (!errors.isEmpty()) {
-            System.out.println(String.join(Const.NEW_LINE, errors));
+            System.err.println(String.join(Const.NEW_LINE, errors));
             Assert.fail("Test failures.");
         }
+    }
+
+    public static ImmutableList<String> listOf(String... s) {
+        return ImmutableList.from(s);
     }
 }

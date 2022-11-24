@@ -1,6 +1,9 @@
 package console.table;
 
-import console.*;
+import console.Const;
+import console.Key;
+import console.Utils;
+import console.factory.CellFactory;
 import console.factory.ConsoleTableFactory;
 import console.model.Command;
 import console.operations.ConsoleOperations;
@@ -12,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private final Path file;
@@ -60,14 +62,16 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     @Override
     protected void processCustomAction() {
         if (getMode() == Mode.EDIT_CELL) {
-            processUserInput(x -> getTable().setCellValue(
-                            getAutoCorrector().autoCorrectUserInput(x),
-                            getFocus().getRow(),
-                            getFocus().getCol()
+            processUserInput(x -> setTable(
+                            getTable().withCell(
+                                    CellFactory.createStringCell(getAutoCorrector().autoCorrectUserInput(x)),
+                                    getFocus().getRow(),
+                                    getFocus().getCol()
+                            )
                     )
             );
         } else if (getMode() == Mode.EDIT_HEADER) {
-            processUserInput(x -> getTable().setHeaderValue(x, getFocus().getCol()));
+            processUserInput(x -> setTable(getTable().withHeaderValue(x, getFocus().getCol())));
         }
     }
 
@@ -95,7 +99,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                         .getData()
                         .stream()
                         .map(x -> x.get(getFocus().getCol()).getValue())
-                        .collect(Collectors.toList())
+                        .toList()
         );
     }
 
@@ -117,7 +121,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                     Utils.firstDayOfCurrentMonth(),
                     getConsoleLines(),
                     getConsoleColumns(),
-                    date -> getTable().setCellValue(Utils.printDate(date), getFocus().getRow(), getFocus().getCol()),
+                    date -> setTable(getTable().withCell(CellFactory.createStringCell(Utils.printDate(date)), getFocus().getRow(), getFocus().getCol())),
                     getConsoleOperations()
             );
             dateSelector.show();
@@ -131,20 +135,20 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void moveRowUp() {
         if (getFocus().getRow() > 0) {
-            getTable().swapRows(getFocus().getRow(), getFocus().getRow() - 1);
+            setTable(getTable().swapRows(getFocus().getRow(), getFocus().getRow() - 1));
             getFocus().setRow(getFocus().getRow() - 1);
         }
     }
 
     private void moveRowDown() {
         if (getFocus().getRow() < getTable().getRowCount() - 1) {
-            getTable().swapRows(getFocus().getRow(), getFocus().getRow() + 1);
+            setTable(getTable().swapRows(getFocus().getRow(), getFocus().getRow() + 1));
             getFocus().setRow(getFocus().getRow() + 1);
         }
     }
 
     private void insertRow() {
-        getTable().insertEmptyRow(getFocus().getRow() + 1);
+        setTable(getTable().insertEmptyRow(getFocus().getRow() + 1));
         if (!getFocus().isValid()) {
             resetFocus();
         }
@@ -152,7 +156,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void deleteRow() {
         if (getFocus().isValid()) {
-            getTable().deleteRow(getFocus().getRow());
+            setTable(getTable().deleteRow(getFocus().getRow()));
         }
         if (getTable().getRowCount() == 0) {
             invalidateFocus();
@@ -165,20 +169,20 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void moveColumnLeft() {
         if (getFocus().getCol() > 0) {
-            getTable().swapColumns(getFocus().getCol(), getFocus().getCol() - 1);
+            setTable(getTable().swapColumns(getFocus().getCol(), getFocus().getCol() - 1));
             getFocus().setCol(getFocus().getCol() - 1);
         }
     }
 
     private void moveColumnRight() {
         if (getFocus().getCol() < getTable().getColCount() - 1) {
-            getTable().swapColumns(getFocus().getCol(), getFocus().getCol() + 1);
+            setTable(getTable().swapColumns(getFocus().getCol(), getFocus().getCol() + 1));
             getFocus().setCol(getFocus().getCol() + 1);
         }
     }
 
     private void insertColumn() {
-        getTable().insertEmptyColumn(getFocus().getCol() + 1);
+        setTable(getTable().insertEmptyColumn(getFocus().getCol() + 1));
         if (!getFocus().isValid()) {
             resetFocus();
         }
@@ -186,7 +190,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void deleteColumn() {
         if (getFocus().isValid()) {
-            getTable().deleteCol(getFocus().getCol());
+            setTable(getTable().deleteCol(getFocus().getCol()));
         }
         if (getTable().getColCount() == 0) {
             invalidateFocus();
@@ -213,7 +217,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                 try {
                     String value = (String) contents.getTransferData(DataFlavor.stringFlavor);
                     deleteCellValue();
-                    getTable().setCellValue(value, getFocus().getRow(), getFocus().getCol());
+                    setTable(getTable().withCell(CellFactory.createStringCell(value), getFocus().getRow(), getFocus().getCol()));
                 } catch (UnsupportedFlavorException | IOException ex) {
                     // ignore
                 }
@@ -223,7 +227,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void deleteCellValue() {
         if (getFocus().isValid()) {
-            getTable().setEmptyCellValue(getFocus().getRow(), getFocus().getCol());
+            setTable(getTable().withEmptyCell(getFocus().getRow(), getFocus().getCol()));
         }
     }
 
@@ -233,7 +237,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void setValueToClipboard() {
         if (getFocus().isValid()) {
-            String value = getTable().getCellValue(getFocus().getRow(), getFocus().getCol());
+            String value = getTable().getCell(getFocus().getRow(), getFocus().getCol()).getValue();
             StringSelection stringSelection = new StringSelection(value);
             getClipboard().setContents(stringSelection, null);
         }

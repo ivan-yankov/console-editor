@@ -14,7 +14,7 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     @Override
     protected void onEnter() {
         if (getFocus().isValid()) {
-            getTable().getCellValue(getFocus().getRow(), getFocus().getCol()).getAction().accept(List.of());
+            getTable().getCell(getFocus().getRow(), getFocus().getCol()).getValue().getAction().accept(List.of());
         }
     }
 
