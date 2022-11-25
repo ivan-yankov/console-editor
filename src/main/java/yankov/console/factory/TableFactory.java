@@ -3,7 +3,7 @@ package yankov.console.factory;
 import yankov.console.Const;
 import yankov.console.table.Cell;
 import yankov.console.table.Table;
-import yankov.console.table.TableColumnsMismatchException;
+import yankov.console.table.viewer.TableColumnsMismatchException;
 import yankov.jutils.functional.ImmutableList;
 
 import java.time.LocalDate;

@@ -1,9 +1,9 @@
-package yankov.console.table;
+package yankov.console.helpers;
 
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.operations.FileOperations;
-import yankov.console.table.ConsoleTableViewer;
 import yankov.console.table.Table;
+import yankov.console.table.viewer.ConsoleTableViewer;
 
 import java.nio.file.Path;
 

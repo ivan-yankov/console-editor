@@ -2,6 +2,7 @@ package yankov.console.table;
 
 import yankov.console.Const;
 import yankov.console.factory.CellFactory;
+import yankov.console.table.viewer.TableColumnsMismatchException;
 import yankov.jutils.functional.Either;
 import yankov.jutils.functional.ImmutableList;
 

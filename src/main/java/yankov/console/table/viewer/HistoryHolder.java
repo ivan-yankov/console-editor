@@ -1,4 +1,4 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
 
 import java.util.Stack;
 

@@ -1,4 +1,4 @@
-package yankov.console.table;
+package yankov.console.helpers;
 
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.operations.FileOperations;

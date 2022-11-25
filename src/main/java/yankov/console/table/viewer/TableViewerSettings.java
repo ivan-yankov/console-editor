@@ -1,4 +1,4 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
 
 public class TableViewerSettings {
     private final boolean showRowIndexes;

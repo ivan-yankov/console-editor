@@ -1,4 +1,6 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
+
+import yankov.console.table.Table;
 
 public class TableHistoryHolder {
     private static HistoryHolder<Table<String>> instance;

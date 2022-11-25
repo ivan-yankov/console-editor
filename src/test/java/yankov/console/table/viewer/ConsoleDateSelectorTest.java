@@ -1,16 +1,19 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
 
 import yankov.console.Utils;
 import yankov.console.factory.DataFactory;
 import yankov.console.factory.TableFactory;
 import org.junit.Assert;
 import org.junit.Test;
+import yankov.console.helpers.TestData;
+import yankov.console.helpers.TestHelpers;
+import yankov.console.table.viewer.ConsoleDateSelector;
 import yankov.jutils.functional.ImmutableList;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static yankov.console.table.TestHelpers.listOf;
+import static yankov.console.helpers.TestHelpers.listOf;
 
 public class ConsoleDateSelectorTest {
     @Test

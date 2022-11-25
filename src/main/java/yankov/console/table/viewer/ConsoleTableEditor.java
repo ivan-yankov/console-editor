@@ -1,4 +1,4 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
 
 import yankov.console.Const;
 import yankov.console.Utils;
@@ -8,6 +8,8 @@ import yankov.console.model.Command;
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.operations.FileOperations;
 import yankov.console.Key;
+import yankov.console.table.Table;
+import yankov.console.table.TablePrinter;
 
 import java.awt.*;
 import java.awt.datatransfer.*;

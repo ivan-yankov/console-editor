@@ -1,8 +1,9 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
 
 import yankov.console.Const;
 import yankov.console.factory.DataFactory;
 import yankov.console.operations.ConsoleOperations;
+import yankov.console.table.Table;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;

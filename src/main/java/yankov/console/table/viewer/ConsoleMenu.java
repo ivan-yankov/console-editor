@@ -1,7 +1,8 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
 
 import yankov.console.model.Command;
 import yankov.console.operations.ConsoleOperations;
+import yankov.console.table.Table;
 
 import java.util.List;
 

@@ -1,7 +1,11 @@
-package yankov.console.table;
+package yankov.console.helpers;
 
 import yankov.console.Const;
 import org.junit.Assert;
+import yankov.console.table.Table;
+import yankov.console.table.TableParser;
+import yankov.console.table.viewer.ConsoleTableViewer;
+import yankov.console.table.viewer.Mode;
 import yankov.jutils.functional.ImmutableList;
 
 import java.io.IOException;

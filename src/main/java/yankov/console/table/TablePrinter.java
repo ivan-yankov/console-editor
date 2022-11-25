@@ -3,6 +3,7 @@ package yankov.console.table;
 import yankov.console.ConsoleColor;
 import yankov.console.Const;
 import yankov.console.Utils;
+import yankov.console.table.viewer.Focus;
 import yankov.jutils.StringUtils;
 import yankov.jutils.functional.ImmutableList;
 

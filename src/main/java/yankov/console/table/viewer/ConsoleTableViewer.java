@@ -1,4 +1,4 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
 
 import yankov.console.ConsoleColor;
 import yankov.console.Const;
@@ -6,6 +6,8 @@ import yankov.console.Utils;
 import yankov.console.model.Command;
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.Key;
+import yankov.console.table.Table;
+import yankov.console.table.TablePrinter;
 import yankov.jutils.StringUtils;
 import yankov.jutils.functional.Either;
 import yankov.jutils.functional.ImmutableList;

@@ -3,8 +3,8 @@ package yankov.console;
 import yankov.console.factory.ConsoleTableFactory;
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.operations.FileOperations;
-import yankov.console.table.ConsoleTableEditor;
-import yankov.console.table.ConsoleTableViewer;
+import yankov.console.table.viewer.ConsoleTableEditor;
+import yankov.console.table.viewer.ConsoleTableViewer;
 import yankov.jutils.functional.Either;
 
 import java.nio.file.Path;

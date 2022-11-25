@@ -1,8 +1,8 @@
-package yankov.console.table;
+package yankov.console.table.viewer;
 
 import org.junit.Assert;
 import org.junit.Test;
-import yankov.console.table.AutoCorrector;
+import yankov.console.table.viewer.AutoCorrector;
 
 import java.util.List;
 
