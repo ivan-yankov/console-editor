@@ -1,9 +1,9 @@
 package console.operations;
 
-import console.ConsoleReader;
-import console.Key;
-import console.RawConsoleInput;
-import yankov.functional.Either;
+import yankov.console.ConsoleReader;
+import yankov.console.Key;
+import yankov.console.RawConsoleInput;
+import yankov.jutils.functional.Either;
 
 import java.io.IOException;
 import java.util.function.Supplier;

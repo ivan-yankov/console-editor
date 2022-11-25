@@ -1,13 +1,13 @@
 package console.table;
 
 import console.Const;
-import console.Key;
 import console.Utils;
 import console.factory.CellFactory;
 import console.factory.ConsoleTableFactory;
 import console.model.Command;
 import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
+import yankov.console.Key;
 
 import java.awt.*;
 import java.awt.datatransfer.*;

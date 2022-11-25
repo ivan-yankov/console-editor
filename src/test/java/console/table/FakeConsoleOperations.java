@@ -1,9 +1,9 @@
 package console.table;
 
 import console.Const;
-import console.Key;
 import console.operations.ConsoleOperations;
-import yankov.functional.Either;
+import yankov.console.Key;
+import yankov.jutils.functional.Either;
 
 import java.util.List;
 import java.util.Stack;

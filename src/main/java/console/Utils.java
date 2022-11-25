@@ -1,8 +1,7 @@
 package console;
 
 import console.model.Command;
-import yankov.functional.ImmutableList;
-import yankov.utils.StringUtils;
+import yankov.jutils.StringUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

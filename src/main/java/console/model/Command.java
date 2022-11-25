@@ -1,6 +1,6 @@
 package console.model;
 
-import console.Key;
+import yankov.console.Key;
 
 import java.util.List;
 import java.util.function.Consumer;

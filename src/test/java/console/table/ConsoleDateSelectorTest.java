@@ -6,7 +6,7 @@ import console.factory.TableFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import util.TestHelpers;
-import yankov.functional.ImmutableList;
+import yankov.jutils.functional.ImmutableList;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -2,8 +2,8 @@ package console.table;
 
 import console.Const;
 import console.factory.CellFactory;
-import yankov.functional.Either;
-import yankov.functional.ImmutableList;
+import yankov.jutils.functional.Either;
+import yankov.jutils.functional.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Comparator;

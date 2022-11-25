@@ -4,7 +4,7 @@ import console.factory.CellFactory;
 import console.factory.TableFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import yankov.functional.ImmutableList;
+import yankov.jutils.functional.ImmutableList;
 
 public class TableTest {
     @Test

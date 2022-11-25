@@ -5,9 +5,9 @@ import console.model.Command;
 import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
 import console.table.*;
-import yankov.functional.Either;
-import yankov.functional.ImmutableList;
-import yankov.functional.tuples.Tuple;
+import yankov.jutils.functional.Either;
+import yankov.jutils.functional.ImmutableList;
+import yankov.jutils.functional.tuples.Tuple;
 
 import java.nio.file.Path;
 import java.time.LocalDate;

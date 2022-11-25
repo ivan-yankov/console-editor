@@ -2,7 +2,7 @@ package console.table;
 
 import org.junit.Test;
 import util.TestHelpers;
-import yankov.functional.ImmutableList;
+import yankov.jutils.functional.ImmutableList;
 
 import java.util.List;
 

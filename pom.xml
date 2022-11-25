@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>yankov</groupId>
-            <artifactId>java-utils</artifactId>
+            <artifactId>jutils</artifactId>
             <version>1.0</version>
         </dependency>
 

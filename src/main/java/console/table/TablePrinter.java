@@ -3,8 +3,8 @@ package console.table;
 import console.ConsoleColor;
 import console.Const;
 import console.Utils;
-import yankov.functional.ImmutableList;
-import yankov.utils.StringUtils;
+import yankov.jutils.StringUtils;
+import yankov.jutils.functional.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;

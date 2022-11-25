@@ -4,7 +4,7 @@ import console.Const;
 import console.table.Cell;
 import console.table.Table;
 import console.table.TableColumnsMismatchException;
-import yankov.functional.ImmutableList;
+import yankov.jutils.functional.ImmutableList;
 
 import java.time.LocalDate;
 

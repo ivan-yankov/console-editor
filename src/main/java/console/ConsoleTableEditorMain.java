@@ -5,7 +5,7 @@ import console.operations.ConsoleOperations;
 import console.operations.FileOperations;
 import console.table.ConsoleTableEditor;
 import console.table.ConsoleTableViewer;
-import yankov.functional.Either;
+import yankov.jutils.functional.Either;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -3,7 +3,7 @@ package console.table;
 import console.Const;
 import org.junit.Assert;
 import org.junit.Test;
-import yankov.functional.ImmutableList;
+import yankov.jutils.functional.ImmutableList;
 
 import java.util.Optional;
 

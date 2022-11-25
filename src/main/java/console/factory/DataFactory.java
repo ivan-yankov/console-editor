@@ -2,7 +2,7 @@ package console.factory;
 
 import console.Const;
 import console.table.Cell;
-import yankov.functional.ImmutableList;
+import yankov.jutils.functional.ImmutableList;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

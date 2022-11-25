@@ -2,13 +2,13 @@ package console.table;
 
 import console.ConsoleColor;
 import console.Const;
-import console.Key;
 import console.Utils;
 import console.model.Command;
 import console.operations.ConsoleOperations;
-import yankov.functional.Either;
-import yankov.functional.ImmutableList;
-import yankov.utils.StringUtils;
+import yankov.console.Key;
+import yankov.jutils.StringUtils;
+import yankov.jutils.functional.Either;
+import yankov.jutils.functional.ImmutableList;
 
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
