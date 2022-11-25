@@ -253,10 +253,10 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     private void undo() {
-        setTable(TableHistoryHolder.getInstance().undo(getTable()), false);
+        setTable(getTableChangeHandler().getHistoryHolder().undo(getTable()), false);
     }
 
     private void redo() {
-        setTable(TableHistoryHolder.getInstance().redo(getTable()));
+        setTable(getTableChangeHandler().getHistoryHolder().redo(getTable()));
     }
 }

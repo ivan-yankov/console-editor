@@ -3,7 +3,7 @@ export JVM_VERSION=11
 
 export JVM_XMS=2G
 export JVM_XMX=6G
-export MAIN_CLASS=console.ConsoleTableEditorMain
+export MAIN_CLASS=yankov.console.ConsoleTableEditorMain
 export BEFORE="tput civis"
 export AFTER="tput cnorm"
 

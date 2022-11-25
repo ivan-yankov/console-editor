@@ -2,17 +2,16 @@ package yankov.console.table.viewer;
 
 import yankov.console.ConsoleColor;
 import yankov.console.Const;
+import yankov.console.Key;
 import yankov.console.Utils;
 import yankov.console.model.Command;
 import yankov.console.operations.ConsoleOperations;
-import yankov.console.Key;
 import yankov.console.table.Table;
 import yankov.console.table.TablePrinter;
 import yankov.jutils.StringUtils;
 import yankov.jutils.functional.Either;
 import yankov.jutils.functional.ImmutableList;
 
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +40,7 @@ public class ConsoleTableViewer<T> {
     private String logMessage;
     private int page;
 
-    private final PropertyChangeSupport propertyChangeSupport;
+    private final TableChangeHandler<T> tableChangeHandler;
 
     public ConsoleTableViewer(Table<T> table,
                               int consoleLines,
@@ -57,8 +56,7 @@ public class ConsoleTableViewer<T> {
         this.logMessage = "";
         this.page = 0;
         this.settings = new TableViewerSettings(true, true);
-        this.propertyChangeSupport = new PropertyChangeSupport(this);
-        this.propertyChangeSupport.addPropertyChangeListener(new ConsoleTableChangeListener());
+        this.tableChangeHandler = new TableChangeHandler<>();
     }
 
     public Table<T> getTable() {
@@ -69,7 +67,7 @@ public class ConsoleTableViewer<T> {
         Table<T> oldValue = this.table;
         this.table = table;
         if (fireChange) {
-            propertyChangeSupport.firePropertyChange(ConsoleTableChangePropertyNames.TABLE, oldValue, this.table);
+            tableChangeHandler.handleTableChange(oldValue);
         }
     }
 
@@ -127,6 +125,10 @@ public class ConsoleTableViewer<T> {
 
     public void setMode(Mode mode) {
         this.mode = mode;
+    }
+
+    public TableChangeHandler<T> getTableChangeHandler() {
+        return tableChangeHandler;
     }
 
     public void show() {
