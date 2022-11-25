@@ -50,7 +50,9 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                 new Command("copy", x -> copy(), "Copy", Key.CTRL_C),
                 new Command("paste", x -> paste(), "Paste", Key.CTRL_V),
                 new Command("del", x -> deleteCellValue(), "Delete", Key.DELETE),
-                new Command("auto-corr-dec-sym", this::autoCorrectDecimalSymbol, "Replace comma with dot if input is a number and if only numbers are presented in the table column")
+                new Command("auto-corr-dec-sym", this::autoCorrectDecimalSymbol, "Replace comma with dot if input is a number and if only numbers are presented in the table column"),
+                new Command("undo", x -> undo(), "Undo table editing"),
+                new Command("redo", x -> redo(), "Redo table editing")
         );
     }
 
@@ -246,5 +248,13 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                 )
         );
         setLogMessage("Auto correct of decimal symbol is " + (getSettings().isAutoCorrectDecimalSymbol() ? "enabled" : "disabled"));
+    }
+
+    private void undo() {
+        setTable(TableHistoryHolder.getInstance().undo(getTable()), false);
+    }
+
+    private void redo() {
+        setTable(TableHistoryHolder.getInstance().redo(getTable()));
     }
 }

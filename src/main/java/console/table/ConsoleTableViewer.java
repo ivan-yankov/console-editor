@@ -65,10 +65,16 @@ public class ConsoleTableViewer<T> {
         return table;
     }
 
-    public void setTable(Table<T> table) {
+    public void setTable(Table<T> table, boolean fireChange) {
         Table<T> oldValue = this.table;
         this.table = table;
-        propertyChangeSupport.firePropertyChange(TABLE, oldValue, this.table);
+        if (fireChange) {
+            propertyChangeSupport.firePropertyChange(TABLE, oldValue, this.table);
+        }
+    }
+
+    public void setTable(Table<T> table) {
+        setTable(table, true);
     }
 
     public ConsoleOperations getConsoleOperations() {
