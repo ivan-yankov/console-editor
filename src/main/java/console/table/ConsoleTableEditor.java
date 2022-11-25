@@ -148,10 +148,8 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     private void insertRow() {
-        setTable(getTable().insertEmptyRow(getFocus().getRow() + 1));
-        if (!getFocus().isValid()) {
-            resetFocus();
-        }
+        int index = getTable().getRowCount() == 0 ? 0 : getFocus().getRow() + 1;
+        setTable(getTable().insertEmptyRow(index));
     }
 
     private void deleteRow() {
@@ -182,10 +180,8 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     private void insertColumn() {
-        setTable(getTable().insertEmptyColumn(getFocus().getCol() + 1));
-        if (!getFocus().isValid()) {
-            resetFocus();
-        }
+        int index = getTable().getColCount() == 0 ? 0 : getFocus().getCol() + 1;
+        setTable(getTable().insertEmptyColumn(index));
     }
 
     private void deleteColumn() {

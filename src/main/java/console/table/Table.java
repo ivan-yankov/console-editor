@@ -94,6 +94,10 @@ public class Table<T> {
         return header.size();
     }
 
+    public boolean isEmpty() {
+        return getRowCount() == 0 && getColCount() == 0;
+    }
+
     public int fieldSize(int col) {
         int dataLongestField = data
                 .stream()
@@ -157,17 +161,16 @@ public class Table<T> {
     }
 
     public Table<T> insertEmptyRow(int index) {
-        return new Table<>(
-                header,
-                data.insert(index, ImmutableList.fill(getColCount(), emptyCell.get())),
-                emptyCell
-        );
+        Table<T> table = isEmpty()
+                ? insertEmptyColumn(0)
+                : this;
+        return table.withData(
+                table.getData()
+                        .insert(index, ImmutableList.fill(table.getColCount(), emptyCell.get()))
+        ).getRight().orElseThrow(TableColumnsMismatchException::new);
     }
 
     public Table<T> insertEmptyColumn(int index) {
-        if (data.isEmpty()) {
-            return this;
-        }
         return new Table<>(
                 header.insert(index, CellFactory.createEmptyStringCell()),
                 data.stream().map(r -> r.insert(index, emptyCell.get())).toList(),

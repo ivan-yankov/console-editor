@@ -107,6 +107,17 @@ public class TableTest {
     }
 
     @Test
+    public void insertEmptyRow_EmptyTable_InsertedRow() {
+        Table<String> table = createTable(ImmutableList.from(), 0).insertEmptyRow(0);
+
+        ImmutableList<ImmutableList<String>> expectedData = ImmutableList.from(
+                ImmutableList.from("")
+        );
+
+        assertData(table, expectedData);
+    }
+
+    @Test
     public void insertEmptyRow_NonEmptyData_DataWithInsertedRowAtGivenIndex() {
         ImmutableList<ImmutableList<String>> data = ImmutableList.from(
                 ImmutableList.from("Data 11", "Data 12", "Data 13"),
@@ -129,9 +140,10 @@ public class TableTest {
     }
 
     @Test
-    public void insertEmptyCol_EmptyData_EmptyTable() {
+    public void insertEmptyCol_EmptyData_TableWithEmptyColumn() {
         Table<String> table = createTable(ImmutableList.from(), 0).insertEmptyColumn(0);
-        Assert.assertEquals(0, table.getColCount());
+        Assert.assertEquals(1, table.getColCount());
+        Assert.assertEquals(0, table.getRowCount());
     }
 
     @Test

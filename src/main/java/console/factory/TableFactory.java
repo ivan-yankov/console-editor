@@ -13,17 +13,13 @@ public class TableFactory {
                                                   ImmutableList<ImmutableList<Cell<String>>> data) {
         return Table.from(header, data, CellFactory::createEmptyStringCell)
                 .getRight()
-                .orElseThrow(TableFactory::exception);
+                .orElseThrow(TableColumnsMismatchException::new);
     }
 
     public static Table<LocalDate> createDateTable(ImmutableList<Cell<String>> header,
                                                    ImmutableList<ImmutableList<Cell<LocalDate>>> data) {
         return Table.from(header, data, () -> CellFactory.createDateCell(Const.INVALID_DATE))
                 .getRight()
-                .orElseThrow(TableFactory::exception);
-    }
-
-    private static RuntimeException exception() {
-        return new TableColumnsMismatchException();
+                .orElseThrow(TableColumnsMismatchException::new);
     }
 }
