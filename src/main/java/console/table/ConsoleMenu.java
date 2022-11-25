@@ -8,7 +8,7 @@ import java.util.List;
 public class ConsoleMenu extends ConsoleTableViewer<Command> {
     public ConsoleMenu(Table<Command> table, int consoleLines, int consoleColumns, ConsoleOperations consoleOperations) {
         super(table, consoleLines, consoleColumns, consoleOperations);
-        getSettings().setShowRowIndexes(false);
+        setSettings(getSettings().withShowRowIndexes(false));
     }
 
     @Override

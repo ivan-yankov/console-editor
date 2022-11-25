@@ -43,8 +43,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         firstDayOfMonth = firstDayOfMonth.minusMonths(1);
         setTable(getTable().withData(DataFactory.createDataForDateConsoleSelector(firstDayOfMonth)).getRight().orElse(getTable()));
         setTitle(createTitle());
-        getFocus().setRow(0);
-        getFocus().setCol(0);
+        resetFocus();
     }
 
     @Override
@@ -52,8 +51,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         firstDayOfMonth = firstDayOfMonth.plusMonths(1);
         setTable(getTable().withData(DataFactory.createDataForDateConsoleSelector(firstDayOfMonth)).getRight().orElse(getTable()));
         setTitle(createTitle());
-        getFocus().setRow(0);
-        getFocus().setCol(0);
+        resetFocus();
     }
 
     @Override
@@ -79,8 +77,7 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         for (int i = 0; i < getTable().getRowCount(); i++) {
             for (int j = 0; j < getTable().getColCount(); j++) {
                 if (getTable().getCell(i, j).getValue().equals(date)) {
-                    getFocus().setRow(i);
-                    getFocus().setCol(j);
+                    setFocus(new Focus(i, j));
                 }
             }
         }

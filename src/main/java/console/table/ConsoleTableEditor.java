@@ -136,14 +136,14 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private void moveRowUp() {
         if (getFocus().getRow() > 0) {
             setTable(getTable().swapRows(getFocus().getRow(), getFocus().getRow() - 1));
-            getFocus().setRow(getFocus().getRow() - 1);
+            setFocus(getFocus().withRow(getFocus().getRow() - 1));
         }
     }
 
     private void moveRowDown() {
         if (getFocus().getRow() < getTable().getRowCount() - 1) {
             setTable(getTable().swapRows(getFocus().getRow(), getFocus().getRow() + 1));
-            getFocus().setRow(getFocus().getRow() + 1);
+            setFocus(getFocus().withRow(getFocus().getRow() + 1));
         }
     }
 
@@ -163,21 +163,21 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
         } else {
             int row = getFocus().getRow() - 1;
             if (row < 0) row++;
-            getFocus().setRow(row);
+            setFocus(getFocus().withRow(row));
         }
     }
 
     private void moveColumnLeft() {
         if (getFocus().getCol() > 0) {
             setTable(getTable().swapColumns(getFocus().getCol(), getFocus().getCol() - 1));
-            getFocus().setCol(getFocus().getCol() - 1);
+            setFocus(getFocus().withCol(getFocus().getCol() - 1));
         }
     }
 
     private void moveColumnRight() {
         if (getFocus().getCol() < getTable().getColCount() - 1) {
             setTable(getTable().swapColumns(getFocus().getCol(), getFocus().getCol() + 1));
-            getFocus().setCol(getFocus().getCol() + 1);
+            setFocus(getFocus().withCol(getFocus().getCol() + 1));
         }
     }
 
@@ -197,7 +197,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
         } else {
             int col = getFocus().getCol() - 1;
             if (col < 0) col++;
-            getFocus().setCol(col);
+            setFocus(getFocus().withCol(col));
         }
     }
 
@@ -244,7 +244,11 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     private void autoCorrectDecimalSymbol(List<String> p) {
-        getSettings().setAutoCorrectDecimalSymbol(analyzeFlagParameter(p).orElse(getSettings().isAutoCorrectDecimalSymbol()));
+        setSettings(
+                getSettings().withAutoCorrectDecimalSymbol(
+                        analyzeFlagParameter(p).orElse(getSettings().isAutoCorrectDecimalSymbol())
+                )
+        );
         setLogMessage("Auto correct of decimal symbol is " + (getSettings().isAutoCorrectDecimalSymbol() ? "enabled" : "disabled"));
     }
 }

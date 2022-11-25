@@ -1,8 +1,8 @@
 package console.table;
 
 public class Focus {
-    private int row;
-    private int col;
+    private final int row;
+    private final int col;
 
     public Focus(int row, int col) {
         this.row = row;
@@ -13,16 +13,16 @@ public class Focus {
         return row;
     }
 
-    public void setRow(int row) {
-        this.row = row;
-    }
-
     public int getCol() {
         return col;
     }
 
-    public void setCol(int col) {
-        this.col = col;
+    public Focus withRow(int row) {
+        return new Focus(row, col);
+    }
+
+    public Focus withCol(int col) {
+        return new Focus(row, col);
     }
 
     public boolean isValid() {

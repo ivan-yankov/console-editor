@@ -1,8 +1,8 @@
 package console.table;
 
 public class TableViewerSettings {
-    private boolean showRowIndexes;
-    private boolean autoCorrectDecimalSymbol;
+    private final boolean showRowIndexes;
+    private final boolean autoCorrectDecimalSymbol;
 
     public TableViewerSettings(boolean showRowIndexes, boolean autoCorrectDecimalSymbol) {
         this.showRowIndexes = showRowIndexes;
@@ -13,15 +13,15 @@ public class TableViewerSettings {
         return showRowIndexes;
     }
 
-    public void setShowRowIndexes(boolean showRowIndexes) {
-        this.showRowIndexes = showRowIndexes;
-    }
-
     public boolean isAutoCorrectDecimalSymbol() {
         return autoCorrectDecimalSymbol;
     }
 
-    public void setAutoCorrectDecimalSymbol(boolean autoCorrectDecimalSymbol) {
-        this.autoCorrectDecimalSymbol = autoCorrectDecimalSymbol;
+    public TableViewerSettings withShowRowIndexes(boolean showRowIndexes) {
+        return new TableViewerSettings(showRowIndexes, autoCorrectDecimalSymbol);
+    }
+
+    public TableViewerSettings withAutoCorrectDecimalSymbol(boolean autoCorrectDecimalSymbol) {
+        return new TableViewerSettings(showRowIndexes, autoCorrectDecimalSymbol);
     }
 }

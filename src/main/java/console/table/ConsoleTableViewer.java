@@ -28,13 +28,13 @@ public class ConsoleTableViewer<T> {
     private static final String HELP_KEY_BINDING_COLOR = ConsoleColor.YELLOW;
     private static final String HELP_DESC_COLOR = ConsoleColor.DARK_GRAY;
 
-    private Table<T> table;
-
-    private final Focus focus;
     private final int consoleLines;
     private final int consoleColumns;
     private final ConsoleOperations consoleOperations;
-    private final TableViewerSettings settings;
+
+    private Table<T> table;
+    private Focus focus;
+    private TableViewerSettings settings;
 
     private String title;
     private Mode mode;
@@ -87,12 +87,20 @@ public class ConsoleTableViewer<T> {
         return focus;
     }
 
+    public void setFocus(Focus focus) {
+        this.focus = focus;
+    }
+
     public String getTitle() {
         return title;
     }
 
     public TableViewerSettings getSettings() {
         return settings;
+    }
+
+    public void setSettings(TableViewerSettings settings) {
+        this.settings = settings;
     }
 
     public void setTitle(String title) {
@@ -152,13 +160,11 @@ public class ConsoleTableViewer<T> {
     }
 
     protected final void resetFocus() {
-        getFocus().setRow(0);
-        getFocus().setCol(0);
+        setFocus(new Focus(0, 0));
     }
 
     protected final void invalidateFocus() {
-        getFocus().setRow(-1);
-        getFocus().setCol(-1);
+        setFocus(new Focus(-1, -1));
     }
 
     protected List<Command> additionalCommands() {
@@ -168,7 +174,7 @@ public class ConsoleTableViewer<T> {
     protected void onPageUp() {
         if (page > 0) {
             page--;
-            focus.setRow(focus.getRow() - maxTableLinesPerPage());
+            setFocus(focus.withRow(focus.getRow() - maxTableLinesPerPage()));
         }
     }
 
@@ -179,7 +185,7 @@ public class ConsoleTableViewer<T> {
             if (r >= getTable().getRowCount()) {
                 r = getTable().getRowCount() - 1;
             }
-            focus.setRow(r);
+            setFocus(focus.withRow(r));
         }
     }
 
@@ -273,63 +279,63 @@ public class ConsoleTableViewer<T> {
     }
 
     private void rowIndexes(List<String> p) {
-        settings.setShowRowIndexes(analyzeFlagParameter(p).orElse(settings.isShowRowIndexes()));
+        setSettings(settings.withShowRowIndexes(analyzeFlagParameter(p).orElse(settings.isShowRowIndexes())));
     }
 
     private void onTab() {
         int r = focus.getRow();
         int c = focus.getCol();
         if (c == getTable().getColCount() - 1) {
-            focus.setCol(0);
+            setFocus(focus.withCol(0));
             if (r < getTable().getRowCount() - 1) {
-                focus.setRow(r + 1);
+                setFocus(focus.withRow(r + 1));
             } else {
-                focus.setRow(0);
+                setFocus(focus.withRow(0));
             }
         } else {
-            focus.setCol(c + 1);
+            setFocus(focus.withCol(c + 1));
         }
     }
 
     private void onLeft() {
         if (focus.getCol() > 0) {
-            focus.setCol(focus.getCol() - 1);
+            setFocus(focus.withCol(focus.getCol() - 1));
         }
     }
 
     private void onRight() {
         if (focus.getCol() < getTable().getColCount() - 1) {
-            focus.setCol(focus.getCol() + 1);
+            setFocus(focus.withCol(focus.getCol() + 1));
         }
     }
 
     private void onUp() {
         if (focus.getRow() > 0) {
-            focus.setRow(focus.getRow() - 1);
+            setFocus(focus.withRow(focus.getRow() - 1));
         }
     }
 
     private void onDown() {
         if (focus.getRow() < getTable().getRowCount() - 1) {
-            focus.setRow(focus.getRow() + 1);
+            setFocus(focus.withRow(focus.getRow() + 1));
         }
     }
 
     private void onHome() {
-        focus.setCol(0);
+        setFocus(focus.withCol(0));
     }
 
     private void onEnd() {
-        focus.setCol(getTable().getColCount() - 1);
+        setFocus(focus.withCol(getTable().getColCount() - 1));
     }
 
     private void onCtrlHome() {
-        focus.setRow(0);
+        setFocus(focus.withRow(0));
         page = 0;
     }
 
     private void onCtrlEnd() {
-        focus.setRow(getTable().getRowCount() - 1);
+        setFocus(focus.withRow(getTable().getRowCount() - 1));
         page = numberOfPages() - 1;
     }
 
