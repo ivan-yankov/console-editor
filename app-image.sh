@@ -8,7 +8,7 @@ export BEFORE="tput civis"
 export AFTER="tput cnorm"
 
 # array with application jar files, paths are relative to the project directory
-export JARS=("target/console-utils-1.0-jar-with-dependencies.jar" "lib/raw-console-input-1.0-jar-with-dependencies.jar")
+export JARS=("target/console-utils-latest-jar-with-dependencies.jar" "lib/raw-console-input-latest-jar-with-dependencies.jar")
 
 export APPLICATION_NAME=table-editor
 export IS_TERMINAL_APPLICATION=true

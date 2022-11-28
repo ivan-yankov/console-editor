@@ -55,7 +55,7 @@ public class ConsoleTableViewer<T> {
         this.mode = Mode.KEY;
         this.logMessage = "";
         this.page = 0;
-        this.settings = new TableViewerSettings(true, true);
+        this.settings = new TableViewerSettings(true, true, 2);
         this.tableChangeHandler = new TableChangeHandler<>();
     }
 

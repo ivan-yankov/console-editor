@@ -52,7 +52,8 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                 new Command("copy", x -> copy(), "Copy", Key.CTRL_C),
                 new Command("paste", x -> paste(), "Paste", Key.CTRL_V),
                 new Command("del", x -> deleteCellValue(), "Delete", Key.DELETE),
-                new Command("auto-corr-dec-sym", this::autoCorrectDecimalSymbol, "Replace comma with dot if input is a number and if only numbers are presented in the table column"),
+                new Command("auto-corr-dec-sym", this::autoCorrectDecimalSymbol, "[on, off] Replace a comma with a dot if the user input is a decimal number"),
+                new Command("decimal-places", this::decimalPlaces, "[n, off] Number of decimal places to format decimal numbers, off to disable formatting"),
                 new Command("undo", x -> undo(), "Undo table editing"),
                 new Command("redo", x -> redo(), "Redo table editing")
         );
@@ -99,11 +100,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private AutoCorrector getAutoCorrector() {
         return new AutoCorrector(
                 getSettings().isAutoCorrectDecimalSymbol(),
-                getTable()
-                        .getData()
-                        .stream()
-                        .map(x -> x.get(getFocus().getCol()).getValue())
-                        .toList()
+                getSettings().getDecimalPlaces()
         );
     }
 
@@ -250,6 +247,24 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                 )
         );
         setLogMessage("Auto correct of decimal symbol is " + (getSettings().isAutoCorrectDecimalSymbol() ? "enabled" : "disabled"));
+    }
+
+    private void decimalPlaces(List<String> p) {
+        if (!p.isEmpty()) {
+            Integer decimalPlaces = null;
+            if (!p.get(0).equals("off")) {
+                try {
+                    decimalPlaces = Integer.parseInt(p.get(0));
+                } catch (Exception e) {
+                    decimalPlaces = getSettings().getDecimalPlaces();
+                }
+            }
+            setSettings(getSettings().withDecimalPlaces(decimalPlaces));
+            setLogMessage("Decimal places " + (getSettings().getDecimalPlaces() == null
+                    ? "disabled"
+                    : Integer.toString(getSettings().getDecimalPlaces()))
+            );
+        }
     }
 
     private void undo() {

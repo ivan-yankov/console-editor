@@ -2,33 +2,45 @@ package yankov.console.table.viewer;
 
 import yankov.console.Const;
 
-import java.util.List;
+import java.util.function.Function;
 
 public class AutoCorrector {
     private final boolean correctDecimalSymbol;
-    private final List<String> columnData;
+    private final Integer decimalPlaces;
 
-    public AutoCorrector(boolean correctDecimalSymbol, List<String> columnData) {
+    public AutoCorrector(boolean correctDecimalSymbol, Integer decimalPlaces) {
         this.correctDecimalSymbol = correctDecimalSymbol;
-        this.columnData = columnData;
+        this.decimalPlaces = decimalPlaces;
     }
 
     public String autoCorrectUserInput(String input) {
-        if (correctDecimalSymbol) {
-            return isInDecimalColumn(input) ? input.replace(Const.COMMA, Const.DOT) : input;
-        } else {
-            return input;
-        }
+        String result = applyCorrection(
+                isDecimal(input) && correctDecimalSymbol,
+                input,
+                x -> x.replace(Const.COMMA, Const.DOT)
+        );
+        result = applyCorrection(
+                isDecimal(result) && decimalPlaces != null,
+                result,
+                x -> String.format("%." +  decimalPlaces + "f", Double.parseDouble(x))
+        );
+        return result;
     }
 
-    private boolean isInDecimalColumn(String input) {
-        return columnData.stream().allMatch(x -> x.isEmpty() || isDecimal(x))
-                && input.chars().allMatch(x -> Character.isDigit(x) || x == '.' || x == ',');
+    private String applyCorrection(boolean flag, String s, Function<String, String> corrector) {
+        if (flag) {
+            return corrector.apply(s);
+        }
+        return s;
     }
 
     private boolean isDecimal(String s) {
-        boolean validSymbols = s.chars().allMatch(x -> Character.isDigit(x) || x == '.');
-        boolean exactlyOneDecimalSymbol = s.chars().filter(x -> x == '.').count() == 1;
+        boolean validSymbols = s.chars().allMatch(x -> Character.isDigit(x) || isDecimalSymbol(x));
+        boolean exactlyOneDecimalSymbol = s.chars().filter(this::isDecimalSymbol).count() == 1;
         return validSymbols && exactlyOneDecimalSymbol;
+    }
+
+    private boolean isDecimalSymbol(int character) {
+        return character == '.' || character == ',';
     }
 }
