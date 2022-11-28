@@ -111,52 +111,17 @@ public class Table<T> {
     }
 
     public Table<T> swapRows(int i, int j) {
-        if (isInvalidRowIndex(i) || isInvalidRowIndex(j)) {
-            return this;
-        }
-
         return new Table<>(
                 header,
-                data.zipWithIndex().stream().map(r -> {
-                    if (r._2() == i) {
-                        return data.get(j);
-                    } else if (r._2() == j) {
-                        return data.get(i);
-                    } else {
-                        return r._1();
-                    }
-                }).toList(),
+                data.swapElements(i, j),
                 emptyCell
         );
     }
 
     public Table<T> swapColumns(int i, int j) {
-        if (isInvalidColIndex(i) || isInvalidColIndex(j)) {
-            return this;
-        }
-
         return new Table<>(
-                header.zipWithIndex().stream().map(h -> {
-                    if (h._2() == i) {
-                        return header.get(j);
-                    } else if (h._2() == j) {
-                        return header.get(i);
-                    } else {
-                        return h._1();
-                    }
-                }).toList(),
-                data.zipWithIndex().stream()
-                        .map(r -> r._1().zipWithIndex().stream()
-                                .map(c -> {
-                                    if (c._2() == i) {
-                                        return data.get(r._2()).get(j);
-                                    } else if (c._2() == j) {
-                                        return data.get(r._2()).get(i);
-                                    } else {
-                                        return c._1();
-                                    }
-                                }).toList()
-                        ).toList(),
+                header.swapElements(i, j),
+                data.stream().map(r -> r.swapElements(i, j)).toList(),
                 emptyCell
         );
     }

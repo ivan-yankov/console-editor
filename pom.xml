@@ -6,7 +6,7 @@
 
     <groupId>yankov</groupId>
     <artifactId>console-utils</artifactId>
-    <version>1.0</version>
+    <version>latest</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -17,13 +17,13 @@
         <dependency>
             <groupId>yankov</groupId>
             <artifactId>jutils</artifactId>
-            <version>1.0</version>
+            <version>latest</version>
         </dependency>
 
         <dependency>
             <groupId>yankov</groupId>
             <artifactId>raw-console-input</artifactId>
-            <version>1.0</version>
+            <version>latest</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/junit/junit -->
