@@ -1,7 +1,6 @@
 package yankov.console.table.viewer;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import yankov.console.Utils;
 import yankov.console.factory.DataFactory;
@@ -15,7 +14,6 @@ import java.util.List;
 
 import static yankov.console.helpers.TestHelpers.listOf;
 
-@Ignore
 public class ConsoleDateSelectorTest {
     @Test
     public void show() {
