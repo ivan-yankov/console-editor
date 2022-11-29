@@ -1,8 +1,8 @@
 package yankov.console.helpers;
 
 import yankov.console.Const;
-import yankov.console.operations.ConsoleOperations;
 import yankov.console.Key;
+import yankov.console.operations.ConsoleOperations;
 import yankov.jutils.functional.Either;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 public class FakeConsoleOperations extends ConsoleOperations {
     private String output;
-    private final Stack<String> commands;
+    private final Stack<Either<String, Key>> commands;
 
     public FakeConsoleOperations() {
         this.output = "";
@@ -25,7 +25,8 @@ public class FakeConsoleOperations extends ConsoleOperations {
     public void setCommands(List<String> commands) {
         this.commands.clear();
         for (int i = commands.size() - 1; i >= 0; i--) {
-            this.commands.push(commands.get(i));
+            this.commands.push(Either.right(Key.ENTER));
+            this.commands.push(Either.left(commands.get(i)));
         }
     }
 
@@ -50,7 +51,7 @@ public class FakeConsoleOperations extends ConsoleOperations {
 
     @Override
     public Supplier<String> consoleReadLine() {
-        return commands::pop;
+        throw new RuntimeException("Unexpected call to consoleReadLine");
     }
 
     @Override
@@ -59,6 +60,6 @@ public class FakeConsoleOperations extends ConsoleOperations {
 
     @Override
     public Either<String, Key> readKey() {
-        return Either.left("Unexpected call");
+        return commands.pop();
     }
 }

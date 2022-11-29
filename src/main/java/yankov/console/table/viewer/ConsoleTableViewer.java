@@ -260,7 +260,7 @@ public class ConsoleTableViewer<T> {
     }
 
     protected final void processUserInput(Function<String, String> inputHint,
-                                          Consumer<String> userInputProcessor) {
+                                          Consumer<String> inputProcessor) {
         Either<String, Key> input = consoleOperations.readKey();
         if (input.getLeft().isPresent()) {
             userInput.append(input.getLeft().get());
@@ -272,7 +272,7 @@ public class ConsoleTableViewer<T> {
                     setMode(Mode.KEY);
                     break;
                 case ENTER:
-                    userInputProcessor.accept(userInput.toString());
+                    inputProcessor.accept(userInput.toString());
                     userInput.setLength(0);
                     break;
                 case BACK_SPACE:

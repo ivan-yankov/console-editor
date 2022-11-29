@@ -29,16 +29,6 @@ public class TestHelpers {
         }
     }
 
-    public static void acceptAsResource(String dir, String name, String s) {
-        try {
-            Path file = resourcePath(dir, name);
-            Files.createDirectories(file.getParent());
-            Files.writeString(file, s);
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
     public static Path resourcePath(String dir, String name) {
         return Paths.get("src", "test", "resources", dir, name);
     }
@@ -75,14 +65,18 @@ public class TestHelpers {
             String beforeFile = beforeMessage + ".txt";
 
             if (!Files.exists(TestHelpers.resourcePath(dir, beforeFile))) {
-                TestHelpers.acceptAsResource(dir, beforeFile, consoleOperations.getOutput());
+                writeResource(dir, beforeFile, consoleOperations.getOutput());
                 errors.add(beforeFile + " does not exist and was accepted as resource");
             } else {
-                Assert.assertEquals(
-                        beforeMessage,
-                        TestHelpers.readResource(dir, beforeMessage + ".txt"),
-                        consoleOperations.getOutput()
-                );
+                try {
+                    Assert.assertEquals(
+                            TestHelpers.readResource(dir, beforeMessage + ".txt"),
+                            consoleOperations.getOutput()
+                    );
+                } catch (Throwable t) {
+                    writeResource(dir, beforeMessage + "_new.txt", consoleOperations.getOutput());
+                    Assert.fail(beforeMessage);
+                }
             }
 
             consoleOperations.setCommands(td.getCommandsAfter());
@@ -94,21 +88,35 @@ public class TestHelpers {
             String afterFile = afterMessage + ".txt";
 
             if (!Files.exists(TestHelpers.resourcePath(dir, afterFile))) {
-                TestHelpers.acceptAsResource(dir, afterFile, consoleOperations.getOutput());
+                writeResource(dir, afterFile, consoleOperations.getOutput());
                 errors.add(afterFile + " does not exist and was accepted as resource");
             } else {
-                Assert.assertTrue(afterMessage, consoleOperations.allExecuted());
-                Assert.assertEquals(
-                        afterMessage,
-                        TestHelpers.readResource(dir, afterMessage + ".txt"),
-                        consoleOperations.getOutput()
-                );
+                try {
+                    Assert.assertTrue(consoleOperations.allExecuted());
+                    Assert.assertEquals(
+                            TestHelpers.readResource(dir, afterMessage + ".txt"),
+                            consoleOperations.getOutput()
+                    );
+                } catch (Throwable t) {
+                    writeResource(dir, afterMessage + "_new.txt", consoleOperations.getOutput());
+                    Assert.fail(afterMessage);
+                }
             }
         }
 
         if (!errors.isEmpty()) {
             System.err.println(String.join(Const.NEW_LINE, errors));
             Assert.fail("Test failures.");
+        }
+    }
+
+    private static void writeResource(String dir, String name, String s) {
+        try {
+            Path file = resourcePath(dir, name);
+            Files.createDirectories(file.getParent());
+            Files.writeString(file, s);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
         }
     }
 
