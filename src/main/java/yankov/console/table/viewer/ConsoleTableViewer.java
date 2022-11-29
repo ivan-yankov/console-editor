@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ConsoleTableViewer<T> {
@@ -23,9 +25,6 @@ public class ConsoleTableViewer<T> {
     private static final String HINT_COLOR = ConsoleColor.LIGHT_GREEN + ConsoleColor.DARK_GRAY_B;
     private static final String LOG_COLOR = ConsoleColor.CYAN + ConsoleColor.DARK_GRAY_B;
     private static final String MODE_COLOR = ConsoleColor.GREEN + ConsoleColor.BOLD;
-    private static final String HELP_CMD_COLOR = ConsoleColor.LIGHT_YELLOW;
-    private static final String HELP_KEY_BINDING_COLOR = ConsoleColor.YELLOW;
-    private static final String HELP_DESC_COLOR = ConsoleColor.DARK_GRAY;
 
     private final int consoleLines;
     private final int consoleColumns;
@@ -40,7 +39,9 @@ public class ConsoleTableViewer<T> {
     private String logMessage;
     private int page;
 
+    private final StringBuilder userInput;
     private final TableChangeHandler<T> tableChangeHandler;
+    private final Help help;
 
     public ConsoleTableViewer(Table<T> table,
                               int consoleLines,
@@ -52,11 +53,13 @@ public class ConsoleTableViewer<T> {
         this.consoleColumns = consoleColumns;
         this.consoleOperations = consoleOperations;
         this.title = "";
-        this.mode = Mode.KEY;
+        this.mode = Const.DEFAULT_MODE;
         this.logMessage = "";
         this.page = 0;
         this.settings = new TableViewerSettings(true, true, 2);
+        this.userInput = new StringBuilder();
         this.tableChangeHandler = new TableChangeHandler<>();
+        this.help = new Help();
     }
 
     public Table<T> getTable() {
@@ -199,29 +202,11 @@ public class ConsoleTableViewer<T> {
 
     protected String getHint() {
         if (getMode() == Mode.COMMAND) {
-            return "Empty command to return to key mode.";
+            return "Esc to return to key mode.";
         } else if (getMode() == Mode.HELP) {
             return "Press a key to return.";
         }
         return "";
-    }
-
-    private List<String> getHelp() {
-        int nameFieldSize = commands()
-                .stream()
-                .map(x -> x.getName().length())
-                .max(Comparator.naturalOrder())
-                .orElse(15) + 1;
-        int keyBindingFieldSize = commands()
-                .stream()
-                .map(x -> x.getKeyBindingName().length())
-                .max(Comparator.naturalOrder())
-                .orElse(8) + 1;
-        return commands()
-                .stream()
-                .filter(x -> !x.getDescription().isEmpty())
-                .map(x -> commandColoredHelp(x, nameFieldSize, keyBindingFieldSize))
-                .toList();
     }
 
     private ImmutableList<Command> commands() {
@@ -233,7 +218,7 @@ public class ConsoleTableViewer<T> {
 
         c.add(new Command("enter", x -> onEnter(), getEnterDescription(), Key.ENTER));
         c.add(new Command("exit", x -> exit(), "Exit", Key.ESC));
-        c.add(new Command("help", x -> helpMode(), "Help", Key.F1));
+        c.add(new Command("help", x -> showHelp(), "Help", Key.F1));
         c.add(new Command("tab", x -> onTab(), "Next", Key.TAB));
         c.add(new Command("left", x -> onLeft(), "Prev column", Key.LEFT));
         c.add(new Command("right", x -> onRight(), "Next column", Key.RIGHT));
@@ -259,7 +244,7 @@ public class ConsoleTableViewer<T> {
         return List.of(
                 Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
                 Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
-                Utils.colorText(getModeString(), MODE_COLOR)
+                Utils.colorText(getModeString(), MODE_COLOR) + userInput
         );
     }
 
@@ -274,6 +259,37 @@ public class ConsoleTableViewer<T> {
         return Optional.empty();
     }
 
+    protected final void processUserInput(Function<String, String> inputHint,
+                                          Consumer<String> userInputProcessor) {
+        Either<String, Key> input = consoleOperations.readKey();
+        if (input.getLeft().isPresent()) {
+            userInput.append(input.getLeft().get());
+        } else {
+            Key key = input.getRight().orElse(Key.UNKNOWN);
+            switch (key) {
+                case ESC:
+                    userInput.setLength(0);
+                    setMode(Mode.KEY);
+                    break;
+                case ENTER:
+                    userInputProcessor.accept(userInput.toString());
+                    userInput.setLength(0);
+                    break;
+                case BACK_SPACE:
+                    if (userInput.length() > 0) {
+                        userInput.setLength(userInput.toString().length() - 1);
+                    }
+                    break;
+                case TAB:
+                    String ch = inputHint.apply(userInput.toString());
+                    userInput.setLength(0);
+                    userInput.append(ch);
+                default:
+                    break;
+            }
+        }
+    }
+
     private void exit() {
         setMode(Mode.EXIT);
     }
@@ -282,7 +298,8 @@ public class ConsoleTableViewer<T> {
         setMode(Mode.COMMAND);
     }
 
-    private void helpMode() {
+    private void showHelp() {
+        help.setPrevMode(getMode());
         setMode(Mode.HELP);
     }
 
@@ -351,9 +368,9 @@ public class ConsoleTableViewer<T> {
         consoleOperations.clearConsole();
         int verticalMarginSize;
         if (getMode() == Mode.HELP) {
-            List<String> help = getHelp();
-            verticalMarginSize = consoleLines - getFooter().size() - help.size();
-            consoleOperations.writeln(String.join(Const.NEW_LINE, help));
+            List<String> h = help.getHelp(commands());
+            verticalMarginSize = consoleLines - getFooter().size() - h.size();
+            consoleOperations.writeln(String.join(Const.NEW_LINE, h));
         } else {
             List<String> p = getPage();
             verticalMarginSize = maxTableLinesPerPage() - p.size();
@@ -376,29 +393,54 @@ public class ConsoleTableViewer<T> {
         switch (getMode()) {
             case KEY:
                 Either<String, Key> input = consoleOperations.readKey();
-                String inputKeyName = input.getRight().isPresent() ? input.getRight().get().getName() : "";
-                executeCommand(x -> x.hasKeyBinding() && x.getKeyBindingName().equals(inputKeyName), List.of());
+                executeCommand(x -> x.matchKeyBinding(input.getRight().orElse(Key.UNKNOWN)), List.of());
                 break;
             case COMMAND:
-                consoleOperations.resetConsole();
-                ImmutableList<String> cmd = ImmutableList.from(consoleOperations.consoleReadLine().get().split(" "))
-                        .stream()
-                        .filter(x -> !x.isEmpty())
-                        .toList();
-                if (cmd.isEmpty()) {
-                    setMode(Mode.KEY);
-                } else {
-                    executeCommand(
-                            x -> x.getName().equals(cmd.stream().findFirst().orElse("")),
-                            cmd.stream().skip(1).toList()
-                    );
-                }
+                processUserInput(
+                        this::commandHint,
+                        s -> {
+                            ImmutableList<String> cmd = ImmutableList.from(s.split(" "))
+                                    .stream()
+                                    .filter(x -> !x.isEmpty())
+                                    .toList();
+                            if (!cmd.isEmpty()) {
+                                executeCommand(
+                                        x -> x.getName().equals(cmd.stream().findFirst().orElse("")),
+                                        cmd.stream().skip(1).toList()
+                                );
+                            }
+                        }
+                );
                 break;
             case HELP:
                 consoleOperations.readKey();
-                setMode(Mode.KEY);
+                setMode(help.getPrevMode());
                 break;
         }
+    }
+
+    private String commandHint(String s) {
+        ImmutableList<String> candidates = commands()
+                .stream()
+                .map(Command::getName)
+                .filter(x -> x.startsWith(s))
+                .toList();
+        if (candidates.isEmpty()) {
+            return s;
+        }
+        if (candidates.size() == 1) {
+            return candidates.get(0) + " ";
+        }
+        StringBuilder commonPart = new StringBuilder();
+        int n = candidates.stream().map(String::length).min(Comparator.naturalOrder()).orElse(1);
+        for (int i = 0; i < n; i++) {
+            int index = i;
+            char c = candidates.get(0).charAt(index);
+            if (candidates.stream().allMatch(x -> x.charAt(index) == c)) {
+                commonPart.append(c);
+            }
+        }
+        return commonPart.toString();
     }
 
     private void executeCommand(Predicate<Command> criteria, List<String> parameters) {
@@ -436,20 +478,6 @@ public class ConsoleTableViewer<T> {
 
     private String getVerticalMargin(int n) {
         return StringUtils.fill(n, '\n');
-    }
-
-    private String commandColoredHelp(Command command, int nameFieldSize, int keyBindingFieldSize) {
-        return HELP_CMD_COLOR +
-                command.getName() +
-                ConsoleColor.RESET +
-                StringUtils.fill(nameFieldSize - command.getName().length(), ' ') +
-                HELP_KEY_BINDING_COLOR +
-                command.getKeyBindingName() +
-                ConsoleColor.RESET +
-                StringUtils.fill(keyBindingFieldSize - command.getKeyBindingName().length(), ' ') +
-                HELP_DESC_COLOR +
-                command.getDescription() +
-                ConsoleColor.RESET;
     }
 
     private int numberOfPages() {

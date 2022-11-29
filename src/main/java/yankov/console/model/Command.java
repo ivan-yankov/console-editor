@@ -38,6 +38,10 @@ public class Command {
         return hasKeyBinding() ? keyBinding.getName() : "";
     }
 
+    public boolean matchKeyBinding(Key key) {
+        return hasKeyBinding() && keyBinding == key;
+    }
+
     public boolean hasKeyBinding() {
         return keyBinding != null;
     }

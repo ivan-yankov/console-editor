@@ -1,5 +1,6 @@
 package yankov.console.table.viewer;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import yankov.console.helpers.TestData;
 import yankov.console.helpers.TestHelpers;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import static yankov.console.helpers.TestHelpers.listOf;
 
+@Ignore
 public class ConsoleTableViewerTest {
     @Test
     public void show() {

@@ -1,13 +1,13 @@
 package yankov.console.table.viewer;
 
 import yankov.console.Const;
+import yankov.console.Key;
 import yankov.console.Utils;
 import yankov.console.factory.CellFactory;
 import yankov.console.factory.ConsoleTableFactory;
 import yankov.console.model.Command;
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.operations.FileOperations;
-import yankov.console.Key;
 import yankov.console.table.Table;
 import yankov.console.table.TablePrinter;
 
@@ -16,7 +16,6 @@ import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     private final Path file;
@@ -52,7 +51,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                 new Command("copy", x -> copy(), "Copy", Key.CTRL_C),
                 new Command("paste", x -> paste(), "Paste", Key.CTRL_V),
                 new Command("del", x -> deleteCellValue(), "Delete", Key.DELETE),
-                new Command("auto-corr-dec-sym", this::autoCorrectDecimalSymbol, "[on, off] Replace a comma with a dot if the user input is a decimal number"),
+                new Command("auto-correct-decimal-symbol", this::autoCorrectDecimalSymbol, "[on, off] Replace a comma with a dot if the user input is a decimal number"),
                 new Command("decimal-places", this::decimalPlaces, "[n, off] Number of decimal places to format decimal numbers, off to disable formatting"),
                 new Command("undo", x -> undo(), "Undo table editing"),
                 new Command("redo", x -> redo(), "Redo table editing")
@@ -67,34 +66,36 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     @Override
     protected void processCustomAction() {
         if (getMode() == Mode.EDIT_CELL) {
-            processUserInput(x -> setTable(
-                            getTable().withCell(
-                                    CellFactory.createStringCell(getAutoCorrector().autoCorrectUserInput(x)),
-                                    getFocus().getRow(),
-                                    getFocus().getCol()
-                            )
-                    )
+            processUserInput(
+                    x -> getTable().getCell(getFocus().getRow(), getFocus().getCol()).toConsoleString(),
+                    x -> {
+                        setTable(
+                                getTable().withCell(
+                                        CellFactory.createStringCell(getAutoCorrector().autoCorrectUserInput(x)),
+                                        getFocus().getRow(),
+                                        getFocus().getCol()
+                                )
+                        );
+                        setMode(Mode.KEY);
+                    }
             );
         } else if (getMode() == Mode.EDIT_HEADER) {
-            processUserInput(x -> setTable(getTable().withHeaderValue(x, getFocus().getCol())));
+            processUserInput(
+                    key -> getTable().getHeader().get(getFocus().getCol()).getValue(),
+                    x -> {
+                        setTable(getTable().withHeaderValue(x, getFocus().getCol()));
+                        setMode(Mode.KEY);
+                    }
+            );
         }
     }
 
     @Override
     protected String getHint() {
         if (getMode() == Mode.EDIT_CELL) {
-            return "Enter to accept the input. Empty input to discard editing.";
+            return "Enter to accept the input. Esc to discard editing.";
         }
         return super.getHint();
-    }
-
-    private void processUserInput(Consumer<String> userInputProcessor) {
-        getConsoleOperations().resetConsole();
-        String userInput = getConsoleOperations().consoleReadLine().get();
-        if (!userInput.isEmpty()) {
-            userInputProcessor.accept(userInput);
-        }
-        setMode(Mode.KEY);
     }
 
     private AutoCorrector getAutoCorrector() {
