@@ -1,7 +1,5 @@
 package yankov.console;
 
-import yankov.console.table.viewer.Mode;
-
 import java.time.LocalDate;
 
 public class Const {
@@ -13,6 +11,4 @@ public class Const {
     public static final String QUOTES = "\"";
 
     public static final LocalDate INVALID_DATE = LocalDate.MIN;
-
-    public static final Mode DEFAULT_MODE = Mode.KEY;
 }

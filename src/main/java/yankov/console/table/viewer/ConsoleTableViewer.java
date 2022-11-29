@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ConsoleTableViewer<T> {
@@ -41,7 +39,6 @@ public class ConsoleTableViewer<T> {
 
     private final StringBuilder userInput;
     private final TableChangeHandler<T> tableChangeHandler;
-    private final Help help;
 
     public ConsoleTableViewer(Table<T> table,
                               int consoleLines,
@@ -53,13 +50,12 @@ public class ConsoleTableViewer<T> {
         this.consoleColumns = consoleColumns;
         this.consoleOperations = consoleOperations;
         this.title = "";
-        this.mode = Const.DEFAULT_MODE;
+        this.mode = Mode.COMMAND;
         this.logMessage = "";
         this.page = 0;
         this.settings = new TableViewerSettings(true, true, 2);
         this.userInput = new StringBuilder();
         this.tableChangeHandler = new TableChangeHandler<>();
-        this.help = new Help();
     }
 
     public Table<T> getTable() {
@@ -130,6 +126,10 @@ public class ConsoleTableViewer<T> {
         this.mode = mode;
     }
 
+    public String getUserInput() {
+        return userInput.toString();
+    }
+
     public TableChangeHandler<T> getTableChangeHandler() {
         return tableChangeHandler;
     }
@@ -137,37 +137,10 @@ public class ConsoleTableViewer<T> {
     public void show() {
         do {
             render();
-            if (allowCommand()) {
-                processCommand();
-            } else {
-                processCustomAction();
-            }
+            processCommand();
         } while (getMode() != Mode.EXIT);
 
         consoleOperations.resetConsole();
-    }
-
-    protected boolean allowCommandMode() {
-        return true;
-    }
-
-    protected boolean allowCommand() {
-        return true;
-    }
-
-    protected void processCustomAction() {
-    }
-
-    protected String getPageUpDescription() {
-        return "Prev page";
-    }
-
-    protected String getPageDownDescription() {
-        return "Nex page";
-    }
-
-    protected String getEnterDescription() {
-        return "";
     }
 
     protected final void resetFocus() {
@@ -176,6 +149,26 @@ public class ConsoleTableViewer<T> {
 
     protected final void invalidateFocus() {
         setFocus(new Focus(-1, -1));
+    }
+
+    protected final void resetMode() {
+        if (getMode() == Mode.COMMAND && userInput.length() == 0) {
+            setMode(Mode.EXIT);
+        } else {
+            setMode(Mode.COMMAND);
+        }
+    }
+
+    protected final void resetUserInput() {
+        userInput.setLength(0);
+    }
+
+    protected String getPageUpDescription() {
+        return "Prev page";
+    }
+
+    protected String getPageDownDescription() {
+        return "Nex page";
     }
 
     protected List<Command> additionalCommands() {
@@ -201,9 +194,7 @@ public class ConsoleTableViewer<T> {
     }
 
     protected String getHint() {
-        if (getMode() == Mode.COMMAND) {
-            return "Esc to return to key mode.";
-        } else if (getMode() == Mode.HELP) {
+        if (getMode() == Mode.HELP) {
             return "Press a key to return.";
         }
         return "";
@@ -212,14 +203,7 @@ public class ConsoleTableViewer<T> {
     private ImmutableList<Command> commands() {
         List<Command> c = new ArrayList<>();
 
-        if (allowCommandMode()) {
-            c.add(new Command("", x -> commandMode(), "Command mode", Key.F5));
-        }
-
-        c.add(new Command("enter", x -> onEnter(), getEnterDescription(), Key.ENTER));
-        c.add(new Command("exit", x -> exit(), "Exit", Key.ESC));
         c.add(new Command("help", x -> showHelp(), "Help", Key.F1));
-        c.add(new Command("tab", x -> onTab(), "Next", Key.TAB));
         c.add(new Command("left", x -> onLeft(), "Prev column", Key.LEFT));
         c.add(new Command("right", x -> onRight(), "Next column", Key.RIGHT));
         c.add(new Command("up", x -> onUp(), "Prev row", Key.UP));
@@ -230,6 +214,8 @@ public class ConsoleTableViewer<T> {
         c.add(new Command("last-row", x -> onCtrlEnd(), "Last row", Key.CTRL_END));
         c.add(new Command("page-up", x -> onPageUp(), getPageUpDescription(), Key.PAGE_UP));
         c.add(new Command("page-down", x -> onPageDown(), getPageDownDescription(), Key.PAGE_DOWN));
+        c.add(new Command("exit", x -> exit(), "Exit"));
+        c.add(new Command("tab", x -> onTab(), "Next"));
         c.add(new Command("row-indexes", this::rowIndexes, "Switch row indexes on or off"));
 
         c.addAll(additionalCommands());
@@ -238,6 +224,19 @@ public class ConsoleTableViewer<T> {
     }
 
     protected void onEnter() {
+        ImmutableList<String> cmd = ImmutableList.from(getUserInput().split(" "))
+                .stream()
+                .filter(x -> !x.isEmpty())
+                .toList();
+
+        if (!cmd.isEmpty()) {
+            executeCommand(
+                    x -> x.getName().equals(cmd.stream().findFirst().orElse("")),
+                    cmd.stream().skip(1).toList()
+            );
+        }
+
+        resetUserInput();
     }
 
     protected List<String> getFooter() {
@@ -259,8 +258,31 @@ public class ConsoleTableViewer<T> {
         return Optional.empty();
     }
 
-    protected final void processUserInput(Function<String, String> inputHint,
-                                          Consumer<String> inputProcessor) {
+    protected String userInputHint(String s) {
+        ImmutableList<String> candidates = commands()
+                .stream()
+                .map(Command::getName)
+                .filter(x -> x.startsWith(s))
+                .toList();
+        if (candidates.isEmpty()) {
+            return s;
+        }
+        if (candidates.size() == 1) {
+            return candidates.get(0) + " ";
+        }
+        StringBuilder commonPart = new StringBuilder();
+        int n = candidates.stream().map(String::length).min(Comparator.naturalOrder()).orElse(1);
+        for (int i = 0; i < n; i++) {
+            int index = i;
+            char c = candidates.get(0).charAt(index);
+            if (candidates.stream().allMatch(x -> x.charAt(index) == c)) {
+                commonPart.append(c);
+            }
+        }
+        return commonPart.toString();
+    }
+
+    private void processUserInput() {
         Either<String, Key> input = consoleOperations.readKey();
         if (input.getLeft().isPresent()) {
             userInput.append(input.getLeft().get());
@@ -268,23 +290,26 @@ public class ConsoleTableViewer<T> {
             Key key = input.getRight().orElse(Key.UNKNOWN);
             switch (key) {
                 case ESC:
-                    userInput.setLength(0);
-                    setMode(Mode.KEY);
+                    if (userInput.length() > 0) {
+                        resetUserInput();
+                    } else {
+                        resetMode();
+                    }
                     break;
                 case ENTER:
-                    inputProcessor.accept(userInput.toString());
-                    userInput.setLength(0);
+                    onEnter();
                     break;
                 case BACK_SPACE:
                     if (userInput.length() > 0) {
-                        userInput.setLength(userInput.toString().length() - 1);
+                        userInput.setLength(userInput.length() - 1);
                     }
                     break;
                 case TAB:
-                    String ch = inputHint.apply(userInput.toString());
-                    userInput.setLength(0);
+                    String ch = userInputHint(getUserInput());
+                    resetUserInput();
                     userInput.append(ch);
                 default:
+                    executeCommand(x -> x.matchKeyBinding(key), List.of());
                     break;
             }
         }
@@ -294,12 +319,7 @@ public class ConsoleTableViewer<T> {
         setMode(Mode.EXIT);
     }
 
-    private void commandMode() {
-        setMode(Mode.COMMAND);
-    }
-
     private void showHelp() {
-        help.setPrevMode(getMode());
         setMode(Mode.HELP);
     }
 
@@ -368,7 +388,7 @@ public class ConsoleTableViewer<T> {
         consoleOperations.clearConsole();
         int verticalMarginSize;
         if (getMode() == Mode.HELP) {
-            List<String> h = help.getHelp(commands());
+            List<String> h = Help.getHelp(commands());
             verticalMarginSize = consoleLines - getFooter().size() - h.size();
             consoleOperations.writeln(String.join(Const.NEW_LINE, h));
         } else {
@@ -390,57 +410,12 @@ public class ConsoleTableViewer<T> {
     }
 
     private void processCommand() {
-        switch (getMode()) {
-            case KEY:
-                Either<String, Key> input = consoleOperations.readKey();
-                executeCommand(x -> x.matchKeyBinding(input.getRight().orElse(Key.UNKNOWN)), List.of());
-                break;
-            case COMMAND:
-                processUserInput(
-                        this::commandHint,
-                        s -> {
-                            ImmutableList<String> cmd = ImmutableList.from(s.split(" "))
-                                    .stream()
-                                    .filter(x -> !x.isEmpty())
-                                    .toList();
-                            if (!cmd.isEmpty()) {
-                                executeCommand(
-                                        x -> x.getName().equals(cmd.stream().findFirst().orElse("")),
-                                        cmd.stream().skip(1).toList()
-                                );
-                            }
-                        }
-                );
-                break;
-            case HELP:
-                consoleOperations.readKey();
-                setMode(help.getPrevMode());
-                break;
+        if (getMode() == Mode.HELP) {
+            consoleOperations.readKey();
+            resetMode();
+        } else {
+            processUserInput();
         }
-    }
-
-    private String commandHint(String s) {
-        ImmutableList<String> candidates = commands()
-                .stream()
-                .map(Command::getName)
-                .filter(x -> x.startsWith(s))
-                .toList();
-        if (candidates.isEmpty()) {
-            return s;
-        }
-        if (candidates.size() == 1) {
-            return candidates.get(0) + " ";
-        }
-        StringBuilder commonPart = new StringBuilder();
-        int n = candidates.stream().map(String::length).min(Comparator.naturalOrder()).orElse(1);
-        for (int i = 0; i < n; i++) {
-            int index = i;
-            char c = candidates.get(0).charAt(index);
-            if (candidates.stream().allMatch(x -> x.charAt(index) == c)) {
-                commonPart.append(c);
-            }
-        }
-        return commonPart.toString();
     }
 
     private void executeCommand(Predicate<Command> criteria, List<String> parameters) {

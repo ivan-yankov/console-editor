@@ -35,8 +35,8 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     @Override
     protected List<Command> additionalCommands() {
         return List.of(
-                new Command("edit", x -> editCell(), "Edit", Key.F2),
-                new Command("hedit", x -> editHeader(), "Edit", Key.F3),
+                new Command("edit", x -> editCell(), "Edit cell", Key.F2),
+                new Command("hedit", x -> editHeader(), "Edit header", Key.F3),
                 new Command("date", x -> selectDate(), "Select date", Key.CTRL_F2),
                 new Command("save", x -> saveTable(), "Save", Key.F4),
                 new Command("row-up", x -> moveRowUp(), "Move up", Key.CTRL_UP),
@@ -59,34 +59,39 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     @Override
-    protected boolean allowCommand() {
-        return getMode() != Mode.EDIT_CELL && getMode() != Mode.EDIT_HEADER;
+    protected String userInputHint(String s) {
+        switch (getMode()) {
+            case EDIT_CELL:
+                return getTable().getCell(getFocus().getRow(), getFocus().getCol()).toConsoleString();
+            case EDIT_HEADER:
+                return getTable().getHeader().get(getFocus().getCol()).getValue();
+            default:
+                return super.userInputHint(s);
+        }
     }
 
     @Override
-    protected void processCustomAction() {
-        if (getMode() == Mode.EDIT_CELL) {
-            processUserInput(
-                    x -> getTable().getCell(getFocus().getRow(), getFocus().getCol()).toConsoleString(),
-                    x -> {
-                        setTable(
-                                getTable().withCell(
-                                        CellFactory.createStringCell(getAutoCorrector().autoCorrectUserInput(x)),
-                                        getFocus().getRow(),
-                                        getFocus().getCol()
-                                )
-                        );
-                        setMode(Mode.KEY);
-                    }
-            );
-        } else if (getMode() == Mode.EDIT_HEADER) {
-            processUserInput(
-                    key -> getTable().getHeader().get(getFocus().getCol()).getValue(),
-                    x -> {
-                        setTable(getTable().withHeaderValue(x, getFocus().getCol()));
-                        setMode(Mode.KEY);
-                    }
-            );
+    protected void onEnter() {
+        switch (getMode()) {
+            case EDIT_CELL:
+                setTable(
+                        getTable().withCell(
+                                CellFactory.createStringCell(getAutoCorrector().autoCorrectUserInput(getUserInput())),
+                                getFocus().getRow(),
+                                getFocus().getCol()
+                        )
+                );
+                resetUserInput();
+                resetMode();
+                break;
+            case EDIT_HEADER:
+                setTable(getTable().withHeaderValue(getUserInput(), getFocus().getCol()));
+                resetUserInput();
+                resetMode();
+                break;
+            default:
+                super.onEnter();
+                break;
         }
     }
 

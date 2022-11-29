@@ -20,16 +20,6 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     }
 
     @Override
-    protected String getEnterDescription() {
-        return "Execute";
-    }
-
-    @Override
-    protected boolean allowCommandMode() {
-        return false;
-    }
-
-    @Override
     protected List<String> getFooter() {
         if (getMode() == Mode.HELP) {
             return super.getFooter();

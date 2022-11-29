@@ -65,11 +65,6 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
         return "Next month";
     }
 
-    @Override
-    protected String getEnterDescription() {
-        return "Accept";
-    }
-
     private String createTitle() {
         return firstDayOfMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.US) + ", " + firstDayOfMonth.getYear();
     }
