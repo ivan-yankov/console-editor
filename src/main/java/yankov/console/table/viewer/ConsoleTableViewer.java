@@ -8,8 +8,6 @@ import yankov.console.model.Command;
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.table.Table;
 import yankov.console.table.TablePrinter;
-import yankov.jutils.StringUtils;
-import yankov.jutils.functional.Either;
 import yankov.jutils.functional.ImmutableList;
 
 import java.util.ArrayList;
@@ -27,6 +25,8 @@ public class ConsoleTableViewer<T> {
     private final int consoleLines;
     private final int consoleColumns;
     private final ConsoleOperations consoleOperations;
+    private final TableChangeHandler<T> tableChangeHandler;
+    private final UserInputProcessor userInputProcessor;
 
     private Table<T> table;
     private Focus focus;
@@ -35,10 +35,6 @@ public class ConsoleTableViewer<T> {
     private String title;
     private Mode mode;
     private String logMessage;
-    private int page;
-
-    private final StringBuilder userInput;
-    private final TableChangeHandler<T> tableChangeHandler;
 
     public ConsoleTableViewer(Table<T> table,
                               int consoleLines,
@@ -52,10 +48,16 @@ public class ConsoleTableViewer<T> {
         this.title = "";
         this.mode = Mode.COMMAND;
         this.logMessage = "";
-        this.page = 0;
         this.settings = new TableViewerSettings(true, true, 2);
-        this.userInput = new StringBuilder();
         this.tableChangeHandler = new TableChangeHandler<>();
+        this.userInputProcessor = new UserInputProcessor(
+                consoleOperations,
+                this::inputHint,
+                this::processInput,
+                key -> executeCommand(x -> x.matchKeyBinding(key), List.of()),
+                this::onEnter,
+                this::resetMode
+        );
     }
 
     public Table<T> getTable() {
@@ -126,10 +128,6 @@ public class ConsoleTableViewer<T> {
         this.mode = mode;
     }
 
-    public String getUserInput() {
-        return userInput.toString();
-    }
-
     public TableChangeHandler<T> getTableChangeHandler() {
         return tableChangeHandler;
     }
@@ -137,9 +135,8 @@ public class ConsoleTableViewer<T> {
     public void show() {
         do {
             render();
-            processCommand();
+            userInputProcessor.processUserInput();
         } while (getMode() != Mode.EXIT);
-
         consoleOperations.resetConsole();
     }
 
@@ -152,15 +149,11 @@ public class ConsoleTableViewer<T> {
     }
 
     protected final void resetMode() {
-        if (getMode() == Mode.COMMAND && userInput.length() == 0) {
+        if (getMode() == Mode.COMMAND && userInputProcessor.getUserInput().isEmpty()) {
             setMode(Mode.EXIT);
         } else {
             setMode(Mode.COMMAND);
         }
-    }
-
-    protected final void resetUserInput() {
-        userInput.setLength(0);
     }
 
     protected String getPageUpDescription() {
@@ -176,28 +169,23 @@ public class ConsoleTableViewer<T> {
     }
 
     protected void onPageUp() {
-        if (page > 0) {
-            page--;
-            setFocus(focus.withRow(focus.getRow() - maxTableLinesPerPage()));
+        int r = focus.getRow() - getLinesPerPage(getHeader().size(), getFooter().size());
+        if (r < 0) {
+            r = 0;
         }
+        setFocus(focus.withRow(r));
     }
 
     protected void onPageDown() {
-        if (page < numberOfPages() - 1) {
-            page++;
-            int r = focus.getRow() + maxTableLinesPerPage();
-            if (r >= getTable().getRowCount()) {
-                r = getTable().getRowCount() - 1;
-            }
-            setFocus(focus.withRow(r));
+        int r = focus.getRow() + getLinesPerPage(getHeader().size(), getFooter().size());
+        if (r >= getTable().getRowCount()) {
+            r = getTable().getRowCount() - 1;
         }
+        setFocus(focus.withRow(r));
     }
 
     protected String getHint() {
-        if (getMode() == Mode.HELP) {
-            return "Press a key to return.";
-        }
-        return "";
+        return getMode() == Mode.HELP ? "Press a key to return." : "";
     }
 
     private ImmutableList<Command> commands() {
@@ -223,27 +211,11 @@ public class ConsoleTableViewer<T> {
         return ImmutableList.of(c);
     }
 
-    protected void onEnter() {
-        ImmutableList<String> cmd = ImmutableList.from(getUserInput().split(" "))
-                .stream()
-                .filter(x -> !x.isEmpty())
-                .toList();
-
-        if (!cmd.isEmpty()) {
-            executeCommand(
-                    x -> x.getName().equals(cmd.stream().findFirst().orElse("")),
-                    cmd.stream().skip(1).toList()
-            );
-        }
-
-        resetUserInput();
-    }
-
     protected List<String> getFooter() {
         return List.of(
                 Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
                 Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
-                Utils.colorText(getModeString(), MODE_COLOR) + userInput
+                Utils.colorText(getModeString(), MODE_COLOR) + userInputProcessor.getUserInput()
         );
     }
 
@@ -258,7 +230,33 @@ public class ConsoleTableViewer<T> {
         return Optional.empty();
     }
 
-    protected String userInputHint(String s) {
+    protected void onEnter() {
+    }
+
+    protected void processInput(String input) {
+        switch (getMode()) {
+            case COMMAND:
+                ImmutableList<String> cmd = ImmutableList.from(input.split(" "))
+                        .stream()
+                        .filter(x -> !x.isEmpty())
+                        .toList();
+                if (!cmd.isEmpty()) {
+                    executeCommand(
+                            x -> x.getName().equals(cmd.stream().findFirst().orElse("")),
+                            cmd.stream().skip(1).toList()
+                    );
+                }
+                break;
+            case HELP:
+                consoleOperations.readKey();
+                resetMode();
+                break;
+            default:
+                break;
+        }
+    }
+
+    protected String inputHint(String s) {
         ImmutableList<String> candidates = commands()
                 .stream()
                 .map(Command::getName)
@@ -280,39 +278,6 @@ public class ConsoleTableViewer<T> {
             }
         }
         return commonPart.toString();
-    }
-
-    private void processUserInput() {
-        Either<String, Key> input = consoleOperations.readKey();
-        if (input.getLeft().isPresent()) {
-            userInput.append(input.getLeft().get());
-        } else {
-            Key key = input.getRight().orElse(Key.UNKNOWN);
-            switch (key) {
-                case ESC:
-                    if (userInput.length() > 0) {
-                        resetUserInput();
-                    } else {
-                        resetMode();
-                    }
-                    break;
-                case ENTER:
-                    onEnter();
-                    break;
-                case BACK_SPACE:
-                    if (userInput.length() > 0) {
-                        userInput.setLength(userInput.length() - 1);
-                    }
-                    break;
-                case TAB:
-                    String ch = userInputHint(getUserInput());
-                    resetUserInput();
-                    userInput.append(ch);
-                default:
-                    executeCommand(x -> x.matchKeyBinding(key), List.of());
-                    break;
-            }
-        }
     }
 
     private void exit() {
@@ -376,24 +341,19 @@ public class ConsoleTableViewer<T> {
 
     private void onCtrlHome() {
         setFocus(focus.withRow(0));
-        page = 0;
     }
 
     private void onCtrlEnd() {
         setFocus(focus.withRow(getTable().getRowCount() - 1));
-        page = numberOfPages() - 1;
     }
 
     private void render() {
         consoleOperations.clearConsole();
-        int verticalMarginSize;
         if (getMode() == Mode.HELP) {
-            List<String> h = Help.getHelp(commands());
-            verticalMarginSize = consoleLines - getFooter().size() - h.size();
-            consoleOperations.writeln(String.join(Const.NEW_LINE, h));
+            List<String> help = alignPage(Help.getHelp(commands()), 0, getFooter().size());
+            consoleOperations.writeln(String.join(Const.NEW_LINE, help));
         } else {
             List<String> p = getPage();
-            verticalMarginSize = maxTableLinesPerPage() - p.size();
             consoleOperations.writeln(String.join(Const.NEW_LINE, getHeader()));
             if (!p.isEmpty()) {
                 consoleOperations.writeln(String.join(Const.NEW_LINE, p));
@@ -402,20 +362,10 @@ public class ConsoleTableViewer<T> {
 
         List<String> footer = getFooter();
         if (!footer.isEmpty()) {
-            consoleOperations.write(String.join(Const.NEW_LINE, getVerticalMargin(verticalMarginSize)));
             consoleOperations.write(String.join(Const.NEW_LINE, footer));
         }
 
         setLogMessage("");
-    }
-
-    private void processCommand() {
-        if (getMode() == Mode.HELP) {
-            consoleOperations.readKey();
-            resetMode();
-        } else {
-            processUserInput();
-        }
     }
 
     private void executeCommand(Predicate<Command> criteria, List<String> parameters) {
@@ -428,11 +378,11 @@ public class ConsoleTableViewer<T> {
                 .accept(parameters);
     }
 
-    private List<String> getHeader() {
+    private ImmutableList<String> getHeader() {
         List<String> header = new ArrayList<>();
         header.add(Utils.colorTextLine(title, TITLE_COLOR, consoleColumns));
         header.addAll(TablePrinter.headerToConsole(getTable(), settings.isShowRowIndexes()));
-        return header;
+        return ImmutableList.of(header);
     }
 
     private String getModeString() {
@@ -440,26 +390,26 @@ public class ConsoleTableViewer<T> {
         return m.replace("_", " ") + ": ";
     }
 
-    private List<String> getPage() {
+    private ImmutableList<String> getPage() {
         ImmutableList<ImmutableList<String>> pages = TablePrinter
                 .dataToConsole(getTable(), focus, settings.isShowRowIndexes())
-                .sliding(maxTableLinesPerPage());
+                .sliding(getLinesPerPage(getHeader().size(), getFooter().size()));
+
         if (!pages.isEmpty()) {
-            return pages.get(page);
+            int page = (int) Math.round(Math.floor((double) focus.getRow() / (double) getLinesPerPage(getHeader().size(), getFooter().size())));
+            return alignPage(pages.get(page), getHeader().size(), getFooter().size());
         } else {
-            return new ArrayList<>();
+            return alignPage(ImmutableList.from(), getHeader().size(), getFooter().size());
         }
     }
 
-    private String getVerticalMargin(int n) {
-        return StringUtils.fill(n, '\n');
+    private int getLinesPerPage(int headerSize, int footerSize) {
+        return consoleLines - headerSize - footerSize;
     }
 
-    private int numberOfPages() {
-        return (int) getTable().getData().numberOfSlides(maxTableLinesPerPage());
-    }
-
-    private int maxTableLinesPerPage() {
-        return consoleLines - getHeader().size() - getFooter().size();
+    private ImmutableList<String> alignPage(ImmutableList<String> page, int headerSize, int footerSize) {
+        int n = getLinesPerPage(headerSize, footerSize) - page.size();
+        ImmutableList<String> additional = ImmutableList.fill(n, "");
+        return page.appendAll(additional);
     }
 }

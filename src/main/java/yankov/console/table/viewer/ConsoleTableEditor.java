@@ -59,38 +59,38 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     }
 
     @Override
-    protected String userInputHint(String s) {
+    protected String inputHint(String s) {
         switch (getMode()) {
             case EDIT_CELL:
                 return getTable().getCell(getFocus().getRow(), getFocus().getCol()).toConsoleString();
             case EDIT_HEADER:
                 return getTable().getHeader().get(getFocus().getCol()).getValue();
             default:
-                return super.userInputHint(s);
+                return super.inputHint(s);
         }
     }
 
     @Override
-    protected void onEnter() {
+    protected void processInput(String input) {
         switch (getMode()) {
             case EDIT_CELL:
                 setTable(
                         getTable().withCell(
-                                CellFactory.createStringCell(getAutoCorrector().autoCorrectUserInput(getUserInput())),
+                                CellFactory.createStringCell(
+                                        getAutoCorrector().autoCorrectUserInput(input)
+                                ),
                                 getFocus().getRow(),
                                 getFocus().getCol()
                         )
                 );
-                resetUserInput();
                 resetMode();
                 break;
             case EDIT_HEADER:
-                setTable(getTable().withHeaderValue(getUserInput(), getFocus().getCol()));
-                resetUserInput();
+                setTable(getTable().withHeaderValue(input, getFocus().getCol()));
                 resetMode();
                 break;
             default:
-                super.onEnter();
+                super.processInput(input);
                 break;
         }
     }

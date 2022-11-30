@@ -1,7 +1,6 @@
 package yankov.console.table.viewer;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import yankov.console.Utils;
 import yankov.console.factory.DataFactory;
@@ -15,7 +14,6 @@ import java.util.List;
 
 import static yankov.console.helpers.TestHelpers.listOf;
 
-@Ignore
 public class ConsoleDateSelectorTest {
     @Test
     public void show() {
@@ -24,7 +22,7 @@ public class ConsoleDateSelectorTest {
         LocalDate expectedDate = LocalDate.of(2022, 11, 3);
 
         List<TestData> testData = ImmutableList.from(
-                new TestData("test.csv", "accept", listOf("exit"), listOf("right", "enter")),
+                new TestData("test.csv", "accept", listOf("exit"), listOf("right", "exit")),
                 new TestData("test.csv", "next-month", listOf("exit"), listOf("page-down", "exit")),
                 new TestData("test.csv", "prev-month", listOf("exit"), listOf("page-up", "exit"))
         );
