@@ -70,6 +70,10 @@ public class UserInputProcessor {
                     String ch = hint.apply(getUserInput());
                     resetUserInput();
                     userInput.append(ch);
+                    break;
+                case SPACE:
+                    userInput.append(" ");
+                    break;
                 default:
                     keyProcessor.accept(key);
                     break;

@@ -185,7 +185,7 @@ public class ConsoleTableViewer<T> {
     }
 
     protected String getHint() {
-        return getMode() == Mode.HELP ? "Press a key to return." : "";
+        return getMode() == Mode.HELP ? "Esc to return." : "";
     }
 
     private ImmutableList<Command> commands() {
@@ -215,7 +215,7 @@ public class ConsoleTableViewer<T> {
         return List.of(
                 Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
                 Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
-                Utils.colorText(getModeString(), MODE_COLOR) + userInputProcessor.getUserInput()
+                Utils.colorText(getModeString(), MODE_COLOR) + userInputProcessor.getUserInput() + cursor()
         );
     }
 
@@ -411,5 +411,9 @@ public class ConsoleTableViewer<T> {
         int n = getLinesPerPage(headerSize, footerSize) - page.size();
         ImmutableList<String> additional = ImmutableList.fill(n, "");
         return page.appendAll(additional);
+    }
+
+    private String cursor() {
+        return ConsoleColor.WHITE_B + " " + ConsoleColor.RESET;
     }
 }

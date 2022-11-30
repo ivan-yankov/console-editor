@@ -47,4 +47,4 @@
 [30m[100m 45[0m |      45 | Text  
 [92m[100m                                                                                                                                                                                                        [0m
 [36m[100m                                                                                                                                                                                                        [0m
-[32m[1mCommand: [0mexit
+[32m[1mCommand: [0mexit[107m [0m
