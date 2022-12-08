@@ -26,6 +26,12 @@
             <version>latest</version>
         </dependency>
 
+        <dependency>
+            <groupId>yankov</groupId>
+            <artifactId>arg-parser</artifactId>
+            <version>latest</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/junit/junit -->
         <dependency>
             <groupId>junit</groupId>
