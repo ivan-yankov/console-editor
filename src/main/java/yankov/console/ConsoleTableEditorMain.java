@@ -1,6 +1,6 @@
 package yankov.console;
 
-import yankov.args.ArgumentParser;
+import yankov.args.ProgramArgumentsParser;
 import yankov.console.factory.ConsoleTableFactory;
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.operations.FileOperations;
@@ -16,12 +16,11 @@ public class ConsoleTableEditorMain {
         ConsoleOperations consoleOperations = new ConsoleOperations();
 
         ConsoleTableEditorArgs appArgs = new ConsoleTableEditorArgs();
-        ArgumentParser.parse(args, appArgs);
+        ProgramArgumentsParser.parse(args, appArgs);
 
         int lines = Integer.parseInt(appArgs.getConsoleLines());
         int columns = Integer.parseInt(appArgs.getConsoleColumns());
         Path csvFile = Paths.get(appArgs.getFileName());
-
 
         Either<String, ConsoleTableEditor> editor = ConsoleTableFactory.createConsoleTableEditor(
                 csvFile,
