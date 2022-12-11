@@ -7,6 +7,7 @@ import yankov.console.table.Table;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -37,6 +38,11 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
             select.accept(value);
             setMode(Mode.EXIT);
         }
+    }
+
+    @Override
+    protected boolean showFooter() {
+        return false;
     }
 
     @Override

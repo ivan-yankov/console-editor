@@ -20,11 +20,7 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     }
 
     @Override
-    protected List<String> getFooter() {
-        if (getMode() == Mode.HELP) {
-            return super.getFooter();
-        } else {
-            return List.of();
-        }
+    protected boolean showFooter() {
+        return false;
     }
 }

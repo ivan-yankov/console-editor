@@ -124,7 +124,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
 
     private void selectDate() {
         if (getFocus().isValid()) {
-            ConsoleDateSelector dateSelector = ConsoleTableFactory.createDateConsoleSelector(
+            ConsoleDateSelector dateSelector = ConsoleTableFactory.createConsoleDateSelector(
                     Utils.firstDayOfCurrentMonth(),
                     getConsoleLines(),
                     getConsoleColumns(),

@@ -156,6 +156,17 @@ public class ConsoleTableViewer<T> {
         }
     }
 
+    protected final Optional<Boolean> analyzeFlagParameter(List<String> p) {
+        if (!p.isEmpty()) {
+            if (p.get(0).equals("on")) {
+                return Optional.of(true);
+            } else if (p.get(0).equals("off")) {
+                return Optional.of(false);
+            }
+        }
+        return Optional.empty();
+    }
+
     protected String getPageUpDescription() {
         return "Prev page";
     }
@@ -188,46 +199,8 @@ public class ConsoleTableViewer<T> {
         return getMode() == Mode.HELP ? "Esc to return." : "";
     }
 
-    private ImmutableList<Command> commands() {
-        List<Command> c = new ArrayList<>();
-
-        c.add(new Command("help", x -> showHelp(), "Help", Key.F1));
-        c.add(new Command("left", x -> onLeft(), "Prev column", Key.LEFT));
-        c.add(new Command("right", x -> onRight(), "Next column", Key.RIGHT));
-        c.add(new Command("up", x -> onUp(), "Prev row", Key.UP));
-        c.add(new Command("down", x -> onDown(), "Next row", Key.DOWN));
-        c.add(new Command("first-col", x -> onHome(), "First column", Key.HOME));
-        c.add(new Command("last-col", x -> onEnd(), "Last column", Key.END));
-        c.add(new Command("first-row", x -> onCtrlHome(), "First crow", Key.CTRL_HOME));
-        c.add(new Command("last-row", x -> onCtrlEnd(), "Last row", Key.CTRL_END));
-        c.add(new Command("page-up", x -> onPageUp(), getPageUpDescription(), Key.PAGE_UP));
-        c.add(new Command("page-down", x -> onPageDown(), getPageDownDescription(), Key.PAGE_DOWN));
-        c.add(new Command("exit", x -> exit(), "Exit"));
-        c.add(new Command("tab", x -> onTab(), "Next"));
-        c.add(new Command("row-indexes", this::rowIndexes, "Switch row indexes on or off"));
-
-        c.addAll(additionalCommands());
-
-        return ImmutableList.of(c);
-    }
-
-    protected List<String> getFooter() {
-        return List.of(
-                Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
-                Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
-                Utils.colorText(getModeString(), MODE_COLOR) + userInputProcessor.getUserInput() + cursor()
-        );
-    }
-
-    protected final Optional<Boolean> analyzeFlagParameter(List<String> p) {
-        if (!p.isEmpty()) {
-            if (p.get(0).equals("on")) {
-                return Optional.of(true);
-            } else if (p.get(0).equals("off")) {
-                return Optional.of(false);
-            }
-        }
-        return Optional.empty();
+    protected boolean showFooter() {
+        return true;
     }
 
     protected void onEnter() {
@@ -278,6 +251,29 @@ public class ConsoleTableViewer<T> {
             }
         }
         return commonPart.toString();
+    }
+
+    private ImmutableList<Command> commands() {
+        List<Command> c = new ArrayList<>();
+
+        c.add(new Command("help", x -> showHelp(), "Help", Key.F1));
+        c.add(new Command("left", x -> onLeft(), "Prev column", Key.LEFT));
+        c.add(new Command("right", x -> onRight(), "Next column", Key.RIGHT));
+        c.add(new Command("up", x -> onUp(), "Prev row", Key.UP));
+        c.add(new Command("down", x -> onDown(), "Next row", Key.DOWN));
+        c.add(new Command("first-col", x -> onHome(), "First column", Key.HOME));
+        c.add(new Command("last-col", x -> onEnd(), "Last column", Key.END));
+        c.add(new Command("first-row", x -> onCtrlHome(), "First crow", Key.CTRL_HOME));
+        c.add(new Command("last-row", x -> onCtrlEnd(), "Last row", Key.CTRL_END));
+        c.add(new Command("page-up", x -> onPageUp(), getPageUpDescription(), Key.PAGE_UP));
+        c.add(new Command("page-down", x -> onPageDown(), getPageDownDescription(), Key.PAGE_DOWN));
+        c.add(new Command("exit", x -> exit(), "Exit"));
+        c.add(new Command("tab", x -> onTab(), "Next"));
+        c.add(new Command("row-indexes", this::rowIndexes, "Switch row indexes on or off"));
+
+        c.addAll(additionalCommands());
+
+        return ImmutableList.of(c);
     }
 
     private void exit() {
@@ -376,6 +372,18 @@ public class ConsoleTableViewer<T> {
                 .orElse(Utils.doNothing())
                 .getAction()
                 .accept(parameters);
+    }
+
+    private List<String> getFooter() {
+        if (getMode() == Mode.HELP || showFooter()) {
+            return List.of(
+                    Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
+                    Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
+                    Utils.colorText(getModeString(), MODE_COLOR) + userInputProcessor.getUserInput() + cursor()
+            );
+        } else {
+            return List.of();
+        }
     }
 
     private ImmutableList<String> getHeader() {

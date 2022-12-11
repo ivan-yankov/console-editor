@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ConsoleTableFactory {
-    public static ConsoleDateSelector createDateConsoleSelector(
+    public static ConsoleDateSelector createConsoleDateSelector(
             LocalDate firstDayOfMonth,
             int consoleLines,
             int consoleColumns,
