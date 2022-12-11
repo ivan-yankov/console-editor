@@ -35,10 +35,10 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
     @Override
     protected List<Command> additionalCommands() {
         return List.of(
-                new Command("edit", x -> editCell(), "Edit cell", Key.F2),
+                new Command("save", x -> saveTable(), "Save", Key.F2),
                 new Command("hedit", x -> editHeader(), "Edit header", Key.F3),
-                new Command("date", x -> selectDate(), "Select date", Key.CTRL_F2),
-                new Command("save", x -> saveTable(), "Save", Key.F4),
+                new Command("edit", x -> editCell(), "Edit cell", Key.F4),
+                new Command("date", x -> selectDate(), "Select date", Key.F5),
                 new Command("row-up", x -> moveRowUp(), "Move up", Key.CTRL_UP),
                 new Command("row-down", x -> moveRowDown(), "Move down", Key.CTRL_DOWN),
                 new Command("row-insert", x -> insertRow(), "Insert after", Key.F7),
