@@ -185,7 +185,7 @@ public class ConsoleTableViewer<T> {
     }
 
     protected void onPageUp() {
-        int r = focus.getRow() - getLinesPerPage(getHeader().size(), getFooter().size());
+        int r = focus.getRow() - getLinesPerPage();
         if (r < 0) {
             r = 0;
         }
@@ -193,7 +193,7 @@ public class ConsoleTableViewer<T> {
     }
 
     protected void onPageDown() {
-        int r = focus.getRow() + getLinesPerPage(getHeader().size(), getFooter().size());
+        int r = focus.getRow() + getLinesPerPage();
         if (r >= getTable().getRowCount()) {
             r = getTable().getRowCount() - 1;
         }
@@ -353,7 +353,7 @@ public class ConsoleTableViewer<T> {
     private void render() {
         consoleOperations.clearConsole();
         if (getMode() == Mode.HELP) {
-            List<String> help = alignPage(Help.getHelp(commands()), 0, getFooter().size());
+            List<String> help = alignPage(Help.getHelp(commands()));
             consoleOperations.writeln(String.join(Const.NEW_LINE, help));
         } else {
             List<String> p = getPage();
@@ -381,19 +381,23 @@ public class ConsoleTableViewer<T> {
                 .accept(parameters);
     }
 
-    private List<String> getFooter() {
+    private ImmutableList<String> getFooter() {
         if (getMode() == Mode.HELP || showFooter()) {
-            return List.of(
+            return ImmutableList.from(
                     Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
                     Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
                     Utils.colorText(getModeString(), MODE_COLOR) + userInputProcessor.getUserInput() + cursor()
             );
-        } else {
-            return List.of();
         }
+
+        return ImmutableList.from();
     }
 
     private ImmutableList<String> getHeader() {
+        if (getMode() == Mode.HELP) {
+            return ImmutableList.from();
+        }
+
         List<String> header = new ArrayList<>();
         header.add(Utils.colorTextLine(title, TITLE_COLOR, consoleColumns));
         header.addAll(TablePrinter.headerToConsole(table, getColumnPage(), consoleColumns, settings.isShowRowIndexes()));
@@ -407,26 +411,26 @@ public class ConsoleTableViewer<T> {
 
     private ImmutableList<String> getPage() {
         ImmutableList<ImmutableList<Integer>> pageIndexes = ImmutableList.tabulate(table.getRowCount(), x -> x)
-                .sliding(getLinesPerPage(getHeader().size(), getFooter().size()));
+                .sliding(getLinesPerPage());
 
         if (!pageIndexes.isEmpty()) {
-            int pageIndex = (int) Math.round(Math.floor((double) focus.getRow() / (double) getLinesPerPage(getHeader().size(), getFooter().size())));
+            int pageIndex = (int) Math.round(Math.floor((double) focus.getRow() / (double) getLinesPerPage()));
             ImmutableList<Integer> p = pageIndexes.get(pageIndex);
             RangeInt visibleRows = new RangeInt(p.get(0), p.get(p.size() - 1) + 1);
             ImmutableList<String> page = TablePrinter
                     .dataToConsole(table, focus, visibleRows, getColumnPage(), consoleColumns, settings.isShowRowIndexes());
-            return alignPage(page, getHeader().size(), getFooter().size());
+            return alignPage(page);
         } else {
-            return alignPage(ImmutableList.from(), getHeader().size(), getFooter().size());
+            return alignPage(ImmutableList.from());
         }
     }
 
-    private int getLinesPerPage(int headerSize, int footerSize) {
-        return consoleLines - headerSize - footerSize;
+    private int getLinesPerPage() {
+        return consoleLines - getHeader().size() - getFooter().size();
     }
 
-    private ImmutableList<String> alignPage(ImmutableList<String> page, int headerSize, int footerSize) {
-        int n = getLinesPerPage(headerSize, footerSize) - page.size();
+    private ImmutableList<String> alignPage(ImmutableList<String> page) {
+        int n = getLinesPerPage() - page.size();
         ImmutableList<String> additional = ImmutableList.fill(n, "");
         return page.appendAll(additional);
     }

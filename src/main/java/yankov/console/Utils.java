@@ -13,7 +13,7 @@ public class Utils {
 
     public static String colorTextLine(String s, String color, int lineLength) {
         String str = s + StringUtils.fill(lineLength - s.length(), ' ');
-        return color.isEmpty() ? ConsoleColor.RESET + str + ConsoleColor.RESET : color + str + ConsoleColor.RESET;
+        return colorText(str, color);
     }
 
     public static String printDate(LocalDate date) {
