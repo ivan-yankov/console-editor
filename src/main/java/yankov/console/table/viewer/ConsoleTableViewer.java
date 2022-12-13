@@ -431,8 +431,7 @@ public class ConsoleTableViewer<T> {
 
     private ImmutableList<String> alignPage(ImmutableList<String> page) {
         int n = getLinesPerPage() - page.size();
-        ImmutableList<String> additional = ImmutableList.fill(n, "");
-        return page.appendAll(additional);
+        return page.appendAll(ImmutableList.fill(n, ""));
     }
 
     private String cursor() {
