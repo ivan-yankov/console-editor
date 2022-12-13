@@ -46,8 +46,7 @@ public class ConsoleOperations {
     public void resetConsole() {
         try {
             RawConsoleInput.resetConsoleMode();
-        } catch (IOException e) {
-            // ignored
+        } catch (IOException ignored) {
         }
     }
 }

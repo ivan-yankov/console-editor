@@ -9,6 +9,7 @@ import yankov.console.operations.ConsoleOperations;
 import yankov.console.table.Table;
 import yankov.console.table.TablePrinter;
 import yankov.jutils.functional.ImmutableList;
+import yankov.jutils.functional.RangeInt;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,6 +32,7 @@ public class ConsoleTableViewer<T> {
     private Table<T> table;
     private Focus focus;
     private TableViewerSettings settings;
+    private int columnPage;
 
     private String title;
     private Mode mode;
@@ -49,6 +51,7 @@ public class ConsoleTableViewer<T> {
         this.mode = Mode.COMMAND;
         this.logMessage = "";
         this.settings = new TableViewerSettings(true, true, 2);
+        this.columnPage = 0;
         this.tableChangeHandler = new TableChangeHandler<>();
         this.userInputProcessor = new UserInputProcessor(
                 consoleOperations,
@@ -67,6 +70,8 @@ public class ConsoleTableViewer<T> {
     public void setTable(Table<T> table, boolean fireChange) {
         Table<T> oldValue = this.table;
         this.table = table;
+        columnPage = 0;
+
         if (fireChange) {
             tableChangeHandler.handleTableChange(oldValue);
         }
@@ -267,6 +272,8 @@ public class ConsoleTableViewer<T> {
         c.add(new Command("last-row", x -> onCtrlEnd(), "Last row", Key.CTRL_END));
         c.add(new Command("page-up", x -> onPageUp(), getPageUpDescription(), Key.PAGE_UP));
         c.add(new Command("page-down", x -> onPageDown(), getPageDownDescription(), Key.PAGE_DOWN));
+        c.add(new Command("page-right", x -> pageRight(), "Page right", Key.ALT_RIGHT));
+        c.add(new Command("page-left", x -> pageLeft(), "Page left", Key.ALT_LEFT));
         c.add(new Command("exit", x -> exit(), "Exit"));
         c.add(new Command("tab", x -> onTab(), "Next"));
         c.add(new Command("row-indexes", this::rowIndexes, "Switch row indexes on or off"));
@@ -389,7 +396,7 @@ public class ConsoleTableViewer<T> {
     private ImmutableList<String> getHeader() {
         List<String> header = new ArrayList<>();
         header.add(Utils.colorTextLine(title, TITLE_COLOR, consoleColumns));
-        header.addAll(TablePrinter.headerToConsole(getTable(), settings.isShowRowIndexes()));
+        header.addAll(TablePrinter.headerToConsole(table, getColumnPage(), consoleColumns, settings.isShowRowIndexes()));
         return ImmutableList.of(header);
     }
 
@@ -399,13 +406,16 @@ public class ConsoleTableViewer<T> {
     }
 
     private ImmutableList<String> getPage() {
-        ImmutableList<ImmutableList<String>> pages = TablePrinter
-                .dataToConsole(getTable(), focus, settings.isShowRowIndexes())
+        ImmutableList<ImmutableList<Integer>> pageIndexes = ImmutableList.tabulate(table.getRowCount(), x -> x)
                 .sliding(getLinesPerPage(getHeader().size(), getFooter().size()));
 
-        if (!pages.isEmpty()) {
-            int page = (int) Math.round(Math.floor((double) focus.getRow() / (double) getLinesPerPage(getHeader().size(), getFooter().size())));
-            return alignPage(pages.get(page), getHeader().size(), getFooter().size());
+        if (!pageIndexes.isEmpty()) {
+            int pageIndex = (int) Math.round(Math.floor((double) focus.getRow() / (double) getLinesPerPage(getHeader().size(), getFooter().size())));
+            ImmutableList<Integer> p = pageIndexes.get(pageIndex);
+            RangeInt visibleRows = new RangeInt(p.get(0), p.get(p.size() - 1) + 1);
+            ImmutableList<String> page = TablePrinter
+                    .dataToConsole(table, focus, visibleRows, getColumnPage(), consoleColumns, settings.isShowRowIndexes());
+            return alignPage(page, getHeader().size(), getFooter().size());
         } else {
             return alignPage(ImmutableList.from(), getHeader().size(), getFooter().size());
         }
@@ -423,5 +433,50 @@ public class ConsoleTableViewer<T> {
 
     private String cursor() {
         return ConsoleColor.WHITE_B + " " + ConsoleColor.RESET;
+    }
+
+    private ImmutableList<RangeInt> columnPages() {
+        List<RangeInt> ranges = new ArrayList<>();
+        int start = 0;
+        int end = 0;
+        do {
+            int length = 0;
+            for (int i = start; i < table.getColCount(); i++) {
+                length += table.fieldSize(i) + Const.COL_SEPARATOR.length();
+                if (length < consoleColumns) {
+                    end++;
+                }
+            }
+            if (end == start) {
+                end++;
+            }
+            ranges.add(new RangeInt(start, end));
+            start = end;
+        } while(end < table.getColCount());
+        return ImmutableList.of(ranges);
+    }
+
+    private RangeInt getColumnPage() {
+        ImmutableList<RangeInt> pages = columnPages();
+        if (columnPage < pages.size()) {
+            return pages.get(columnPage);
+
+        } else {
+            return new RangeInt(0, 0);
+        }
+    }
+
+    private void pageRight() {
+        if (getColumnPage().getEnd() < table.getColCount()) {
+            columnPage++;
+            setFocus(new Focus(focus.getRow(), getColumnPage().getStart()));
+        }
+    }
+
+    private void pageLeft() {
+        if (columnPage > 0) {
+            columnPage--;
+            setFocus(new Focus(focus.getRow(), getColumnPage().getStart()));
+        }
     }
 }

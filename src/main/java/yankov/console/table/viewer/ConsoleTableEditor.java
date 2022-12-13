@@ -221,8 +221,7 @@ public class ConsoleTableEditor extends ConsoleTableViewer<String> {
                     String value = (String) contents.getTransferData(DataFlavor.stringFlavor);
                     deleteCellValue();
                     setTable(getTable().withCell(CellFactory.createStringCell(value), getFocus().getRow(), getFocus().getCol()));
-                } catch (UnsupportedFlavorException | IOException ex) {
-                    // ignore
+                } catch (UnsupportedFlavorException | IOException ignored) {
                 }
             }
         }
