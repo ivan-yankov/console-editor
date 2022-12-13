@@ -3,6 +3,7 @@ package yankov.console.factory;
 import yankov.console.Const;
 import yankov.console.table.Cell;
 import yankov.jutils.functional.ImmutableList;
+import yankov.jutils.functional.tuples.Tuple;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -28,17 +29,21 @@ public class DataFactory {
         int frontAlign = firstDayOfMonth.getDayOfWeek().getValue() - 1;
         int endAlign = numberOfDaysInWeek - lastDayOfMonth.getDayOfWeek().getValue();
 
-        List<LocalDate> monthDays = new ArrayList<>();
-        for (int i = 0; i < frontAlign; i++) {
-            monthDays.add(Const.INVALID_DATE);
+        List<Tuple<LocalDate, Boolean>> monthDays = new ArrayList<>();
+        for (int i = frontAlign; i > 0; i--) {
+            monthDays.add(new Tuple<>(firstDayOfMonth.minusDays(i), false));
         }
         for (int i = 0; i < firstDayOfMonth.lengthOfMonth(); i++) {
-            monthDays.add(firstDayOfMonth.plusDays(i));
+            monthDays.add(new Tuple<>(firstDayOfMonth.plusDays(i), true));
         }
         for (int i = 0; i < endAlign; i++) {
-            monthDays.add(Const.INVALID_DATE);
+            monthDays.add(new Tuple<>(lastDayOfMonth.plusDays(i + 1), false));
         }
 
-        return ImmutableList.of(monthDays).stream().map(CellFactory::createDateCell).toList().sliding(numberOfDaysInWeek);
+        return ImmutableList.of(monthDays)
+                .stream()
+                .map(x -> CellFactory.createDateCell(x._1(), x._2()))
+                .toList()
+                .sliding(numberOfDaysInWeek);
     }
 }

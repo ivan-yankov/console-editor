@@ -1,13 +1,11 @@
 package yankov.console.table.viewer;
 
-import yankov.console.Const;
 import yankov.console.factory.DataFactory;
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.table.Table;
 
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -34,10 +32,8 @@ public class ConsoleDateSelector extends ConsoleTableViewer<LocalDate> {
     @Override
     protected void onEnter() {
         LocalDate value = getTable().getCell(getFocus().getRow(), getFocus().getCol()).getValue();
-        if (!value.equals(Const.INVALID_DATE)) {
-            select.accept(value);
-            setMode(Mode.EXIT);
-        }
+        select.accept(value);
+        setMode(Mode.EXIT);
     }
 
     @Override

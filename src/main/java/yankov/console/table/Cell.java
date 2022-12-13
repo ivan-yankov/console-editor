@@ -8,30 +8,40 @@ public class Cell<T> {
     private final T value;
     private final boolean quotesWrapped;
     private final Function<T, String> printValue;
+    private final String color;
 
-    public Cell(T value, boolean quotesWrapped, Function<T, String> printValue) {
+    public Cell(T value, boolean quotesWrapped, Function<T, String> printValue, String color) {
         this.value = value;
         this.quotesWrapped = quotesWrapped;
         this.printValue = printValue;
+        this.color = color;
+    }
+
+    public Cell(T value, boolean quotesWrapped, Function<T, String> printValue) {
+        this(value, quotesWrapped, printValue, "");
     }
 
     public T getValue() {
         return value;
     }
 
-    public Cell<T> withValue(T newValue) {
-        return new Cell<>(newValue, quotesWrapped, printValue);
+    public String getColor() {
+        return color;
     }
 
     public String toConsoleString() {
-        return printValue.apply(value);
+        return print();
     }
 
     public String toCsvString() {
         if (quotesWrapped) {
-            return Const.QUOTES + printValue.apply(value) + Const.QUOTES;
+            return Const.QUOTES + print() + Const.QUOTES;
         } else {
-            return printValue.apply(value);
+            return print();
         }
+    }
+
+    private String print() {
+        return printValue.apply(value);
     }
 }

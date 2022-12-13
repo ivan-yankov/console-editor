@@ -1,6 +1,5 @@
 package yankov.console.factory;
 
-import yankov.console.Const;
 import yankov.console.table.Cell;
 import yankov.console.table.Table;
 import yankov.console.table.viewer.TableColumnsMismatchException;
@@ -18,7 +17,7 @@ public class TableFactory {
 
     public static Table<LocalDate> createDateTable(ImmutableList<Cell<String>> header,
                                                    ImmutableList<ImmutableList<Cell<LocalDate>>> data) {
-        return Table.from(header, data, () -> CellFactory.createDateCell(Const.INVALID_DATE))
+        return Table.from(header, data, () -> null)
                 .getRight()
                 .orElseThrow(TableColumnsMismatchException::new);
     }

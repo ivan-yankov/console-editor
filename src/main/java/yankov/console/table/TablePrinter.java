@@ -46,8 +46,7 @@ public class TablePrinter {
         for (int i = visibleColumns.getStart(); i < visibleColumns.getEnd(); i++) {
             String value = printConsoleCellValue(
                     table.getHeader().get(i).toConsoleString(),
-                    Math.min(table.fieldSize(i), consoleColumns),
-                    false
+                    Math.min(table.fieldSize(i), consoleColumns)
             );
             header.add(value);
         }
@@ -72,10 +71,13 @@ public class TablePrinter {
             for (int j = visibleColumns.getStart(); j < visibleColumns.getEnd(); j++) {
                 String value = printConsoleCellValue(
                         table.getCell(i, j).toConsoleString(),
-                        Math.min(table.fieldSize(j), consoleColumns),
-                        focus.isValid() && i == focus.getRow() && j == focus.getCol()
+                        Math.min(table.fieldSize(j), consoleColumns)
                 );
-                row.add(value);
+                boolean focused = focus.isValid() && i == focus.getRow() && j == focus.getCol();
+                String coloredValue = focused
+                        ? Utils.colorText(value, FOCUS_COLOR)
+                        : Utils.colorText(value, table.getCell(i, j).getColor());
+                row.add(coloredValue);
             }
             String rowStr = String.join(Const.COL_SEPARATOR, row);
             if (withRowIndexes) {
@@ -98,12 +100,11 @@ public class TablePrinter {
         }
     }
 
-    private static String printConsoleCellValue(String s, int fieldSize, boolean focused) {
+    private static String printConsoleCellValue(String s, int fieldSize) {
         String value = trimCellValue(s, fieldSize);
-        String text = StringUtils.containsLetter(value)
+        return StringUtils.containsLetter(value)
                 ? value + StringUtils.fill(fieldSize - value.length(), ' ')
                 : String.format("%" + fieldSize + "s", value);
-        return focused ? FOCUS_COLOR + text + ConsoleColor.RESET : text;
     }
 
     private static String trimCellValue(String s, int size) {

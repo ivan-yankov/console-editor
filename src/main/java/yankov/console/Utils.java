@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Utils {
     public static String colorText(String s, String color) {
-        return color.isEmpty() ? ConsoleColor.RESET + s + ConsoleColor.RESET : color + s + ConsoleColor.RESET;
+        return color.isEmpty() ? s : color + s + ConsoleColor.RESET;
     }
 
     public static String colorTextLine(String s, String color, int lineLength) {
@@ -21,11 +21,7 @@ public class Utils {
     }
 
     public static String printDayFromDate(LocalDate date) {
-        if (date.equals(Const.INVALID_DATE)) {
-            return "";
-        } else {
-            return Integer.toString(date.getDayOfMonth());
-        }
+        return Integer.toString(date.getDayOfMonth());
     }
 
     public static LocalDate firstDayOfCurrentMonth() {

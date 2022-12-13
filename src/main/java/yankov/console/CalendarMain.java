@@ -3,6 +3,7 @@ package yankov.console;
 import yankov.args.ProgramArgumentsParser;
 import yankov.console.factory.ConsoleTableFactory;
 import yankov.console.operations.ConsoleOperations;
+import yankov.console.table.viewer.ConsoleDateSelector;
 
 public class CalendarMain {
     public static void main(String[] args) {
@@ -14,14 +15,15 @@ public class CalendarMain {
         int lines = Integer.parseInt(appArgs.getConsoleLines());
         int columns = Integer.parseInt(appArgs.getConsoleColumns());
 
-        ConsoleTableFactory.createConsoleDateSelector(
+        ConsoleDateSelector calendar = ConsoleTableFactory.createConsoleDateSelector(
                 Utils.firstDayOfCurrentMonth(),
                 lines,
                 columns,
                 date -> {
                 },
                 consoleOperations
-        ).show();
+        );
+        calendar.show();
 
         consoleOperations.clearConsole();
 
