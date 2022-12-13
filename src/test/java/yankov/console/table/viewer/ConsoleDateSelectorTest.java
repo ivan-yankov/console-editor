@@ -15,7 +15,6 @@ import java.util.List;
 
 import static yankov.console.helpers.TestHelpers.listOf;
 
-@Ignore
 public class ConsoleDateSelectorTest {
     @Test
     public void show() {
