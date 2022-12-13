@@ -258,6 +258,10 @@ public class ConsoleTableViewer<T> {
         return commonPart.toString();
     }
 
+    protected boolean showTitle() {
+        return true;
+    }
+
     private ImmutableList<Command> commands() {
         List<Command> c = new ArrayList<>();
 
@@ -381,6 +385,19 @@ public class ConsoleTableViewer<T> {
                 .accept(parameters);
     }
 
+    private ImmutableList<String> getHeader() {
+        if (getMode() == Mode.HELP) {
+            return ImmutableList.from();
+        }
+
+        List<String> header = new ArrayList<>();
+        if (showTitle()) {
+            header.add(Utils.colorTextLine(title, TITLE_COLOR, consoleColumns));
+        }
+        header.addAll(TablePrinter.headerToConsole(table, getColumnPage(), consoleColumns, settings.isShowRowIndexes()));
+        return ImmutableList.of(header);
+    }
+
     private ImmutableList<String> getFooter() {
         if (getMode() == Mode.HELP || showFooter()) {
             return ImmutableList.from(
@@ -390,18 +407,7 @@ public class ConsoleTableViewer<T> {
             );
         }
 
-        return ImmutableList.from();
-    }
-
-    private ImmutableList<String> getHeader() {
-        if (getMode() == Mode.HELP) {
-            return ImmutableList.from();
-        }
-
-        List<String> header = new ArrayList<>();
-        header.add(Utils.colorTextLine(title, TITLE_COLOR, consoleColumns));
-        header.addAll(TablePrinter.headerToConsole(table, getColumnPage(), consoleColumns, settings.isShowRowIndexes()));
-        return ImmutableList.of(header);
+        return ImmutableList.from("");
     }
 
     private String getModeString() {

@@ -20,6 +20,11 @@ public class ConsoleMenu extends ConsoleTableViewer<Command> {
     }
 
     @Override
+    protected boolean showTitle() {
+        return false;
+    }
+
+    @Override
     protected boolean showFooter() {
         return false;
     }
