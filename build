@@ -1,0 +1,7 @@
+this=$PWD
+cd ../arg-parser && ./build && cd $this &&
+cd ../jutils && ./build && cd $this &&
+cd ../raw-console-input && ./build && cd $this &&
+
+mvn clean compile package install &&
+mvn install:install-file -Dfile=target/console-utils-assembly-latest.jar -DgroupId=yankov -DartifactId=console-utils-assembly -Dversion=latest -Dpackaging=jar
