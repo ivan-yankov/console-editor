@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>yankov</groupId>
-            <artifactId>jutils</artifactId>
+            <artifactId>jfp</artifactId>
             <version>latest</version>
         </dependency>
 

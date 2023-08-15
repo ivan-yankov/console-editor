@@ -1,6 +1,6 @@
 this=$PWD
 cd ../arg-parser && ./build && cd $this &&
-cd ../jutils && ./build && cd $this &&
+cd ../jfp && ./build && cd $this &&
 cd ../raw-console-input && ./build && cd $this &&
 
 mvn clean compile package install &&
