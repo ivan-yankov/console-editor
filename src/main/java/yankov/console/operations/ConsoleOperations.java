@@ -3,7 +3,7 @@ package yankov.console.operations;
 import yankov.console.ConsoleReader;
 import yankov.console.Key;
 import yankov.console.RawConsoleInput;
-import yankov.jutils.functional.Either;
+import yankov.jfp.structures.Either;
 
 import java.io.IOException;
 import java.util.function.Supplier;

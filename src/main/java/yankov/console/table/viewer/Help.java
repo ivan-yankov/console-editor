@@ -2,10 +2,10 @@ package yankov.console.table.viewer;
 
 import yankov.console.ConsoleColor;
 import yankov.console.model.Command;
-import yankov.jutils.StringUtils;
-import yankov.jutils.functional.ImmutableList;
+import yankov.jfp.utils.StringUtils;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class Help {
     private static final String HELP_CMD_COLOR = ConsoleColor.LIGHT_YELLOW;
@@ -15,7 +15,7 @@ public class Help {
     public Help() {
     }
 
-    public static ImmutableList<String> getHelp(ImmutableList<Command> commands) {
+    public static List<String> getHelp(List<Command> commands) {
         int nameFieldSize = commands
                 .stream()
                 .map(x -> x.getName().length())

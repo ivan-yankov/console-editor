@@ -2,8 +2,7 @@ package yankov.console.table;
 
 import yankov.console.Const;
 import yankov.console.factory.CellFactory;
-import yankov.jutils.functional.Either;
-import yankov.jutils.functional.ImmutableList;
+import yankov.jfp.structures.Either;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.Optional;
 public class TableParser {
     public static Either<String, Table<String>> fromCsv(String csv) {
         if (csv.isEmpty()) {
-            return Either.right(Table.empty(CellFactory::createEmptyStringCell));
+            return Either.rightOf(Table.empty(CellFactory::createEmptyStringCell));
         }
 
         String[] csvLines = csv.split(Const.NEW_LINE);
@@ -21,7 +20,7 @@ public class TableParser {
         List<String> errors = new ArrayList<>();
 
         for (int i = 0; i < csvLines.length; i++) {
-            Optional<ImmutableList<Cell<String>>> parsed = parseCsvLine(csvLines[i].trim());
+            Optional<List<Cell<String>>> parsed = parseCsvLine(csvLines[i].trim());
             if (parsed.isPresent()) {
                 data.add(parsed.get());
             } else {
@@ -30,21 +29,21 @@ public class TableParser {
         }
 
         if (!errors.isEmpty()) {
-            return Either.left(String.join(Const.NEW_LINE, errors));
+            return Either.leftOf(String.join(Const.NEW_LINE, errors));
         }
 
         if (!data.isEmpty()) {
             return Table.from(
-                    ImmutableList.of(data.get(0)),
-                    ImmutableList.fromList2d(data.subList(1, data.size())),
+                    data.get(0),
+                    data.subList(1, data.size()),
                     CellFactory::createEmptyStringCell
             );
         } else {
-            return Either.left("Unable to parse CSV table");
+            return Either.leftOf("Unable to parse CSV table");
         }
     }
 
-    public static Optional<ImmutableList<Cell<String>>> parseCsvLine(String line) {
+    public static Optional<List<Cell<String>>> parseCsvLine(String line) {
         List<Cell<String>> cells = new ArrayList<>();
 
         String current = line;
@@ -83,6 +82,6 @@ public class TableParser {
             cells.add(CellFactory.createEmptyStringCell());
         }
 
-        return Optional.of(ImmutableList.of(cells));
+        return Optional.of(List.copyOf(cells));
     }
 }

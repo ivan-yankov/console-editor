@@ -4,9 +4,7 @@ import yankov.console.ConsoleColor;
 import yankov.console.Const;
 import yankov.console.Utils;
 import yankov.console.table.viewer.Focus;
-import yankov.jutils.StringUtils;
-import yankov.jutils.functional.ImmutableList;
-import yankov.jutils.functional.RangeInt;
+import yankov.jfp.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +33,18 @@ public class TablePrinter {
         return header + Const.NEW_LINE + data;
     }
 
-    public static <T> ImmutableList<String> headerToConsole(Table<T> table,
-                                                            RangeInt visibleColumns,
+    public static <T> List<String> headerToConsole(Table<T> table,
+                                                            List<Integer> visibleColumns,
                                                             int consoleColumns,
                                                             boolean withRowIndexes) {
-        if (table.getHeader().isEmpty()) return ImmutableList.from();
+        if (table.getHeader().isEmpty()) return List.of();
 
         List<String> result = new ArrayList<>();
         List<String> header = new ArrayList<>();
-        for (int i = visibleColumns.getStart(); i < visibleColumns.getEnd(); i++) {
+        for (int visibleColumn : visibleColumns) {
             String value = printConsoleCellValue(
-                    table.getHeader().get(i).toConsoleString(),
-                    Math.min(table.fieldSize(i), consoleColumns)
+                    table.getHeader().get(visibleColumn).toConsoleString(),
+                    Math.min(table.fieldSize(visibleColumn), consoleColumns)
             );
             header.add(value);
         }
@@ -56,19 +54,19 @@ public class TablePrinter {
         }
         result.add(Utils.colorText(headerStr, HEADER_COLOR));
 
-        return ImmutableList.of(result);
+        return List.copyOf(result);
     }
 
-    public static <T> ImmutableList<String> dataToConsole(Table<T> table,
+    public static <T> List<String> dataToConsole(Table<T> table,
                                                           Focus focus,
-                                                          RangeInt visibleRows,
-                                                          RangeInt visibleColumns,
+                                                          List<Integer> visibleRows,
+                                                          List<Integer> visibleColumns,
                                                           int consoleColumns,
                                                           boolean withRowIndexes) {
         List<String> result = new ArrayList<>();
-        for (int i = visibleRows.getStart(); i < visibleRows.getEnd(); i++) {
+        for (int i : visibleRows) {
             List<String> row = new ArrayList<>();
-            for (int j = visibleColumns.getStart(); j < visibleColumns.getEnd(); j++) {
+            for (int j : visibleColumns) {
                 String value = printConsoleCellValue(
                         table.getCell(i, j).toConsoleString(),
                         Math.min(table.fieldSize(j), consoleColumns)
@@ -86,7 +84,7 @@ public class TablePrinter {
             result.add(rowStr);
         }
 
-        return ImmutableList.of(result);
+        return List.copyOf(result);
     }
 
     private static String rowIndex(int rowCount, int index) {

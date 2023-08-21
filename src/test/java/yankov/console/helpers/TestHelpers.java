@@ -6,7 +6,6 @@ import yankov.console.table.Table;
 import yankov.console.table.TableParser;
 import yankov.console.table.viewer.ConsoleTableViewer;
 import yankov.console.table.viewer.Mode;
-import yankov.jutils.functional.ImmutableList;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -120,7 +119,7 @@ public class TestHelpers {
         }
     }
 
-    public static ImmutableList<String> listOf(String... s) {
-        return ImmutableList.from(s);
+    public static List<String> listOf(String... s) {
+        return List.of(s);
     }
 }

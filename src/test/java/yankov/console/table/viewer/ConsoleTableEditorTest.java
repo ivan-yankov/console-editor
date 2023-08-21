@@ -3,7 +3,6 @@ package yankov.console.table.viewer;
 import org.junit.Test;
 import yankov.console.helpers.TestData;
 import yankov.console.helpers.TestHelpers;
-import yankov.jutils.functional.ImmutableList;
 
 import java.util.List;
 
@@ -12,7 +11,7 @@ import static yankov.console.helpers.TestHelpers.listOf;
 public class ConsoleTableEditorTest {
     @Test
     public void show() {
-        List<TestData> testData = ImmutableList.from(
+        List<TestData> testData = List.of(
                 new TestData("test.csv", "row-up", listOf("exit"), listOf("row-up", "exit")),
                 new TestData("test.csv", "row-down", listOf("exit"), listOf("row-down", "exit")),
                 new TestData("test.csv", "row-insert", listOf("exit"), listOf("row-insert", "exit")),

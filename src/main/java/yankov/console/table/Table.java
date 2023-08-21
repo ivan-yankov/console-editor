@@ -3,47 +3,48 @@ package yankov.console.table;
 import yankov.console.Const;
 import yankov.console.factory.CellFactory;
 import yankov.console.table.viewer.TableColumnsMismatchException;
-import yankov.jutils.functional.Either;
-import yankov.jutils.functional.ImmutableList;
+import yankov.jfp.structures.Either;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static yankov.jfp.utils.ListUtils.*;
+
 public class Table<T> {
-    private final ImmutableList<Cell<String>> header;
-    private final ImmutableList<ImmutableList<Cell<T>>> data;
+    private final List<Cell<String>> header;
+    private final List<List<Cell<T>>> data;
     private final Supplier<Cell<T>> emptyCell;
 
-    private Table(ImmutableList<Cell<String>> header,
-                  ImmutableList<ImmutableList<Cell<T>>> data,
+    private Table(List<Cell<String>> header,
+                  List<List<Cell<T>>> data,
                   Supplier<Cell<T>> emptyCell) {
         this.header = header;
         this.data = data;
         this.emptyCell = emptyCell;
     }
 
-    public static <A> Either<String, Table<A>> from(ImmutableList<Cell<String>> header,
-                                                    ImmutableList<ImmutableList<Cell<A>>> data,
+    public static <A> Either<String, Table<A>> from(List<Cell<String>> header,
+                                                    List<List<Cell<A>>> data,
                                                     Supplier<Cell<A>> emptyCell) {
         List<String> errors = validate(header.size(), data);
         if (errors.isEmpty()) {
-            return Either.right(new Table<>(header, data, emptyCell));
+            return Either.rightOf(new Table<>(header, data, emptyCell));
         } else {
-            return Either.left(String.join(Const.NEW_LINE, errors));
+            return Either.leftOf(String.join(Const.NEW_LINE, errors));
         }
     }
 
     public static <A> Table<A> empty(Supplier<Cell<A>> emptyCell) {
-        return new Table<>(ImmutableList.from(), ImmutableList.from(), emptyCell);
+        return new Table<>(List.of(), List.of(), emptyCell);
     }
 
-    private static <A> List<String> validate(int n, ImmutableList<ImmutableList<Cell<A>>> data) {
+    private static <A> List<String> validate(int n, List<List<Cell<A>>> data) {
         List<String> errors = new ArrayList<>();
-        data.zipWithIndex().stream()
-                .filter(x -> x._1().size() != n)
-                .forEach(x -> errors.add(wrongNumberOfColumnsMessage(x._2() + 2, n, x._1().size())));
+        zipWithIndex(data).stream()
+            .filter(x -> x._1().size() != n)
+            .forEach(x -> errors.add(wrongNumberOfColumnsMessage(x._2() + 2, n, x._1().size())));
         return errors;
     }
 
@@ -51,11 +52,11 @@ public class Table<T> {
         return "Line " + row + " of the csv file contains wrong number of columns. Expected " + expected + " actual " + actual;
     }
 
-    public ImmutableList<Cell<String>> getHeader() {
+    public List<Cell<String>> getHeader() {
         return header;
     }
 
-    public ImmutableList<ImmutableList<Cell<T>>> getData() {
+    public List<List<Cell<T>>> getData() {
         return data;
     }
 
@@ -63,15 +64,15 @@ public class Table<T> {
         return data.get(row).get(col);
     }
 
-    public Either<String, Table<T>> withData(ImmutableList<ImmutableList<Cell<T>>> data) {
+    public Either<String, Table<T>> withData(List<List<Cell<T>>> data) {
         return from(header, data, emptyCell);
     }
 
     public Table<T> withCell(Cell<T> cell, int row, int col) {
         return new Table<>(
-                header,
-                data.updateElement(row, data.get(row).updateElement(col, cell)),
-                emptyCell
+            header,
+            updateElement(data, row, updateElement(data.get(row), col, cell)),
+            emptyCell
         );
     }
 
@@ -81,9 +82,9 @@ public class Table<T> {
 
     public Table<T> withHeaderValue(String value, int index) {
         return new Table<>(
-                header.updateElement(index, CellFactory.createStringCell(value)),
-                data,
-                emptyCell
+            updateElement(header, index, CellFactory.createStringCell(value)),
+            data,
+            emptyCell
         );
     }
 
@@ -101,46 +102,44 @@ public class Table<T> {
 
     public int fieldSize(int col) {
         int dataLongestField = data
-                .stream()
-                .map(row -> row.get(col).toConsoleString())
-                .map(String::length)
-                .max(Comparator.naturalOrder())
-                .orElse(0);
+            .stream()
+            .map(row -> row.get(col).toConsoleString())
+            .map(String::length)
+            .max(Comparator.naturalOrder())
+            .orElse(0);
         int result = Math.max(header.get(col).getValue().length(), dataLongestField);
         return result == 0 ? 1 : result;
     }
 
     public Table<T> swapRows(int i, int j) {
         return new Table<>(
-                header,
-                data.swapElements(i, j),
-                emptyCell
+            header,
+            swapElements(data, i, j),
+            emptyCell
         );
     }
 
     public Table<T> swapColumns(int i, int j) {
         return new Table<>(
-                header.swapElements(i, j),
-                data.stream().map(r -> r.swapElements(i, j)).toList(),
-                emptyCell
+            swapElements(header, i, j),
+            data.stream().map(r -> swapElements(r, i, j)).toList(),
+            emptyCell
         );
     }
 
     public Table<T> insertEmptyRow(int index) {
         Table<T> table = isEmpty()
-                ? insertEmptyColumn(0)
-                : this;
-        return table.withData(
-                table.getData()
-                        .insert(index, ImmutableList.fill(table.getColCount(), emptyCell.get()))
-        ).getRight().orElseThrow(TableColumnsMismatchException::new);
+            ? insertEmptyColumn(0)
+            : this;
+        return table.withData(insertElement(table.getData(), index, listFill(table.getColCount(), emptyCell.get())))
+            .getRight().orElseThrow(TableColumnsMismatchException::new);
     }
 
     public Table<T> insertEmptyColumn(int index) {
         return new Table<>(
-                header.insert(index, CellFactory.createEmptyStringCell()),
-                data.stream().map(r -> r.insert(index, emptyCell.get())).toList(),
-                emptyCell
+            insertElement(header, index, CellFactory.createEmptyStringCell()),
+            data.stream().map(r -> insertElement(r, index, emptyCell.get())).toList(),
+            emptyCell
         );
     }
 
@@ -150,9 +149,9 @@ public class Table<T> {
         }
 
         return new Table<>(
-                header,
-                data.removeElement(row),
-                emptyCell
+            header,
+            removeElement(data, row),
+            emptyCell
         );
     }
 
@@ -162,9 +161,9 @@ public class Table<T> {
         }
 
         return new Table<>(
-                header.removeElement(col),
-                data.stream().map(r -> r.removeElement(col)).toList(),
-                emptyCell
+            removeElement(header, col),
+            data.stream().map(r -> removeElement(r, col)).toList(),
+            emptyCell
         );
     }
 

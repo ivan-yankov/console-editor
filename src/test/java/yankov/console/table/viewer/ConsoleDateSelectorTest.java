@@ -1,14 +1,12 @@
 package yankov.console.table.viewer;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import yankov.console.Utils;
 import yankov.console.factory.DataFactory;
 import yankov.console.factory.TableFactory;
 import yankov.console.helpers.TestData;
 import yankov.console.helpers.TestHelpers;
-import yankov.jutils.functional.ImmutableList;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,7 +20,7 @@ public class ConsoleDateSelectorTest {
         LocalDate firstDayOfMonth = Utils.firstDayOfMonth(date);
         LocalDate expectedDate = LocalDate.of(2022, 11, 3);
 
-        List<TestData> testData = ImmutableList.from(
+        List<TestData> testData = List.of(
                 new TestData("test.csv", "accept", listOf("exit"), listOf("right", "exit")),
                 new TestData("test.csv", "next-month", listOf("exit"), listOf("page-down", "exit")),
                 new TestData("test.csv", "prev-month", listOf("exit"), listOf("page-up", "exit"))

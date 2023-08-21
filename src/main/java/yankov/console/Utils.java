@@ -1,7 +1,7 @@
 package yankov.console;
 
 import yankov.console.model.Command;
-import yankov.jutils.StringUtils;
+import yankov.jfp.utils.StringUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

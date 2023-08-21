@@ -8,15 +8,17 @@ import yankov.console.table.*;
 import yankov.console.table.viewer.ConsoleDateSelector;
 import yankov.console.table.viewer.ConsoleMenu;
 import yankov.console.table.viewer.ConsoleTableEditor;
-import yankov.jutils.functional.Either;
-import yankov.jutils.functional.ImmutableList;
-import yankov.jutils.functional.tuples.Tuple;
+import yankov.jfp.structures.Either;
+import yankov.jfp.structures.tuples.Tuple;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static yankov.jfp.utils.ListUtils.*;
 
 public class ConsoleTableFactory {
     public static ConsoleDateSelector createConsoleDateSelector(
@@ -57,18 +59,18 @@ public class ConsoleTableFactory {
                     consoleOperations,
                     fileOperations);
             editor.setTitle(title);
-            return Either.right(editor);
+            return Either.rightOf(editor);
         }
-        return Either.left(table.getLeft().orElse("Unable to create console table editor"));
+        return Either.leftOf(table.getLeft().orElse("Unable to create console table editor"));
     }
 
     public static ConsoleMenu createConsoleMenu(
-            ImmutableList<Tuple<String, ImmutableList<Command>>> commands,
+            List<Tuple<String, List<Command>>> commands,
             int consoleLines,
             int consoleColumns,
             String title,
             ConsoleOperations consoleOperations) {
-        ImmutableList<Cell<String>> header = commands.stream().map(x -> new Cell<>(x._1(), false, y -> y)).toList();
+        List<Cell<String>> header = commands.stream().map(x -> new Cell<>(x._1(), false, y -> y)).toList();
         int numberOfRows = commands.stream().map(x -> x._2().size()).max(Comparator.naturalOrder()).orElse(0);
         int numberOfColumns = header.size();
         Command[][] tableData = new Command[numberOfRows][numberOfColumns];
@@ -85,8 +87,8 @@ public class ConsoleTableFactory {
         Supplier<Cell<Command>> emptyCommandCell = () -> new Cell<>(Utils.doNothing(), false, Command::getDescription);
 
         Table<Command> table = Table.from(
-                ImmutableList.of(header),
-                ImmutableList.fromArray2d(tableData)
+                header,
+                fromArray2d(tableData)
                         .stream()
                         .map(x -> x.stream().map(y -> new Cell<>(y, false, Command::getDescription)).toList())
                         .toList(),

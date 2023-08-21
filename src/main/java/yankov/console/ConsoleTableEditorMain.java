@@ -6,7 +6,7 @@ import yankov.console.operations.ConsoleOperations;
 import yankov.console.operations.FileOperations;
 import yankov.console.table.viewer.ConsoleTableEditor;
 import yankov.console.table.viewer.ConsoleTableViewer;
-import yankov.jutils.functional.Either;
+import yankov.jfp.structures.Either;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

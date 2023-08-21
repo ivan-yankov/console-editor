@@ -2,7 +2,7 @@ package yankov.console.table.viewer;
 
 import yankov.console.Key;
 import yankov.console.operations.ConsoleOperations;
-import yankov.jutils.functional.Either;
+import yankov.jfp.structures.Either;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

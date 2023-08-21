@@ -8,14 +8,16 @@ import yankov.console.model.Command;
 import yankov.console.operations.ConsoleOperations;
 import yankov.console.table.Table;
 import yankov.console.table.TablePrinter;
-import yankov.jutils.functional.ImmutableList;
-import yankov.jutils.functional.RangeInt;
+import yankov.jfp.structures.Range;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static yankov.jfp.utils.ListUtils.*;
 
 public class ConsoleTableViewer<T> {
     private static final String TITLE_COLOR = ConsoleColor.BLACK + ConsoleColor.DARK_GRAY_B;
@@ -214,8 +216,7 @@ public class ConsoleTableViewer<T> {
     protected void processInput(String input) {
         switch (getMode()) {
             case COMMAND:
-                ImmutableList<String> cmd = ImmutableList.from(input.split(" "))
-                        .stream()
+                List<String> cmd = Stream.of(input.split(" "))
                         .filter(x -> !x.isEmpty())
                         .toList();
                 if (!cmd.isEmpty()) {
@@ -235,7 +236,7 @@ public class ConsoleTableViewer<T> {
     }
 
     protected String inputHint(String s) {
-        ImmutableList<String> candidates = commands()
+        List<String> candidates = commands()
                 .stream()
                 .map(Command::getName)
                 .filter(x -> x.startsWith(s))
@@ -262,7 +263,7 @@ public class ConsoleTableViewer<T> {
         return true;
     }
 
-    private ImmutableList<Command> commands() {
+    private List<Command> commands() {
         List<Command> c = new ArrayList<>();
 
         c.add(new Command("help", x -> showHelp(), "Help", Key.F1));
@@ -284,7 +285,7 @@ public class ConsoleTableViewer<T> {
 
         c.addAll(additionalCommands());
 
-        return ImmutableList.of(c);
+        return List.copyOf(c);
     }
 
     private void exit() {
@@ -385,9 +386,9 @@ public class ConsoleTableViewer<T> {
                 .accept(parameters);
     }
 
-    private ImmutableList<String> getHeader() {
+    private List<String> getHeader() {
         if (getMode() == Mode.HELP) {
-            return ImmutableList.from();
+            return List.of();
         }
 
         List<String> header = new ArrayList<>();
@@ -395,19 +396,19 @@ public class ConsoleTableViewer<T> {
             header.add(Utils.colorTextLine(title, TITLE_COLOR, consoleColumns));
         }
         header.addAll(TablePrinter.headerToConsole(table, getColumnPage(), consoleColumns, settings.isShowRowIndexes()));
-        return ImmutableList.of(header);
+        return List.copyOf(header);
     }
 
-    private ImmutableList<String> getFooter() {
+    private List<String> getFooter() {
         if (getMode() == Mode.HELP || showFooter()) {
-            return ImmutableList.from(
+            return List.of(
                     Utils.colorTextLine(getHint(), HINT_COLOR, consoleColumns),
                     Utils.colorTextLine(getLogMessage(), LOG_COLOR, consoleColumns),
                     Utils.colorText(getModeString(), MODE_COLOR) + userInputProcessor.getUserInput() + cursor()
             );
         }
 
-        return ImmutableList.from("");
+        return List.of("");
     }
 
     private String getModeString() {
@@ -415,19 +416,22 @@ public class ConsoleTableViewer<T> {
         return m.replace("_", " ") + ": ";
     }
 
-    private ImmutableList<String> getPage() {
-        ImmutableList<ImmutableList<Integer>> pageIndexes = ImmutableList.tabulate(table.getRowCount(), x -> x)
-                .sliding(getLinesPerPage());
+    private List<String> getPage() {
+        List<List<Integer>> pageIndexes = sliding(
+            listTabulate(table.getRowCount(), x -> x),
+            getLinesPerPage(),
+            getLinesPerPage()
+        );
 
         if (!pageIndexes.isEmpty()) {
             int pageIndex = (int) Math.round(Math.floor((double) focus.getRow() / (double) getLinesPerPage()));
-            ImmutableList<Integer> p = pageIndexes.get(pageIndex);
-            RangeInt visibleRows = new RangeInt(p.get(0), p.get(p.size() - 1) + 1);
-            ImmutableList<String> page = TablePrinter
+            List<Integer> p = pageIndexes.get(pageIndex);
+            List<Integer> visibleRows = Range.of(p.get(0), p.get(p.size() - 1) + 1);
+            List<String> page = TablePrinter
                     .dataToConsole(table, focus, visibleRows, getColumnPage(), consoleColumns, settings.isShowRowIndexes());
             return alignPage(page);
         } else {
-            return alignPage(ImmutableList.from());
+            return alignPage(List.of());
         }
     }
 
@@ -435,17 +439,17 @@ public class ConsoleTableViewer<T> {
         return consoleLines - getHeader().size() - getFooter().size();
     }
 
-    private ImmutableList<String> alignPage(ImmutableList<String> page) {
+    private List<String> alignPage(List<String> page) {
         int n = getLinesPerPage() - page.size();
-        return page.appendAll(ImmutableList.fill(n, ""));
+        return appendAll(page, listFill(n, ""));
     }
 
     private String cursor() {
         return ConsoleColor.WHITE_B + " " + ConsoleColor.RESET;
     }
 
-    private ImmutableList<RangeInt> columnPages() {
-        List<RangeInt> ranges = new ArrayList<>();
+    private List<List<Integer>> columnPages() {
+        List<List<Integer>> ranges = new ArrayList<>();
         int start = 0;
         int end = 0;
         do {
@@ -459,33 +463,33 @@ public class ConsoleTableViewer<T> {
             if (end == start) {
                 end++;
             }
-            ranges.add(new RangeInt(start, end));
+            ranges.add(Range.of(start, end));
             start = end;
         } while(end < table.getColCount());
-        return ImmutableList.of(ranges);
+        return List.copyOf(ranges);
     }
 
-    private RangeInt getColumnPage() {
-        ImmutableList<RangeInt> pages = columnPages();
+    private List<Integer> getColumnPage() {
+        List<List<Integer>> pages = columnPages();
         if (columnPage < pages.size()) {
             return pages.get(columnPage);
-
         } else {
-            return new RangeInt(0, 0);
+            return List.of();
         }
     }
 
     private void pageRight() {
-        if (getColumnPage().getEnd() < table.getColCount()) {
+        List<Integer> p = getColumnPage();
+        if (p.get(p.size()-1) < table.getColCount()) {
             columnPage++;
-            setFocus(new Focus(focus.getRow(), getColumnPage().getStart()));
+            setFocus(new Focus(focus.getRow(), p.get(0)));
         }
     }
 
     private void pageLeft() {
         if (columnPage > 0) {
             columnPage--;
-            setFocus(new Focus(focus.getRow(), getColumnPage().getStart()));
+            setFocus(new Focus(focus.getRow(), getColumnPage().get(0)));
         }
     }
 }

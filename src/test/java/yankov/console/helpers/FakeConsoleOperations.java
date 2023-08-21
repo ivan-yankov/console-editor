@@ -3,7 +3,7 @@ package yankov.console.helpers;
 import yankov.console.Const;
 import yankov.console.Key;
 import yankov.console.operations.ConsoleOperations;
-import yankov.jutils.functional.Either;
+import yankov.jfp.structures.Either;
 
 import java.util.List;
 import java.util.Stack;
@@ -25,8 +25,8 @@ public class FakeConsoleOperations extends ConsoleOperations {
     public void setCommands(List<String> commands) {
         this.commands.clear();
         for (int i = commands.size() - 1; i >= 0; i--) {
-            this.commands.push(Either.right(Key.ENTER));
-            this.commands.push(Either.left(commands.get(i)));
+            this.commands.push(Either.rightOf(Key.ENTER));
+            this.commands.push(Either.leftOf(commands.get(i)));
         }
     }
 
